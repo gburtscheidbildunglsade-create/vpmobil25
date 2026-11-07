@@ -109,7 +109,6 @@
                 <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben">
             </div>
         </div>
-        <!-- HIER IST DER DIREKTE ONCLICK-BEFEHL, DER JETZT GARANTIERT GREIFT -->
         <button type="button" onclick="speichereZugang()" style="width: 100%; background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">ANMELDEN</button>
     </div>
 </div>
@@ -261,7 +260,6 @@
 
     function savePlaene() {
         localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
-        // Direkt in die Cloud jagen bei Änderung
         speichereDatenInCloud();
     }
 
@@ -400,6 +398,7 @@
     }
 
     function zeigePlan() {
+        if (!aktuellesObjekt) return;
         document.getElementById('planObjektTitel').innerText = aktuellesObjekt;
 
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
@@ -503,7 +502,7 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    // --- CLOUD SYNCHRONISATION (JSONBin.io) ---
+    // --- ECHTE CLOUD SYNCHRONISATION VIA JSONBin.io ---
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
 
@@ -515,10 +514,18 @@
             if (response.ok) {
                 let data = await response.json();
                 if (data.record && data.record.wochenPläne) {
-                    wochenPläne = data.record.wochenPläne;
-                    localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
-                    if (typeof zeigePlan === 'function' && aktuellesObjekt) {
-                        zeigePlan();
+                    var alterStand = JSON.stringify(wochenPläne);
+                    var neuerStand = JSON.stringify(data.record.wochenPläne);
+                    
+                    // Nur aktualisieren und re-rendern, wenn sich die Daten geändert haben
+                    if (alterStand !== neuerStand) {
+                        wochenPläne = data.record.wochenPläne;
+                        localStorage.setItem('vpmobil24_plaene', neuerStand);
+                        
+                        // Wenn der Plan-Screen geöffnet ist, Bild auf dem Schirm sofort aktualisieren
+                        if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
+                            zeigePlan();
+                        }
                     }
                 }
             }
@@ -544,10 +551,9 @@
         }
     }
 
-    // Direkt beim Start laden und alle 10 Sek synchronisieren
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
-        setInterval(ladeDatenAusCloud, 10000);
+        setInterval(ladeDatenAusCloud, 5000); // Alle 5 Sekunden abfragen für eine noch schnellere Abgleichung
     });
 </script>
 </body>
