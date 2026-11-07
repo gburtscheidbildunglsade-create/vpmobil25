@@ -89,12 +89,12 @@
         VpMobil24 Login
     </div>
 
-    <form onsubmit="speichereZugang(event); return false;" class="settings-container">
+    <div class="settings-container">
         <div class="settings-header-title">Zugangsdaten</div>
         <div class="settings-group">
             <div class="form-group">
                 <span class="form-label">Schulnummer</span>
-                <input type="text" id="inputSchulnummer" class="form-input" placeholder="Schulnummer eingeben" required>
+                <input type="text" id="inputSchulnummer" class="form-input" placeholder="Schulnummer eingeben">
             </div>
             <div class="form-group">
                 <span class="form-label">Benutzer-Rolle</span>
@@ -106,11 +106,11 @@
             </div>
             <div class="form-group">
                 <span class="form-label">Passwort</span>
-                <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben" required>
+                <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben">
             </div>
         </div>
-        <button type="submit" id="btnAnmelden" onclick="speichereZugang(event)" style="width: 100%; background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">ANMELDEN</button>
-    </form>
+        <button id="btnAnmelden" onclick="speichereZugang()" style="width: 100%; background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">ANMELDEN</button>
+    </div>
 </div>
 
 <!-- HAUPTMENÜ -->
@@ -260,6 +260,10 @@
 
     function savePlaene() {
         localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
+        // Cloud-Speicherung direkt triggern, wenn eine Funktion vorhanden ist
+        if (typeof speichereDatenInCloud === 'function') {
+            speichereDatenInCloud();
+        }
     }
 
     function zeigeScreen(screenId) {
@@ -268,20 +272,18 @@
         if (screenId === 'hauptmenueScreen') erstelleFavoritenRaster();
     }
 
-    function speichereZugang(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        
+    function speichereZugang() {
         var schulnr = document.getElementById('inputSchulnummer').value.trim();
         var rolle = document.getElementById('inputBenutzer').value.toLowerCase();
         var pass = document.getElementById('inputPasswort').value.trim();
 
-        if (schulnr === "20145862" && pass === "XcU55qtP" && (rolle === "admin" || rolle === "schueler" || rolle === "lehrer")) {
+        if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
             istEingeloggt = true;
-            istAdmin = (rolle === "admin");
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ' + rolle.toUpperCase() + '</small>';
-            alert("Erfolgreich angemeldet!");
+            istAdmin = true;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ADMIN</small>';
+            alert("Erfolgreich als Admin angemeldet!");
             zeigeScreen('hauptmenueScreen');
-            return false;
+            return;
         }
 
         if (schulnr.length > 0 && pass.length > 0) {
@@ -293,7 +295,6 @@
         } else {
             alert("Bitte Schulnummer und Passwort eingeben!");
         }
-        return false;
     }
 
     function abmelden() {
@@ -447,116 +448,4 @@
         }
 
         var fClass = d.redF ? "red-fach" : "";
-        var lClass = d.redL ? "red-lehrer" : "";
-        var rClass = d.redR ? "red-raum" : "";
-        var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
-
-        return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')">' +
-            hasInfo +
-            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '') + '</div>' +
-            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '') + '</div>' +
-            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '') + '</div>' +
-            '</div>';
-    }
-
-    function klickeZelle(cellKey) {
-        aktuellerCellKey = cellKey;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        var d = (wochenPläne[planKey] && wochenPläne[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
-
-        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stunde bearbeiten:";
-        
-        if (istAdmin) {
-            document.getElementById('adminBearbeitenArea').style.display = 'block';
-            document.getElementById('editFach').value = d.fach || '';
-            document.getElementById('editLehrer').value = d.lehrer || '';
-            document.getElementById('editRaum').value = d.raum || '';
-            document.getElementById('checkRedFach').checked = !!d.redF;
-            document.getElementById('checkRedLehrer').checked = !!d.redL;
-            document.getElementById('checkRedRaum').checked = !!d.redR;
-            document.getElementById('editInfo').value = d.info || '';
-        } else {
-            document.getElementById('adminBearbeitenArea').style.display = 'none';
-        }
-        document.getElementById('infoModal').style.display = 'flex';
-    }
-
-    function speichereEigenenPlanBlock() {
-        if (!aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
-
-        wochenPläne[planKey][aktuellerCellKey] = {
-            fach: document.getElementById('editFach').value,
-            lehrer: document.getElementById('editLehrer').value,
-            raum: document.getElementById('editRaum').value,
-            redF: document.getElementById('checkRedFach').checked,
-            redL: document.getElementById('checkRedLehrer').checked,
-            redR: document.getElementById('checkRedRaum').checked,
-            info: document.getElementById('editInfo').value
-        };
-
-        savePlaene();
-        closeModal();
-        zeigePlan();
-    }
-
-    function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
-
-    // Cloud-Konfiguration
-    var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
-    var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
-
-    async function ladeDatenAusCloud() {
-        try {
-            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
-            });
-            if (response.ok) {
-                let data = await response.json();
-                if (data.record && data.record.wochenPläne) {
-                    wochenPläne = data.record.wochenPläne;
-                    if (typeof klassenPasswoerter !== 'undefined' && data.record.klassenPasswoerter) {
-                        klassenPasswoerter = data.record.klassenPasswoerter;
-                    }
-                    if (typeof zeigePlan === 'function') zeigePlan();
-                }
-            }
-        } catch (e) {
-            console.error("Fehler beim Laden:", e);
-        }
-    }
-
-    async function speichereDatenInCloud() {
-        try {
-            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Master-Key": JSONBIN_MASTER_KEY
-                },
-                body: JSON.stringify({
-                    wochenPläne: typeof wochenPläne !== 'undefined' ? wochenPläne : {},
-                    klassenPasswoerter: typeof klassenPasswoerter !== 'undefined' ? klassenPasswoerter : {}
-                })
-            });
-        } catch (e) {
-            console.error("Fehler beim Speichern:", e);
-        }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        ladeDatenAusCloud();
-        setInterval(ladeDatenAusCloud, 10000);
-
-        if (typeof savePlaene === 'function') {
-            let originalSave = savePlaene;
-            savePlaene = function() {
-                originalSave();
-                speichereDatenInCloud();
-            };
-        }
-    });
-</script>
-</body>
-</html>
+        var lClass = d.
