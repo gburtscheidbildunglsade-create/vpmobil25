@@ -518,9 +518,9 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    // --- FEST EINGESTELLTE CLOUD SYNCHRONISATION (JSONBin.io) ---
+    // --- KORRIGIERTER MASTER-KEY & BIN-ID ---
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
-    var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKUO52Kh217dA4jw1NMpkZh1JKEfHAxzaBK";
+    var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
 
     async function ladeDatenAusCloud() {
         try {
@@ -550,7 +550,7 @@
 
     async function speichereDatenInCloud() {
         try {
-            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -561,6 +561,9 @@
                     klassenPasswoerter: {}
                 })
             });
+            if (!response.ok) {
+                console.error("Speichern fehlgeschlagen, Status:", response.status);
+            }
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
         }
