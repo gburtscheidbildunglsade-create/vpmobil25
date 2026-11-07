@@ -556,7 +556,8 @@ window.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
-</script>
+
+<script>
 var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
 var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
 
@@ -601,7 +602,7 @@ async function speichereDatenInCloud() {
 window.addEventListener('DOMContentLoaded', () => {
     ladeDatenAusCloud();
     setInterval(ladeDatenAusCloud, 10000); // Aktualisiert sich alle 10 Sekunden automatisch
-    
+
     if (typeof savePlaene === 'function') {
         let originalSave = savePlaene;
         savePlaene = function() {
@@ -610,5 +611,6 @@ window.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+</script>
 </body>
 </html>
