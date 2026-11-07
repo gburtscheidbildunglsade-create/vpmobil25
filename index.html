@@ -268,7 +268,9 @@
     var istAdmin = false;
     var aktuellerCellKey = null;
 
-    var wochenPläne = JSON.parse(localStorage.getItem('vpmobil24_plaene') || '{}');
+    // Lokalen Speicher leeren, damit frisch gestartet wird
+    localStorage.removeItem('vpmobil24_plaene');
+    var wochenPläne = {};
 
     function savePlaene() {
         localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
@@ -518,7 +520,7 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    // --- KORRIGIERTER MASTER-KEY & BIN-ID ---
+    // --- AKTUALISIERTER MASTER-KEY & BIN-ID ---
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
 
