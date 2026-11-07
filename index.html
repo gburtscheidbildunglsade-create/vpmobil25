@@ -82,7 +82,6 @@
 
         .action-btn { background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
 
-        /* OPTIMIERUNG FÜR DEN DRUCK */
         @media print {
             body { background-color: #fff; }
             .screen { display: none !important; }
@@ -184,7 +183,6 @@
             <span id="planWocheTitel" style="font-size: 13px;"></span>
             <span class="nav-link" onclick="wocheWechseln(1)" style="margin-left: 8px; font-weight:bold;">&gt;</span>
         </div>
-        <!-- DRUCKEN BUTTON -->
         <span class="nav-link" onclick="druckeStundenplan()" style="color:black; font-weight:bold;" title="Stundenplan drucken">🖨️ Drucken</span>
     </div>
     <div style="background-color: #b2ebf2; padding: 6px; text-align: center; border-top: 1px solid #80deea; font-weight: bold; font-size: 14px;" id="planObjektTitel">
@@ -532,16 +530,12 @@
             if (response.ok) {
                 let data = await response.json();
                 if (data.record && data.record.wochenPläne) {
-                    var alterStand = JSON.stringify(wochenPläne);
-                    var neuerStand = JSON.stringify(data.record.wochenPläne);
+                    wochenPläne = data.record.wochenPläne;
+                    localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
                     
-                    if (alterStand !== neuerStand) {
-                        wochenPläne = data.record.wochenPläne;
-                        localStorage.setItem('vpmobil24_plaene', neuerStand);
-                        
-                        if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
-                            zeigePlan();
-                        }
+                    // Wenn der Plan-Screen offen ist, SOFORT neu zeichnen!
+                    if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
+                        zeigePlan();
                     }
                 }
             }
@@ -552,14 +546,15 @@
 
     async function speichereDatenInCloud() {
         try {
-            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            await response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "X-Master-Key": JSONBIN_MASTER_KEY
                 },
                 body: JSON.stringify({
-                    wochenPläne: wochenPläne
+                    wochenPläne: wochenPläne,
+                    klassenPasswoerter: {}
                 })
             });
         } catch (e) {
