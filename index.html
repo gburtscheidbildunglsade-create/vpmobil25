@@ -109,7 +109,8 @@
                 <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben">
             </div>
         </div>
-        <button id="btnAnmelden" onclick="speichereZugang()" style="width: 100%; background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">ANMELDEN</button>
+        <!-- HIER IST DER DIREKTE ONCLICK-BEFEHL, DER JETZT GARANTIERT GREIFT -->
+        <button type="button" onclick="speichereZugang()" style="width: 100%; background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer;">ANMELDEN</button>
     </div>
 </div>
 
@@ -260,10 +261,8 @@
 
     function savePlaene() {
         localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
-        // Cloud-Speicherung direkt triggern, wenn eine Funktion vorhanden ist
-        if (typeof speichereDatenInCloud === 'function') {
-            speichereDatenInCloud();
-        }
+        // Direkt in die Cloud jagen bei Änderung
+        speichereDatenInCloud();
     }
 
     function zeigeScreen(screenId) {
@@ -448,4 +447,108 @@
         }
 
         var fClass = d.redF ? "red-fach" : "";
-        var lClass = d.
+        var lClass = d.redL ? "red-lehrer" : "";
+        var rClass = d.redR ? "red-raum" : "";
+        var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
+
+        return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')">' +
+            hasInfo +
+            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '') + '</div>' +
+            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '') + '</div>' +
+            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '') + '</div>' +
+            '</div>';
+    }
+
+    function klickeZelle(cellKey) {
+        aktuellerCellKey = cellKey;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var d = (wochenPläne[planKey] && wochenPläne[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+
+        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stunde bearbeiten:";
+        
+        if (istAdmin) {
+            document.getElementById('adminBearbeitenArea').style.display = 'block';
+            document.getElementById('editFach').value = d.fach || '';
+            document.getElementById('editLehrer').value = d.lehrer || '';
+            document.getElementById('editRaum').value = d.raum || '';
+            document.getElementById('checkRedFach').checked = !!d.redF;
+            document.getElementById('checkRedLehrer').checked = !!d.redL;
+            document.getElementById('checkRedRaum').checked = !!d.redR;
+            document.getElementById('editInfo').value = d.info || '';
+        } else {
+            document.getElementById('adminBearbeitenArea').style.display = 'none';
+        }
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    function speichereEigenenPlanBlock() {
+        if (!aktuellerCellKey) return;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
+
+        wochenPläne[planKey][aktuellerCellKey] = {
+            fach: document.getElementById('editFach').value,
+            lehrer: document.getElementById('editLehrer').value,
+            raum: document.getElementById('editRaum').value,
+            redF: document.getElementById('checkRedFach').checked,
+            redL: document.getElementById('checkRedLehrer').checked,
+            redR: document.getElementById('checkRedRaum').checked,
+            info: document.getElementById('editInfo').value
+        };
+
+        savePlaene();
+        closeModal();
+        zeigePlan();
+    }
+
+    function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+
+    // --- CLOUD SYNCHRONISATION (JSONBin.io) ---
+    var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
+    var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
+
+    async function ladeDatenAusCloud() {
+        try {
+            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
+            });
+            if (response.ok) {
+                let data = await response.json();
+                if (data.record && data.record.wochenPläne) {
+                    wochenPläne = data.record.wochenPläne;
+                    localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
+                    if (typeof zeigePlan === 'function' && aktuellesObjekt) {
+                        zeigePlan();
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Cloud-Ladefehler:", e);
+        }
+    }
+
+    async function speichereDatenInCloud() {
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_MASTER_KEY
+                },
+                body: JSON.stringify({
+                    wochenPläne: wochenPläne
+                })
+            });
+        } catch (e) {
+            console.error("Cloud-Speicherfehler:", e);
+        }
+    }
+
+    // Direkt beim Start laden und alle 10 Sek synchronisieren
+    window.addEventListener('DOMContentLoaded', () => {
+        ladeDatenAusCloud();
+        setInterval(ladeDatenAusCloud, 10000);
+    });
+</script>
+</body>
+</html>
