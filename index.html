@@ -518,7 +518,7 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    // --- CLOUD SYNCHRONISATION (JSONBin.io) ---
+    // --- ECHTE CLOUD SYNCHRONISATION (JSONBin.io) ---
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$gzrVtyJaj8Mtc/xIKZJKU052Kh217dA4jw1NMpKh21JKEFHaxzaBK";
 
@@ -530,12 +530,16 @@
             if (response.ok) {
                 let data = await response.json();
                 if (data.record && data.record.wochenPläne) {
-                    wochenPläne = data.record.wochenPläne;
-                    localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
+                    var alterStand = JSON.stringify(wochenPläne);
+                    var neuerStand = JSON.stringify(data.record.wochenPläne);
                     
-                    // Wenn der Plan-Screen offen ist, SOFORT neu zeichnen!
-                    if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
-                        zeigePlan();
+                    if (alterStand !== neuerStand) {
+                        wochenPläne = data.record.wochenPläne;
+                        localStorage.setItem('vpmobil24_plaene', neuerStand);
+                        
+                        if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
+                            zeigePlan();
+                        }
                     }
                 }
             }
@@ -546,7 +550,7 @@
 
     async function speichereDatenInCloud() {
         try {
-            await response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
