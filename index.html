@@ -42,12 +42,12 @@
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 15px; outline: none; background: transparent; }
 
-        /* ORGINALGETREUES RASTER & BLOCKFORMAT */
+        /* RASTER & BLOCKFORMAT */
         #planScreen { background: #fff; }
         .schedule-table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
-        .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 72px; }
+        .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 74px; }
         .day-header { background-color: #f7d7ad; font-size: 11px; padding: 5px 2px; font-weight: bold; line-height: 1.2; }
-        .hour-col { background-color: #f7d7ad; width: 50px; font-size: 10px; font-weight: bold; text-align: center; line-height: 1.2; }
+        .hour-col { background-color: #f7d7ad; width: 52px; font-size: 10px; font-weight: bold; text-align: center; line-height: 1.2; }
 
         .lesson-box { 
             background-color: transparent; 
@@ -192,7 +192,7 @@
     </div>
     <div style="background-color: #b2ebf2; padding: 6px; display: flex; justify-content: center; align-items: center; border-top: 1px solid #80deea; font-weight: bold; font-size: 14px;" id="planHeaderLeiste">
         <span id="planObjektTitel" style="margin-right: 8px;">06/1</span>
-        <!-- Personen-Symbol wird nur für den Admin angezeigt -->
+        <!-- Personen-Symbol (Männchen) nur für den Admin direkt im geöffneten Klassenplan -->
         <span id="btnPersonenAuswahl" style="cursor: pointer; font-size: 16px; display: none;" onclick="oeffneUnterrichtsAuswahl()" title="Unterrichtsfächer verwalten">👤</span>
     </div>
 
@@ -211,7 +211,7 @@
     </table>
 </div>
 
-<!-- UNTERRICHTS-AUSWAHL SCREEN (NUR FÜR ADMIN) -->
+<!-- UNTERRICHTS-AUSWAHL SCREEN ( KLASSENSPEZIFISCH ) -->
 <div id="unterrichtAuswahlScreen" class="screen">
     <div class="ua-topbar">
         <span style="color:#0000ff; cursor:pointer;" onclick="zeigeScreen('planScreen')">ABBRUCH</span>
@@ -298,7 +298,7 @@
     var aktuellerCellKey = null;
 
     var wochenPläne = {};
-    var klassenUnterricht = {};
+    var klassenUnterricht = {}; // Objekt zur strikten Klassentrennung
 
     function savePlaene() {
         localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
@@ -429,7 +429,6 @@
         aktuellesObjekt = name;
         schnelleWocheOffset = 0;
         
-        // Personen-Icon nur für den Admin und nur bei Klassen anzeigen!
         var personBtn = document.getElementById('btnPersonenAuswahl');
         if (istAdmin && modus === 'klassen') {
             personBtn.style.display = 'inline-block';
@@ -525,24 +524,12 @@
     }
 
     function oeffneUnterrichtsAuswahl() {
-        if (!istAdmin) return; // Sicherheitshalber blockieren für Nicht-Admins
+        if (!istAdmin) return;
         document.getElementById('uaTitelText').innerText = "Unterricht auswählen (Klasse " + aktuellesObjekt + ")";
         
+        // Garantiert, dass jede Klasse absolut eigene, getrennte Fächer hat (keine globalen Überschneidungen)
         if (!klassenUnterricht[aktuellesObjekt]) {
-            klassenUnterricht[aktuellesObjekt] = [
-                { fach: "Bio", lehrer: "Lin", aktiv: true },
-                { fach: "Deu", lehrer: "Brn", aktiv: true },
-                { fach: "Eng", lehrer: "Hen", aktiv: true },
-                { fach: "Eth", lehrer: "Czo", aktiv: true },
-                { fach: "FDe", lehrer: "Mes", aktiv: true },
-                { fach: "FMa", lehrer: "Zan", aktiv: true },
-                { fach: "Geo", lehrer: "Gla", aktiv: true },
-                { fach: "Ges", lehrer: "Lie", aktiv: true },
-                { fach: "Kun", lehrer: "Brs", aktiv: true },
-                { fach: "LdW", lehrer: "Wld", aktiv: true },
-                { fach: "Mat", lehrer: "Nik", aktiv: true },
-                { fach: "Spo", lehrer: "Bau", aktiv: true }
-            ];
+            klassenUnterricht[aktuellesObjekt] = [];
         }
 
         renderUnterrichtsListe();
@@ -553,6 +540,11 @@
         var grid = document.getElementById('uaListeGrid');
         grid.innerHTML = '';
         var liste = klassenUnterricht[aktuellesObjekt] || [];
+
+        if (liste.length === 0) {
+            grid.innerHTML = '<div style="grid-column: span 2; text-align: center; color: #777; padding: 20px;">Noch keine Fächer für diese Klasse hinzugefügt. Nutze oben die Eingabefelder!</div>';
+            return;
+        }
 
         liste.forEach(function(item, idx) {
             var icon = item.aktiv ? '✔️' : '⭕';
