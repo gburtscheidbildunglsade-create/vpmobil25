@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vpmobil24</title>
+    <title>VpMobil24</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
@@ -128,7 +128,7 @@
 <!-- HAUPTMENÜ -->
 <div id="hauptmenueScreen" class="screen">
     <div class="top-bar">
-        Vpmobil24
+        VpMobil24
         <span class="menu-burger" onclick="zeigeScreen('einstellungenScreen')">&#9776;</span>
     </div>
     
@@ -238,7 +238,7 @@
 
 <script>
     var datenKlassen = [
-        "02/1", "03/2", "03/3", "05/1", "05/2", "05/3", "05/4", "05/5", "06/1", "06/2", "06/3", "06/4", "06/5", 
+        "05/1", "05/2", "05/3", "05/4", "05/5", "06/1", "06/2", "06/3", "06/4", "06/5", 
         "07/1", "07/2", "07/3", "07/4", "08/1", "08/2", "08/3", "08/4", "09/1", "09/2", 
         "09/3", "09/4", "09/5", "10/1", "10/2", "10/3", "10/4", "11", "12", "AG", "SE", "Daz"
     ];
@@ -268,8 +268,6 @@
     var istAdmin = false;
     var aktuellerCellKey = null;
 
-    // Lokalen Speicher leeren, damit frisch gestartet wird
-    localStorage.removeItem('vpmobil24_plaene');
     var wochenPläne = {};
 
     function savePlaene() {
@@ -292,6 +290,7 @@
         var rolle = document.getElementById('inputBenutzer').value.toLowerCase();
         var pass = document.getElementById('inputPasswort').value.trim();
 
+        // Admin-Prüfung
         if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
             istEingeloggt = true;
             istAdmin = true;
@@ -301,15 +300,27 @@
             return;
         }
 
-        if (schulnr.length > 0 && pass.length > 0) {
+        // Lehrer-Prüfung
+        if (rolle === "lehrer" && pass === "Y32-8911") {
             istEingeloggt = true;
-            istAdmin = (rolle === 'admin');
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ' + rolle.toUpperCase() + '</small>';
-            alert("Erfolgreich angemeldet!");
+            istAdmin = false;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: LEHRER</small>';
+            alert("Erfolgreich als Lehrer angemeldet!");
             zeigeScreen('hauptmenueScreen');
-        } else {
-            alert("Bitte Schulnummer und Passwort eingeben!");
+            return;
         }
+
+        // Schüler-Prüfung
+        if (rolle === "schueler" && pass === "Y34-1312") {
+            istEingeloggt = true;
+            istAdmin = false;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: SCHÜLER</small>';
+            alert("Erfolgreich als Schüler angemeldet!");
+            zeigeScreen('hauptmenueScreen');
+            return;
+        }
+
+        alert("Falsches Passwort oder ungültige Zugangsdaten für die gewählte Rolle!");
     }
 
     function abmelden() {
@@ -520,7 +531,596 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    // --- AKTUALISIERTER MASTER-KEY & BIN-ID ---
+    var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
+    var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
+
+    async function ladeDatenAusCloud() {
+        try {
+            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
+            });
+            if (response.ok) {
+                let data = await response.json();
+                if (data.record && data.record.wochenPläne) {
+                    var alterStand = JSON.stringify(wochenPläne);
+                    var neuerStand = JSON.stringify(data.record.wochenPläne);
+                    
+                    if (alterStand !== neuerStand) {
+                        wochenPläne = data.record.wochenPläne;
+                        localStorage.setItem('vpmobil24_plaene', neuerStand);
+                        
+                        if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
+                            zeigePlan();
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Cloud-Ladefehler:", e);
+        }
+    }
+
+    async function speichereDatenInCloud() {
+        try {
+            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_MASTER_KEY
+                },
+                body: JSON.stringify({
+                    wochenPläne: wochenPläne,
+                    klassenPasswoerter: {}
+                })
+            });
+            if (!response.ok) {
+                console.error("Speichern fehlgeschlagen, Status:", response.status);
+            }
+        } catch (e) {
+            console.error("Cloud-Speicherfehler:", e);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        ladeDatenAusCloud();
+        setInterval(ladeDatenAusCloud, 5000);
+    });
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VpMobil24</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        
+        .top-bar { background-color: #00cccc; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; position: relative; }
+        .menu-burger { position: absolute; right: 15px; top: 12px; cursor: pointer; font-size: 18px; }
+        .cyan-header { background-color: #00cccc; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #000; }
+        .nav-link { color: #0000ff; text-decoration: none; cursor: pointer; font-size: 15px; font-weight: normal; }
+        
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        #hauptmenueScreen { padding: 15px; }
+        .school-banner { background-color: #e56b6f; color: white; text-align: center; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .tile { background-color: #e56b6f; color: white; border-radius: 8px; height: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .tile-remove { position: absolute; top: 5px; right: 8px; font-size: 14px; cursor: pointer; opacity: 0.8; }
+        .tile-icon { font-size: 26px; margin-bottom: 4px; }
+        .tile-add { background-color: #2ecc71; color: white; }
+
+        #auswahlScreen { background: white; min-height: 100vh; }
+        .search-bar-container { padding: 8px 12px; background: #fff; border-bottom: 1px solid #ddd; }
+        .search-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; }
+        .tabs-header { display: flex; background: #f1f1f1; border-bottom: 1px solid #ccc; }
+        .tab-head { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-size: 14px; color: #555; }
+        .tab-head.active { background: white; font-weight: bold; color: #000; border-bottom: 3px solid #00cccc; }
+        .list-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; font-size: 15px; align-items: center; }
+        .star-btn { font-size: 18px; color: #ccc; cursor: pointer; background: none; border: none; }
+        .star-btn.favorited { color: #f1c40f; }
+
+        .settings-container { padding: 15px; background: #f0f2f5; min-height: 100vh; }
+        .settings-group { background: white; border-radius: 8px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .settings-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; cursor: pointer; }
+        .settings-header-title { font-size: 12px; color: #777; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
+        .form-group { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
+        .form-input { width: 100%; padding: 6px 0; border: none; font-size: 15px; outline: none; background: transparent; }
+
+        /* STUNDENPLAN GRID & QUADRATISCHE BLÖCKE */
+        #planScreen { background: #fff; }
+        .schedule-table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
+        .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 60px; }
+        .day-header { background-color: #f7d7ad; font-size: 11px; padding: 4px 2px; font-weight: bold; line-height: 1.2; }
+        .hour-col { background-color: #f7d7ad; width: 45px; font-size: 9px; font-weight: bold; text-align: center; line-height: 1.2; }
+
+        .lesson-box { 
+            background-color: #fcf6ed; 
+            border: 1px solid #e2d2bc; 
+            border-radius: 4px; 
+            padding: 2px; 
+            margin: auto; 
+            position: relative; 
+            width: 48px; 
+            height: 48px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .red-fach { color: #900 !important; font-weight: bold; }
+        .red-lehrer { color: #900 !important; font-weight: bold; }
+        .red-raum { color: #900 !important; font-weight: bold; }
+
+        .lesson-line-1 { font-size: 9px; color: #222; font-weight: 500; line-height: 1.1; text-align: center; }
+        .lesson-line-2 { font-weight: bold; font-size: 10px; color: #000; line-height: 1.1; text-align: center; margin: 1px 0; }
+        .lesson-line-3 { font-size: 8px; color: #444; border-top: 1px dashed #e2d2bc; width: 90%; padding-top: 1px; line-height: 1.1; text-align: center; }
+        .info-icon { position: absolute; top: 1px; right: 2px; background: #0066cc; color: white; border-radius: 50%; width: 10px; height: 10px; font-size: 7px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
+        .modal-content { background:white; padding:20px; border-radius:8px; width:90%; max-width:340px; text-align:left; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .modal-btn { background:#0066cc; color:white; border:none; padding:8px 14px; margin-top:8px; border-radius:4px; cursor:pointer; font-weight:bold; width: 100%; text-align: center; }
+
+        .action-btn { background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
+
+        @media print {
+            body { background-color: #fff; }
+            .screen { display: none !important; }
+            #planScreen { display: block !important; }
+            .cyan-header .nav-link, .cyan-header span:last-child { display: none !important; }
+            .schedule-table { width: 100%; page-break-inside: avoid; }
+            .hour-col, .day-header { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .lesson-box { border: 1px solid #aaa !important; background-color: #fff !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="zugangsdatenScreen" class="screen active">
+    <div style="padding: 12px; background: #00cccc; text-align: center; color: white; font-weight: bold; font-size: 16px;">
+        VpMobil24 Login
+    </div>
+
+    <div class="settings-container">
+        <div class="settings-header-title">Zugangsdaten</div>
+        <div class="settings-group">
+            <div class="form-group">
+                <span class="form-label">Schulnummer</span>
+                <input type="text" id="inputSchulnummer" class="form-input" placeholder="Schulnummer eingeben">
+            </div>
+            <div class="form-group">
+                <span class="form-label">Benutzer-Rolle</span>
+                <select id="inputBenutzer" class="form-input" style="background: white;">
+                    <option value="schueler">Schüler</option>
+                    <option value="lehrer">Lehrer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Passwort</span>
+                <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben">
+            </div>
+        </div>
+        <button type="button" onclick="speichereZugang()" class="action-btn">ANMELDEN</button>
+    </div>
+</div>
+
+<!-- HAUPTMENÜ -->
+<div id="hauptmenueScreen" class="screen">
+    <div class="top-bar">
+        VpMobil24
+        <span class="menu-burger" onclick="zeigeScreen('einstellungenScreen')">&#9776;</span>
+    </div>
+    
+    <div style="padding-top: 15px;">
+        <div class="school-banner" id="schulBannerText">Übersicht</div>
+        <div class="grid-container" id="favoritenRaster"></div>
+        <div style="font-size: 11px; color: #777; text-align: center; margin-top: 25px;">letzte Suche: 09:24 Uhr</div>
+    </div>
+</div>
+
+<!-- AUSWAHL SCREEN -->
+<div id="auswahlScreen" class="screen">
+    <div style="padding: 12px; background: #00cccc; display: flex; align-items: center; color: white; font-weight: bold;">
+        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')" style="color:white; margin-right: 15px;">&lt; Zurück</span>
+        <span>Auswahl</span>
+    </div>
+    <div class="search-bar-container">
+        <input type="text" id="suchFeld" class="search-input" placeholder="Suchen..." oninput="filterListe()">
+    </div>
+    <div class="tabs-header">
+        <div class="tab-head" id="tabKlassenHead" onclick="wechselTab('klassen')">Klassen</div>
+        <div class="tab-head" id="tabLehrerHead" onclick="wechselTab('lehrer')">Lehrer</div>
+        <div class="tab-head" id="tabRaeumeHead" onclick="wechselTab('raeume')">Räume</div>
+    </div>
+    <div id="auswahlListe" style="max-height: calc(100vh - 120px); overflow-y: auto;"></div>
+</div>
+
+<!-- EINSTELLUNGEN SCREEN -->
+<div id="einstellungenScreen" class="screen">
+    <div style="padding: 12px; background: #00cccc; display: flex; align-items: center; color: white; font-weight: bold;">
+        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')" style="color:white; margin-right: 15px;">&lt; Zurück</span>
+        <span>Einstellungen</span>
+    </div>
+    
+    <div class="settings-container">
+        <div class="settings-header-title">Optionen</div>
+        <div class="settings-group">
+            <div class="settings-item" onclick="abmelden()">
+                <span style="color:red; font-weight:bold;">Abmelden</span>
+                <span>&gt;</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STUNDENPLAN SCREEN -->
+<div id="planScreen" class="screen">
+    <div class="cyan-header">
+        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')">Start</span>
+        <div>
+            <span class="nav-link" onclick="wocheWechseln(-1)" style="margin-right: 8px; font-weight:bold;">&lt;</span>
+            <span id="planWocheTitel" style="font-size: 13px;"></span>
+            <span class="nav-link" onclick="wocheWechseln(1)" style="margin-left: 8px; font-weight:bold;">&gt;</span>
+        </div>
+        <span class="nav-link" onclick="druckeStundenplan()" style="color:black; font-weight:bold;" title="Stundenplan drucken">🖨️ Drucken</span>
+    </div>
+    <div style="background-color: #b2ebf2; padding: 6px; text-align: center; border-top: 1px solid #80deea; font-weight: bold; font-size: 14px;" id="planObjektTitel">
+        06/1
+    </div>
+
+    <table class="schedule-table">
+        <thead>
+            <tr id="tageHeaderRow">
+                <th class="hour-col">Zeit</th>
+                <th class="day-header" id="th_0">Mo.</th>
+                <th class="day-header" id="th_1">Di.</th>
+                <th class="day-header" id="th_2">Mi.</th>
+                <th class="day-header" id="th_3">Do.</th>
+                <th class="day-header" id="th_4">Fr.</th>
+            </tr>
+        </thead>
+        <tbody id="stundenRasterKoerper"></tbody>
+    </table>
+</div>
+
+<!-- MODAL FÜR ADMIN-BEARBEITUNG -->
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <p id="modalText"></p>
+        <div id="adminBearbeitenArea" style="display:none; margin-top:10px;">
+            <hr style="margin: 10px 0;">
+            <b>Stunde erstellen / bearbeiten:</b><br>
+            <label class="form-label" style="margin-top:6px;">Fach:</label>
+            <input type="text" id="editFach" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Fach eingeben">
+            
+            <label class="form-label" style="margin-top:6px;">Lehrer:</label>
+            <input type="text" id="editLehrer" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Lehrer eingeben">
+            
+            <label class="form-label" style="margin-top:6px;">Raum:</label>
+            <input type="text" id="editRaum" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Raum eingeben">
+
+            <div style="margin: 10px 0; background: #f9f9f9; padding: 8px; border: 1px solid #ddd;">
+                <b>Einzeln Rot markieren:</b><br>
+                <label><input type="checkbox" id="checkRedFach"> Fach rot</label><br>
+                <label><input type="checkbox" id="checkRedLehrer"> Lehrer rot</label><br>
+                <label><input type="checkbox" id="checkRedRaum"> Raum rot</label>
+            </div>
+
+            <label class="form-label">Info-Text / Notiz:</label>
+            <input type="text" id="editInfo" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Hinweis eingeben">
+
+            <button class="modal-btn" style="background:#2ecc71;" onclick="speichereEigenenPlanBlock()">Speichern</button>
+        </div>
+        <button class="modal-btn" onclick="closeModal()">Schließen</button>
+    </div>
+</div>
+
+<script>
+    var datenKlassen = [
+        "05/1", "05/2", "05/3", "05/4", "05/5", "06/1", "06/2", "06/3", "06/4", "06/5", 
+        "07/1", "07/2", "07/3", "07/4", "08/1", "08/2", "08/3", "08/4", "09/1", "09/2", 
+        "09/3", "09/4", "09/5", "10/1", "10/2", "10/3", "10/4", "11", "12", "AG", "SE", "Daz"
+    ];
+
+    var datenLehrer = [
+        "?", "Bau", "Brn", "Brs", "Brt", "Czo", "Dif", "Doe", "Fil", "Föl", "Fra", "Gen", "Ger", 
+        "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hzg", "Jae", "Kan", "Kas", 
+        "Kem", "Kiw", "Kle", "Kls", "Kut", "Lbe", "Ldm", "Leh", "Lkb", "Lie", "Lin", "Lip", "Lis", 
+        "Lüb", "Mai", "Mcl", "Mes", "Mik", "Mco", "Mun", "Nai", "Neu", "Nik", "Ott", "Pab", 
+        "Pap", "Pat", "Pre", "Pwl", "Red", "Reg", "Rei", "Rie", "Rml", "Rös", "Sbg", "Snd", 
+        "Son", "Sta", "Sub", "Tep", "Wai", "Win", "Wld", "Zan"
+    ];
+
+    var datenRaeume = [
+        "101", "102", "103", "104", "105", "107", "111a", "123", "124", "201", "203", "205", 
+        "206", "207", "208", "210", "211", "212", "213", "214", "215", "216", "217", "218", 
+        "219", "220", "222", "223", "224", "301", "303", "305", "306", "308", "310", "311", 
+        "312", "313", "314", "315", "316", "317", "318", "319", "320", "322", "323", "324", 
+        "401", "402", "403", "404", "Aula", "Aula1", "Aula2", "Aula3", "Mensa", "Flur", "SH", "TU 1", "TU 2"
+    ];
+
+    var favoriten = [];
+    var aktuellerModus = 'klassen';
+    var aktuellesObjekt = '';
+    var schnelleWocheOffset = 0; 
+    var istEingeloggt = false;
+    var istAdmin = false;
+    var aktuellerCellKey = null;
+
+    var wochenPläne = {};
+
+    function savePlaene() {
+        localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
+        speichereDatenInCloud();
+    }
+
+    function druckeStundenplan() {
+        window.print();
+    }
+
+    function zeigeScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        document.getElementById(screenId).classList.add('active');
+        if (screenId === 'hauptmenueScreen') erstelleFavoritenRaster();
+    }
+
+    function speichereZugang() {
+        var schulnr = document.getElementById('inputSchulnummer').value.trim();
+        var rolle = document.getElementById('inputBenutzer').value.toLowerCase();
+        var pass = document.getElementById('inputPasswort').value.trim();
+
+        // Admin-Prüfung
+        if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
+            istEingeloggt = true;
+            istAdmin = true;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ADMIN</small>';
+            alert("Erfolgreich als Admin angemeldet!");
+            zeigeScreen('hauptmenueScreen');
+            return;
+        }
+
+        // Lehrer-Prüfung
+        if (rolle === "lehrer" && pass === "Y32-8911") {
+            istEingeloggt = true;
+            istAdmin = false;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: LEHRER</small>';
+            alert("Erfolgreich als Lehrer angemeldet!");
+            zeigeScreen('hauptmenueScreen');
+            return;
+        }
+
+        // Schüler-Prüfung
+        if (rolle === "schueler" && pass === "Y34-1312") {
+            istEingeloggt = true;
+            istAdmin = false;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: SCHÜLER</small>';
+            alert("Erfolgreich als Schüler angemeldet!");
+            zeigeScreen('hauptmenueScreen');
+            return;
+        }
+
+        alert("Falsches Passwort oder ungültige Zugangsdaten für die gewählte Rolle!");
+    }
+
+    function abmelden() {
+        istEingeloggt = false;
+        istAdmin = false;
+        document.getElementById('inputSchulnummer').value = '';
+        document.getElementById('inputPasswort').value = '';
+        zeigeScreen('zugangsdatenScreen');
+    }
+
+    function erstelleFavoritenRaster() {
+        var raster = document.getElementById('favoritenRaster');
+        raster.innerHTML = '';
+        favoriten.forEach(function(fav, index) {
+            raster.innerHTML += '<div class="tile" onclick="ladePlanAnsicht(\'' + fav.name + '\', \'' + fav.modus + '\')">' +
+                '<span class="tile-remove" onclick="event.stopPropagation(); loescheFavoriten(' + index + ')">✕</span>' +
+                '<span class="tile-icon">☆</span>' +
+                '<span>' + fav.name + '</span>' +
+                '</div>';
+        });
+        raster.innerHTML += '<div class="tile tile-add" onclick="zeigeAuswahl(\'klassen\')">' +
+            '<span class="tile-icon">+</span>' +
+            '<span>Plan anzeigen</span>' +
+            '</div>';
+    }
+
+    function loescheFavoriten(index) {
+        favoriten.splice(index, 1);
+        erstelleFavoritenRaster();
+    }
+
+    function zeigeAuswahl(modus) {
+        aktuellerModus = modus;
+        zeigeScreen('auswahlScreen');
+        wechselTab(modus);
+    }
+
+    function wechselTab(modus) {
+        aktuellerModus = modus;
+        document.querySelectorAll('.tab-head').forEach(function(t) { t.classList.remove('active'); });
+        if(modus === 'klassen') document.getElementById('tabKlassenHead').classList.add('active');
+        if(modus === 'lehrer') document.getElementById('tabLehrerHead').classList.add('active');
+        if(modus === 'raeume') document.getElementById('tabRaeumeHead').classList.add('active');
+        filterListe();
+    }
+
+    function filterListe() {
+        var term = document.getElementById('suchFeld').value.toLowerCase();
+        var container = document.getElementById('auswahlListe');
+        container.innerHTML = '';
+
+        var liste = aktuellerModus === 'klassen' ? datenKlassen :
+                    aktuellerModus === 'lehrer' ? datenLehrer : datenRaeume;
+
+        liste.filter(function(i) { return i.toLowerCase().includes(term); }).forEach(function(item) {
+            var istFav = favoriten.some(function(f) { return f.name === item && f.modus === aktuellerModus; });
+            container.innerHTML += '<div class="list-item">' +
+                '<span style="flex:1;" onclick="ladePlanAnsicht(\'' + item + '\', \'' + aktuellerModus + '\')">' + item + '</span>' +
+                '<button class="star-btn ' + (istFav ? 'favorited' : '') + '" onclick="toggleFavorit(\'' + item + '\', \'' + aktuellerModus + '\', event)">★</button>' +
+                '</div>';
+        });
+    }
+
+    function toggleFavorit(name, modus, event) {
+        event.stopPropagation();
+        var idx = favoriten.findIndex(function(f) { return f.name === name && f.modus === modus; });
+        if (idx > -1) favoriten.splice(idx, 1);
+        else favoriten.push({ name: name, modus: modus });
+        filterListe();
+    }
+
+    function ladePlanAnsicht(name, modus) {
+        if (!istEingeloggt) {
+            alert("Bitte zuerst einloggen!");
+            zeigeScreen('zugangsdatenScreen');
+            return;
+        }
+        aktuellesObjekt = name;
+        schnelleWocheOffset = 0;
+        zeigePlan();
+    }
+
+    function wocheWechseln(richtung) {
+        schnelleWocheOffset += richtung;
+        zeigePlan();
+    }
+
+    function getWochenTageDaten(offset) {
+        var d = new Date();
+        var currentDay = d.getDay();
+        var diffToMon = d.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+        var montag = new Date(d.setDate(diffToMon + (offset * 7)));
+
+        var tage = [];
+        var tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
+        
+        for (var i = 0; i < 5; i++) {
+            var temp = new Date(montag);
+            temp.setDate(montag.getDate() + i);
+            var tagStr = ("0" + temp.getDate()).slice(-2) + "." + ("0" + (temp.getMonth() + 1)).slice(-2) + ".";
+            tage.push({ kurz: tageNamen[i], datum: tagStr });
+        }
+        return tage;
+    }
+
+    function zeigePlan() {
+        if (!aktuellesObjekt) return;
+        document.getElementById('planObjektTitel').innerText = aktuellesObjekt;
+
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+        document.getElementById('planWocheTitel').innerText = wochenDaten[0].datum.slice(0, 5) + " - " + wochenDaten[4].datum.slice(0, 5);
+
+        for (var t = 0; t < 5; t++) {
+            document.getElementById('th_' + t).innerHTML = wochenDaten[t].kurz + '<br>' + wochenDaten[t].datum.slice(0, 5);
+        }
+
+        zeigeScreen('planScreen');
+
+        var koerper = document.getElementById('stundenRasterKoerper');
+        koerper.innerHTML = '';
+
+        var zeiten = [
+            { stunde: 1, start: "07:30", ende: "08:15" },
+            { stunde: 2, start: "08:25", ende: "09:10" },
+            { stunde: 3, start: "09:30", ende: "10:15" },
+            { stunde: 4, start: "10:25", ende: "11:10" },
+            { stunde: 5, start: "11:30", ende: "12:15" },
+            { stunde: 6, start: "12:45", ende: "13:30" },
+            { stunde: 7, start: "13:40", ende: "14:25" },
+            { stunde: 8, start: "14:35", ende: "15:20" }
+        ];
+
+        zeiten.forEach(function(s) {
+            var row = '<tr><td class="hour-col">' + s.start + '<br><b>' + s.stunde + '</b><br>' + s.ende + '</td>';
+            for (var tag = 0; tag < 5; tag++) {
+                var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+                if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
+
+                var cellKey = s.stunde + '_' + tag;
+                var blockDaten = wochenPläne[planKey][cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+
+                row += '<td>' + renderBlockHtml(blockDaten, cellKey) + '</td>';
+            }
+            row += '</tr>';
+            koerper.innerHTML += row;
+        });
+    }
+
+    function renderBlockHtml(d, cellKey) {
+        if (!d.fach && !d.lehrer && !d.raum) {
+            return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')" style="background:#fafafa; border:1px dashed #ccc;"></div>';
+        }
+
+        var fClass = d.redF ? "red-fach" : "";
+        var lClass = d.redL ? "red-lehrer" : "";
+        var rClass = d.redR ? "red-raum" : "";
+        var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
+
+        return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')">' +
+            hasInfo +
+            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '') + '</div>' +
+            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '') + '</div>' +
+            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '') + '</div>' +
+            '</div>';
+    }
+
+    function klickeZelle(cellKey) {
+        aktuellerCellKey = cellKey;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var d = (wochenPläne[planKey] && wochenPläne[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+
+        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stunde bearbeiten:";
+        
+        if (istAdmin) {
+            document.getElementById('adminBearbeitenArea').style.display = 'block';
+            document.getElementById('editFach').value = d.fach || '';
+            document.getElementById('editLehrer').value = d.lehrer || '';
+            document.getElementById('editRaum').value = d.raum || '';
+            document.getElementById('checkRedFach').checked = !!d.redF;
+            document.getElementById('checkRedLehrer').checked = !!d.redL;
+            document.getElementById('checkRedRaum').checked = !!d.redR;
+            document.getElementById('editInfo').value = d.info || '';
+        } else {
+            document.getElementById('adminBearbeitenArea').style.display = 'none';
+        }
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    function speichereEigenenPlanBlock() {
+        if (!aktuellerCellKey) return;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
+
+        wochenPläne[planKey][aktuellerCellKey] = {
+            fach: document.getElementById('editFach').value,
+            lehrer: document.getElementById('editLehrer').value,
+            raum: document.getElementById('editRaum').value,
+            redF: document.getElementById('checkRedFach').checked,
+            redL: document.getElementById('checkRedLehrer').checked,
+            redR: document.getElementById('checkRedRaum').checked,
+            info: document.getElementById('editInfo').value
+        };
+
+        savePlaene();
+        closeModal();
+        zeigePlan();
+    }
+
+    function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
 
