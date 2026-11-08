@@ -42,7 +42,7 @@
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 15px; outline: none; background: transparent; }
 
-        /* EXAKTER ORIGINAL-BLOCK-LOOK (WIE AUF BILD 15) */
+        /* EXAKTE BLOCK-FORM WIE IM ORIGINAL-BILD */
         #planScreen { background: #fff; }
         .schedule-table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
         .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 74px; }
@@ -51,19 +51,19 @@
 
         .lesson-box { 
             background-color: #ffffff; 
-            border: 1px solid #b0c4de; 
-            border-radius: 4px;
-            padding: 2px; 
-            margin: 1px auto; 
+            border: 1px solid #dcdcdc; 
+            border-radius: 6px; 
+            padding: 3px 2px; 
+            margin: auto; 
             position: relative; 
-            width: 92%; 
-            height: 68px; 
+            width: 88%; 
+            height: 66px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
             cursor: pointer; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .red-fach { color: #900 !important; font-weight: bold; }
@@ -75,7 +75,7 @@
         .lesson-line-3 { font-size: 10px; color: #444; line-height: 1.2; text-align: center; } 
         .info-icon { position: absolute; top: 2px; right: 3px; background: #0066cc; color: white; border-radius: 50%; width: 11px; height: 11px; font-size: 7px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
 
-        /* UNTERRICHTS-AUSWAHL SCREEN (VOLLSTÄNDIG GETRENNT) */
+        /* UNTERRICHTS-AUSWAHL SCREEN (SEPARATER VOLLBILD-SCREEN) */
         #unterrichtAuswahlScreen { background: #f0f2f5; min-height: 100vh; display: flex; flex-direction: column; }
         .ua-topbar { background: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; font-weight: bold; font-size: 15px; }
         .ua-content { padding: 15px; flex: 1; max-width: 800px; margin: 0 auto; width: 100%; }
@@ -96,7 +96,7 @@
             .cyan-header .nav-link, .cyan-header span:last-child { display: none !important; }
             .schedule-table { width: 100%; page-break-inside: avoid; }
             .hour-col, .day-header { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .lesson-box { border: 1px solid #999 !important; background-color: transparent !important; }
+            .lesson-box { border: 1px solid #999 !important; background-color: #fff !important; }
         }
     </style>
 </head>
@@ -213,7 +213,7 @@
     </table>
 </div>
 
-<!-- UNTERRICHTS-AUSWAHL SCREEN (WIRD NUR GEÖFFNET, WENN MAN AUF DAS MÄNNCHEN TIPPT) -->
+<!-- UNTERRICHTS-AUSWAHL SCREEN (NUR BEI KLICK AUF DAS MÄNNCHEN) -->
 <div id="unterrichtAuswahlScreen" class="screen">
     <div class="ua-topbar">
         <span style="color:#0000ff; cursor:pointer;" onclick="zeigeScreen('planScreen')">ABBRUCH</span>
@@ -509,7 +509,7 @@
 
     function renderBlockHtml(d, cellKey) {
         if (!d.fach && !d.lehrer && !d.raum) {
-            return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
+            return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')" style="background:transparent; border:none; box-shadow:none;"></div>';
         }
 
         var fClass = d.redF ? "red-fach" : "";
