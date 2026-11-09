@@ -30,6 +30,7 @@
         .tabs-header { display: flex; background: #f1f1f1; border-bottom: 1px solid #ccc; }
         .tab-head { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-size: 14px; color: #555; }
         .tab-head.active { background: white; font-weight: bold; color: #000; border-bottom: 3px solid #00cccc; }
+        .tab-head.disabled { color: #aaa; cursor: not-allowed; background: #e9e9e9; }
         .list-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; font-size: 15px; align-items: center; }
         .star-btn { font-size: 18px; color: #ccc; cursor: pointer; background: none; border: none; }
         .star-btn.favorited { color: #f1c40f; }
@@ -265,6 +266,7 @@
     var schnelleWocheOffset = 0; 
     var istEingeloggt = false;
     var istAdmin = false;
+    var istSchueler = false;
     var aktuellerCellKey = null;
 
     var wochenPläne = {};
@@ -292,6 +294,7 @@
         if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
             istEingeloggt = true;
             istAdmin = true;
+            istSchueler = false;
             document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ADMIN</small>';
             alert("Erfolgreich als Admin angemeldet!");
             zeigeScreen('hauptmenueScreen');
@@ -301,6 +304,7 @@
         if (rolle === "lehrer" && pass === "Y32-8911") {
             istEingeloggt = true;
             istAdmin = false;
+            istSchueler = false;
             document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: LEHRER</small>';
             alert("Erfolgreich als Lehrer angemeldet!");
             zeigeScreen('hauptmenueScreen');
@@ -310,6 +314,7 @@
         if (rolle === "schueler" && pass === "Y34-1312") {
             istEingeloggt = true;
             istAdmin = false;
+            istSchueler = true; // Schüler-Rolle aktiv
             document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: SCHÜLER</small>';
             alert("Erfolgreich als Schüler angemeldet!");
             zeigeScreen('hauptmenueScreen');
@@ -322,6 +327,7 @@
     function abmelden() {
         istEingeloggt = false;
         istAdmin = false;
+        istSchueler = false;
         document.getElementById('inputSchulnummer').value = '';
         document.getElementById('inputPasswort').value = '';
         zeigeScreen('zugangsdatenScreen');
@@ -349,17 +355,42 @@
     }
 
     function zeigeAuswahl(modus) {
+        // Wenn Schüler eingeloggt ist, darf er nur Klassen öffnen
+        if (istSchueler && modus !== 'klassen') {
+            modus = 'klassen';
+        }
         aktuellerModus = modus;
         zeigeScreen('auswahlScreen');
         wechselTab(modus);
     }
 
     function wechselTab(modus) {
+        // Schüler dürfen nicht auf Lehrer oder Räume wechseln
+        if (istSchueler && modus !== 'klassen') {
+            return;
+        }
+
         aktuellerModus = modus;
-        document.querySelectorAll('.tab-head').forEach(function(t) { t.classList.remove('active'); });
-        if(modus === 'klassen') document.getElementById('tabKlassenHead').classList.add('active');
-        if(modus === 'lehrer') document.getElementById('tabLehrerHead').classList.add('active');
-        if(modus === 'raeume') document.getElementById('tabRaeumeHead').classList.add('active');
+        
+        var tabKlassen = document.getElementById('tabKlassenHead');
+        var tabLehrer = document.getElementById('tabLehrerHead');
+        var tabRaeume = document.getElementById('tabRaeumeHead');
+
+        tabKlassen.classList.remove('active', 'disabled');
+        tabLehrer.classList.remove('active', 'disabled');
+        tabRaeume.classList.remove('active', 'disabled');
+
+        if (istSchueler) {
+            tabLehrer.classList.add('disabled');
+            tabRaeume.classList.add('disabled');
+            tabKlassen.classList.add('active');
+            aktuellerModus = 'klassen';
+        } else {
+            if(modus === 'klassen') tabKlassen.classList.add('active');
+            if(modus === 'lehrer') tabLehrer.classList.add('active');
+            if(modus === 'raeume') tabRaeume.classList.add('active');
+        }
+
         filterListe();
     }
 
@@ -368,20 +399,24 @@
         var container = document.getElementById('auswahlListe');
         container.innerHTML = '';
 
-        var liste = aktuellerModus === 'klassen' ? datenKlassen :
-                    aktuellerModus === 'lehrer' ? datenLehrer : datenRaeume;
+        // Schüler sehen zwingend nur Klassen
+        var aktiveModus = istSchueler ? 'klassen' : aktuellerModus;
+
+        var liste = aktiveModus === 'klassen' ? datenKlassen :
+                    aktiveModus === 'lehrer' ? datenLehrer : datenRaeume;
 
         liste.filter(function(i) { return i.toLowerCase().includes(term); }).forEach(function(item) {
-            var istFav = favoriten.some(function(f) { return f.name === item && f.modus === aktuellerModus; });
+            var istFav = favoriten.some(function(f) { return f.name === item && f.modus === aktiveModus; });
             container.innerHTML += '<div class="list-item">' +
-                '<span style="flex:1;" onclick="ladePlanAnsicht(\'' + item + '\', \'' + aktuellerModus + '\')">' + item + '</span>' +
-                '<button class="star-btn ' + (istFav ? 'favorited' : '') + '" onclick="toggleFavorit(\'' + item + '\', \'' + aktuellerModus + '\', event)">★</button>' +
+                '<span style="flex:1;" onclick="ladePlanAnsicht(\'' + item + '\', \'' + aktiveModus + '\')">' + item + '</span>' +
+                '<button class="star-btn ' + (istFav ? 'favorited' : '') + '" onclick="toggleFavorit(\'' + item + '\', \'' + aktiveModus + '\', event)">★</button>' +
                 '</div>';
         });
     }
 
     function toggleFavorit(name, modus, event) {
         event.stopPropagation();
+        if (istSchueler && modus !== 'klassen') return;
         var idx = favoriten.findIndex(function(f) { return f.name === name && f.modus === modus; });
         if (idx > -1) favoriten.splice(idx, 1);
         else favoriten.push({ name: name, modus: modus });
@@ -394,8 +429,12 @@
             zeigeScreen('zugangsdatenScreen');
             return;
         }
+        if (istSchueler && modus !== 'klassen') {
+            alert("Schüler haben nur Zugriff auf Klassenpläne!");
+            return;
+        }
         aktuellesObjekt = name;
-        schnelleWocheOffset = 0; // Setzt den Offset beim Öffnen eines Plans immer sauber auf die echte aktuelle Woche zurück
+        schnelleWocheOffset = 0; 
         zeigePlan();
     }
 
@@ -406,11 +445,9 @@
 
     function getWochenTageDaten(offset) {
         var now = new Date();
-        // Lokales Datum auf Mitternacht setzen, um Zeitzonen-Sprünge zu verhindern
         var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
         var day = d.getDay();
-        // Korrekte Berechnung des Montags (Berücksichtigt Sonntag als 0)
         var diffToMon = (day === 0 ? -6 : 1) - day;
         
         var montag = new Date(d);
@@ -494,8 +531,9 @@
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
         var d = (wochenPläne[planKey] && wochenPläne[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
 
-        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stunde bearbeiten:";
+        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stundeninformation:";
         
+        // Nur Admins dürfen Stunden bearbeiten, Schüler & Lehrer sehen nur Info/Details
         if (istAdmin) {
             document.getElementById('adminBearbeitenArea').style.display = 'block';
             document.getElementById('editFach').value = d.fach || '';
@@ -512,7 +550,7 @@
     }
 
     function speichereEigenenPlanBlock() {
-        if (!aktuellerCellKey) return;
+        if (!istAdmin || !aktuellerCellKey) return;
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
         if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
 
