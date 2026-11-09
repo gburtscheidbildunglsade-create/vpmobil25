@@ -42,7 +42,6 @@
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 15px; outline: none; background: transparent; }
 
-        /* EXAKTE BLOCK-BREITE GENAU BIS ZU DEN SCHWARZEN LINIEN */
         #planScreen { background: #fff; }
         .schedule-table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
         .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 76px; }
@@ -56,7 +55,7 @@
             padding: 3px 2px; 
             margin: auto; 
             position: relative; 
-            width: 92%; /* Exakt die gewünschte Breite zwischen den schwarzen Linien */
+            width: 92%; 
             height: 70px; 
             display: flex; 
             flex-direction: column; 
@@ -396,7 +395,7 @@
             return;
         }
         aktuellesObjekt = name;
-        schnelleWocheOffset = 0;
+        schnelleWocheOffset = 0; // Setzt den Offset beim Öffnen eines Plans immer sauber auf die echte aktuelle Woche zurück
         zeigePlan();
     }
 
@@ -406,10 +405,16 @@
     }
 
     function getWochenTageDaten(offset) {
-        var d = new Date();
-        var currentDay = d.getDay();
-        var diffToMon = d.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
-        var montag = new Date(d.setDate(diffToMon + (offset * 7)));
+        var now = new Date();
+        // Lokales Datum auf Mitternacht setzen, um Zeitzonen-Sprünge zu verhindern
+        var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        var day = d.getDay();
+        // Korrekte Berechnung des Montags (Berücksichtigt Sonntag als 0)
+        var diffToMon = (day === 0 ? -6 : 1) - day;
+        
+        var montag = new Date(d);
+        montag.setDate(d.getDate() + diffToMon + (offset * 7));
 
         var tage = [];
         var tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
