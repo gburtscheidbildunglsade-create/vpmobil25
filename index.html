@@ -199,8 +199,10 @@
             background-color: #fffaf0;
         }
         
-        /* ROTE SCHRIFT OHNE FETTDRUCK (NORMALE SCHRIFTSTÄRKE) */
-        .red-text { color: #b00000 !important; font-weight: normal !important; }
+        /* FACH & RAUM ROT ABER DÜNN (NORMAL) */
+        .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
+        /* LEHRER ROT UND FETT */
+        .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
 
         .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -645,7 +647,7 @@
             istEingeloggt = true;
             istAdmin = true;
             istSchueler = false;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + ' (ADMIN)';
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + ' (Admin)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
@@ -654,7 +656,7 @@
             istEingeloggt = true;
             istAdmin = false;
             istSchueler = false;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (LEHRER)';
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (Lehrer)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
@@ -663,7 +665,7 @@
             istEingeloggt = true;
             istAdmin = false;
             istSchueler = true;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (SCHÜLER)';
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (Schueler)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
@@ -897,9 +899,12 @@
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var fClass = d.redF ? "red-text" : "";
-        var lClass = d.redL ? "red-text" : "";
-        var rClass = d.redR ? "red-text" : "";
+        // Fach & Raum: rot, aber dünn (normaler Font-Weight)
+        var fClass = d.redF ? "red-text-thin" : "";
+        var rClass = d.redR ? "red-text-thin" : "";
+        // Lehrer: rot und fett
+        var lClass = d.redL ? "red-text-bold" : "";
+        
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
