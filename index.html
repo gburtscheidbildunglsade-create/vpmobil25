@@ -2,93 +2,220 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VpMobil24</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #9bb5d1; /* Klassischer hellblauer Hintergrund wie im Vorbild */
+            margin: 0; 
+            padding: 0; 
+            color: #000;
+        }
         
-        .top-bar { background-color: #00cccc; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; position: relative; }
-        .menu-burger { position: absolute; right: 15px; top: 12px; cursor: pointer; font-size: 18px; }
-        .cyan-header { background-color: #00cccc; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: #000; }
-        .nav-link { color: #0000ff; text-decoration: none; cursor: pointer; font-size: 15px; font-weight: normal; }
-        
+        /* OBERE WEISSE NAVIGATION (WIE IM BILD) */
+        .ios-top-nav {
+            background-color: #ffffff;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #b0c4de;
+            font-size: 16px;
+        }
+        .ios-link { color: #007aff; text-decoration: none; cursor: pointer; font-weight: 400; display: flex; align-items: center; gap: 6px; }
+        .ios-week-title { font-weight: bold; font-size: 15px; color: #000; text-align: center; }
+
+        /* BLAUE SUB-LEISTE (WIE IM BILD) */
+        .blue-sub-bar {
+            background-color: #6c9ce8;
+            padding: 7px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 15px;
+            border-bottom: 1px solid #5584cf;
+        }
+        .sub-bar-left { display: flex; align-items: center; gap: 14px; }
+        .status-dot { width: 14px; height: 14px; background-color: #2ecc71; border-radius: 50%; display: inline-block; box-shadow: 0 0 3px rgba(0,0,0,0.3); }
+
         .screen { display: none; }
         .screen.active { display: block; }
 
-        #hauptmenueScreen { padding: 15px; }
-        .school-banner { background-color: #e56b6f; color: white; text-align: center; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; }
+        /* HAUPTMENÜ / STARTSEITE */
+        .top-bar { background-color: #6c9ce8; color: #000; text-align: center; padding: 12px; font-weight: bold; font-size: 17px; position: relative; border-bottom: 1px solid #5584cf; }
+        .menu-burger { position: absolute; right: 15px; top: 11px; cursor: pointer; font-size: 20px; color: #000; }
+        
+        #hauptmenueScreen { padding: 15px; min-height: 100vh; background-color: #f2f2f7; }
+        .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: bold; }
+        
+        /* ADMIN HOCHLADEN BUTTON */
+        .admin-upload-box {
+            background-color: #ffffff;
+            border: 2px solid #2ecc71;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 18px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .upload-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+        }
+        .upload-btn:active { transform: scale(0.98); }
+        .draft-badge { font-size: 12px; color: #d35400; font-weight: bold; margin-top: 8px; display: block; }
+
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .tile { background-color: #e56b6f; color: white; border-radius: 8px; height: 95px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
-        .tile-remove { position: absolute; top: 5px; right: 8px; font-size: 14px; cursor: pointer; opacity: 0.8; }
-        .tile-icon { font-size: 26px; margin-bottom: 4px; }
-        .tile-add { background-color: #2ecc71; color: white; }
+        .tile { background-color: #6c9ce8; color: white; border-radius: 10px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); font-weight: bold; }
+        .tile-remove { position: absolute; top: 6px; right: 9px; font-size: 14px; cursor: pointer; opacity: 0.85; }
+        .tile-icon { font-size: 24px; margin-bottom: 4px; }
+        .tile-add { background-color: #34c759; color: white; }
 
+        /* AUSWAHL SCREEN */
         #auswahlScreen { background: white; min-height: 100vh; }
-        .search-bar-container { padding: 8px 12px; background: #fff; border-bottom: 1px solid #ddd; }
-        .search-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; outline: none; }
-        .tabs-header { display: flex; background: #f1f1f1; border-bottom: 1px solid #ccc; }
+        .search-bar-container { padding: 8px 12px; background: #f2f2f7; border-bottom: 1px solid #ddd; }
+        .search-input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; background: #fff; }
+        .tabs-header { display: flex; background: #f2f2f7; border-bottom: 1px solid #ccc; }
         .tab-head { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-size: 14px; color: #555; }
-        .tab-head.active { background: white; font-weight: bold; color: #000; border-bottom: 3px solid #00cccc; }
-        .tab-head.disabled { color: #aaa; cursor: not-allowed; background: #e9e9e9; }
-        .list-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; font-size: 15px; align-items: center; }
-        .star-btn { font-size: 18px; color: #ccc; cursor: pointer; background: none; border: none; }
-        .star-btn.favorited { color: #f1c40f; }
+        .tab-head.active { background: white; font-weight: bold; color: #007aff; border-bottom: 3px solid #007aff; }
+        .tab-head.disabled { color: #aaa; cursor: not-allowed; background: #e5e5ea; }
+        .list-item { padding: 13px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; font-size: 16px; align-items: center; }
+        .star-btn { font-size: 20px; color: #ccc; cursor: pointer; background: none; border: none; }
+        .star-btn.favorited { color: #ffcc00; }
 
-        .settings-container { padding: 15px; background: #f0f2f5; min-height: 100vh; }
-        .settings-group { background: white; border-radius: 8px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .settings-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 14px; cursor: pointer; }
-        .settings-header-title { font-size: 12px; color: #777; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
+        /* SETTINGS & LOGIN */
+        .settings-container { padding: 15px; background: #f2f2f7; min-height: 100vh; }
+        .settings-group { background: white; border-radius: 10px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .settings-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; }
+        .settings-header-title { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
         .form-group { padding: 12px 15px; border-bottom: 1px solid #eee; }
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
-        .form-input { width: 100%; padding: 6px 0; border: none; font-size: 15px; outline: none; background: transparent; }
+        .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
+        .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
 
-        #planScreen { background: #fff; }
-        .schedule-table { width: 100%; border-collapse: collapse; table-layout: fixed; background-color: #fff; }
-        .schedule-table th, .schedule-table td { border: 1px solid #b0c4de; text-align: center; vertical-align: middle; padding: 2px; height: 76px; }
-        .day-header { background-color: #f7d7ad; font-size: 11px; padding: 5px 2px; font-weight: bold; line-height: 1.2; }
-        .hour-col { background-color: #f7d7ad; width: 52px; font-size: 10px; font-weight: bold; text-align: center; line-height: 1.2; }
+        /* STUNDENPLAN RASTER (EXAKT WIE VORLAGE, IPHONE OPTIMIERT) */
+        #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 20px; }
+        .plan-wrapper { padding: 6px 4px; overflow-x: auto; }
+        .schedule-table { 
+            width: 100%; 
+            max-width: 520px; /* Auf großen Bildschirmen kompakt wie im Bild, auf iPhone 100% */
+            border-collapse: separate; 
+            border-spacing: 3px; 
+            table-layout: fixed; 
+        }
+        
+        /* ZEIT-SPALTE LINKS */
+        .hour-col { 
+            background-color: #f9d8a7; 
+            width: 44px; 
+            border-radius: 4px;
+            padding: 3px 1px;
+            text-align: center; 
+            vertical-align: middle;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .time-top, .time-bot { font-size: 9px; color: #333; display: block; line-height: 1.1; }
+        .hour-num { font-size: 13px; font-weight: bold; color: #000; display: block; margin: 2px 0; line-height: 1.1; }
 
+        /* TAGES-KOPFZEILE OBEN */
+        .day-header { 
+            background-color: #f9d8a7; 
+            border-radius: 4px;
+            padding: 4px 2px; 
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .day-name { font-size: 12px; font-weight: bold; color: #000; display: block; line-height: 1.15; }
+        .day-date { font-size: 11px; font-weight: bold; color: #000; display: block; line-height: 1.15; }
+        .day-export-time { font-size: 8.5px; color: #444; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.2px; }
+
+        /* STUNDEN-ZELLEN & WEISSE BLÖCKE */
+        .schedule-table td.slot-cell { 
+            padding: 0; 
+            height: 64px; 
+            vertical-align: middle; 
+            text-align: center;
+        }
         .lesson-box { 
             background-color: #ffffff; 
-            border: 1px solid #dcdcdc; 
             border-radius: 4px; 
-            padding: 3px 2px; 
-            margin: auto; 
-            position: relative; 
-            width: 92%; 
-            height: 70px; 
+            padding: 2px 1px; 
+            width: 100%; 
+            height: 62px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
+            position: relative;
             cursor: pointer; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+        .lesson-box.empty-slot {
+            background-color: transparent;
+            box-shadow: none;
+        }
+        .lesson-box.draft-slot {
+            border: 1.5px dashed #e67e22;
+            background-color: #fffaf0;
         }
         
-        .red-fach { color: #900 !important; font-weight: bold; }
-        .red-lehrer { color: #900 !important; font-weight: bold; }
-        .red-raum { color: #900 !important; font-weight: bold; }
+        .red-text { color: #b00000 !important; font-weight: bold !important; }
 
-        .lesson-line-1 { font-size: 11px; color: #222; font-weight: 500; line-height: 1.2; text-align: center; }
-        .lesson-line-2 { font-weight: bold; font-size: 11px; color: #000; line-height: 1.2; text-align: center; margin: 1px 0; white-space: pre-line; }
-        .lesson-line-3 { font-size: 10px; color: #444; line-height: 1.2; text-align: center; } 
-        .info-icon { position: absolute; top: 1px; right: 2px; background: #0066cc; color: white; border-radius: 50%; width: 10px; height: 10px; font-size: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+        
+        /* BLAUES INFO-ICON (WIE IM BILD OBEN RECHTS AM BLOCK/TAG) */
+        .info-icon { 
+            position: absolute; 
+            top: -3px; 
+            right: -3px; 
+            background: #2b6cb0; 
+            color: white; 
+            border: 1px solid #fff;
+            border-radius: 50%; 
+            width: 14px; 
+            height: 14px; 
+            font-size: 9px; 
+            font-family: Georgia, serif;
+            font-style: italic;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            z-index: 5;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
 
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
-        .modal-content { background:white; padding:20px; border-radius:8px; width:90%; max-width:340px; text-align:left; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .modal-btn { background:#0066cc; color:white; border:none; padding:8px 14px; margin-top:8px; border-radius:4px; cursor:pointer; font-weight:bold; width: 100%; text-align: center; }
+        /* POPUP / MODAL */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
+        .modal-content { background:white; padding:18px; border-radius:12px; width:100%; max-width:350px; text-align:left; box-shadow: 0 8px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-title { font-weight: bold; font-size: 16px; margin: 0 0 8px 0; color: #000; }
+        .modal-info-text { font-size: 14px; color: #333; background: #f2f2f7; padding: 10px; border-radius: 6px; margin-bottom: 10px; white-space: pre-wrap; }
+        .modal-btn { background:#007aff; color:white; border:none; padding:10px 14px; margin-top:8px; border-radius:8px; cursor:pointer; font-weight:bold; width: 100%; text-align: center; font-size: 15px; }
+        .modal-input { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px; font-size: 15px; margin-top: 3px; }
 
-        .action-btn { background: #00cccc; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; width: 100%; }
-
-        @media print {
-            body { background-color: #fff; }
-            .screen { display: none !important; }
-            #planScreen { display: block !important; }
-            .cyan-header .nav-link, .cyan-header span:last-child { display: none !important; }
-            .schedule-table { width: 100%; page-break-inside: avoid; }
-            .hour-col, .day-header { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .lesson-box { border: 1px solid #999 !important; background-color: #fff !important; }
+        @media (max-width: 390px) {
+            .hour-col { width: 38px; }
+            .time-top, .time-bot { font-size: 8px; }
+            .day-export-time { font-size: 7.5px; }
+            .lesson-line-1, .lesson-line-2 { font-size: 11px; }
+            .lesson-line-3 { font-size: 10px; }
         }
     </style>
 </head>
@@ -96,10 +223,7 @@
 
 <!-- LOGIN SCREEN -->
 <div id="zugangsdatenScreen" class="screen active">
-    <div style="padding: 12px; background: #00cccc; text-align: center; color: white; font-weight: bold; font-size: 16px;">
-        VpMobil24 Login
-    </div>
-
+    <div class="top-bar">VpMobil24 Login</div>
     <div class="settings-container">
         <div class="settings-header-title">Zugangsdaten</div>
         <div class="settings-group">
@@ -131,18 +255,25 @@
         <span class="menu-burger" onclick="zeigeScreen('einstellungenScreen')">&#9776;</span>
     </div>
     
-    <div style="padding-top: 15px;">
+    <div style="padding-top: 5px;">
         <div class="school-banner" id="schulBannerText">Übersicht</div>
+
+        <!-- NUR FÜR ADMIN: HOCHLADEN BUTTON -->
+        <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
+            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen</button>
+            <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
+        </div>
+
         <div class="grid-container" id="favoritenRaster"></div>
-        <div style="font-size: 11px; color: #777; text-align: center; margin-top: 25px;">letzte Suche: 09:24 Uhr</div>
     </div>
 </div>
 
 <!-- AUSWAHL SCREEN -->
 <div id="auswahlScreen" class="screen">
-    <div style="padding: 12px; background: #00cccc; display: flex; align-items: center; color: white; font-weight: bold;">
-        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')" style="color:white; margin-right: 15px;">&lt; Zurück</span>
-        <span>Auswahl</span>
+    <div class="ios-top-nav">
+        <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">&lsaquo; Start</span>
+        <span style="font-weight:bold;">Auswahl</span>
+        <span style="width: 45px;"></span>
     </div>
     <div class="search-bar-container">
         <input type="text" id="suchFeld" class="search-input" placeholder="Suchen..." oninput="filterListe()">
@@ -157,81 +288,102 @@
 
 <!-- EINSTELLUNGEN SCREEN -->
 <div id="einstellungenScreen" class="screen">
-    <div style="padding: 12px; background: #00cccc; display: flex; align-items: center; color: white; font-weight: bold;">
-        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')" style="color:white; margin-right: 15px;">&lt; Zurück</span>
-        <span>Einstellungen</span>
+    <div class="ios-top-nav">
+        <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">&lsaquo; Start</span>
+        <span style="font-weight:bold;">Einstellungen</span>
+        <span style="width: 45px;"></span>
     </div>
-    
     <div class="settings-container">
-        <div class="settings-header-title">Optionen</div>
+        <div class="settings-header-title">Konto</div>
         <div class="settings-group">
             <div class="settings-item" onclick="abmelden()">
-                <span style="color:red; font-weight:bold;">Abmelden</span>
-                <span>&gt;</span>
+                <span style="color:#ff3b30; font-weight:bold;">Abmelden</span>
+                <span>&rsaquo;</span>
             </div>
         </div>
     </div>
 </div>
 
-<!-- STUNDENPLAN SCREEN -->
+<!-- STUNDENPLAN SCREEN (OPTIK EXAKT WIE VORLAGE) -->
 <div id="planScreen" class="screen">
-    <div class="cyan-header">
-        <span class="nav-link" onclick="zeigeScreen('hauptmenueScreen')">Start</span>
-        <div>
-            <span class="nav-link" onclick="wocheWechseln(-1)" style="margin-right: 8px; font-weight:bold;">&lt;</span>
-            <span id="planWocheTitel" style="font-size: 13px;"></span>
-            <span class="nav-link" onclick="wocheWechseln(1)" style="margin-left: 8px; font-weight:bold;">&gt;</span>
+    <div class="ios-top-nav">
+        <div style="display:flex; align-items:center; gap:14px;">
+            <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">Start</span>
+            <span class="ios-link" onclick="zeigeAuswahl(aktuellerModus)" style="font-size:18px;">&#128269;</span>
+            <span class="ios-link" onclick="wocheWechseln(-1)" style="font-size:22px; font-weight:bold;">&lsaquo;</span>
         </div>
-        <span class="nav-link" onclick="druckeStundenplan()" style="color:black; font-weight:bold;" title="Stundenplan drucken">🖨️ Drucken</span>
-    </div>
-    <div style="background-color: #b2ebf2; padding: 6px; display: flex; justify-content: center; align-items: center; border-top: 1px solid #80deea; font-weight: bold; font-size: 14px;" id="planHeaderLeiste">
-        <span id="planObjektTitel">06/1</span>
+        <div class="ios-week-title" id="planWocheTitel">2. Nov. - 6. Nov. 2026</div>
+        <div>
+            <span class="ios-link" onclick="wocheWechseln(1)" style="font-size:22px; font-weight:bold;">&rsaquo;</span>
+        </div>
     </div>
 
-    <table class="schedule-table">
-        <thead>
-            <tr id="tageHeaderRow">
-                <th class="hour-col">Zeit</th>
-                <th class="day-header" id="th_0">Mo.</th>
-                <th class="day-header" id="th_1">Di.</th>
-                <th class="day-header" id="th_2">Mi.</th>
-                <th class="day-header" id="th_3">Do.</th>
-                <th class="day-header" id="th_4">Fr.</th>
-            </tr>
-        </thead>
-        <tbody id="stundenRasterKoerper"></tbody>
-    </table>
+    <div class="blue-sub-bar">
+        <div class="sub-bar-left">
+            <span style="font-size: 16px; opacity: 0.7;">&#9783;</span>
+            <span style="font-size: 16px; opacity: 0.7;">&#9776;</span>
+            <span id="planObjektTitel">06/1</span>
+            <span class="status-dot" title="Online"></span>
+        </div>
+        <span onclick="ladeDatenAusCloud()" style="cursor:pointer; font-size:18px; color:#0055cc;" title="Aktualisieren">&#8635;</span>
+    </div>
+
+    <div class="plan-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th class="hour-col" style="background: transparent; box-shadow: none;"></th>
+                    <th class="day-header" id="th_0" onclick="klickeTagHeader(0)"></th>
+                    <th class="day-header" id="th_1" onclick="klickeTagHeader(1)"></th>
+                    <th class="day-header" id="th_2" onclick="klickeTagHeader(2)"></th>
+                    <th class="day-header" id="th_3" onclick="klickeTagHeader(3)"></th>
+                    <th class="day-header" id="th_4" onclick="klickeTagHeader(4)"></th>
+                </tr>
+            </thead>
+            <tbody id="stundenRasterKoerper"></tbody>
+        </table>
+    </div>
 </div>
 
-<!-- MODAL FÜR ADMIN-BEARBEITUNG -->
+<!-- MODAL FÜR STUNDEN- & TAGES-INFOS / BEARBEITUNG -->
 <div id="infoModal" class="modal">
     <div class="modal-content">
-        <p id="modalText"></p>
-        <div id="adminBearbeitenArea" style="display:none; margin-top:10px;">
-            <hr style="margin: 10px 0;">
-            <b>Stunde erstellen / bearbeiten:</b><br>
-            <label class="form-label" style="margin-top:6px;">Fach:</label>
-            <input type="text" id="editFach" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Fach eingeben">
+        <div class="modal-title" id="modalTitle">Information</div>
+        <div id="modalInfoBox" class="modal-info-text" style="display:none;"></div>
+        
+        <!-- ADMIN BEREICH FÜR STUNDE -->
+        <div id="adminBearbeitenArea" style="display:none;">
+            <label class="form-label">Fach (z.B. Mat, Spo, ---):</label>
+            <input type="text" id="editFach" class="modal-input" placeholder="Fach">
             
-            <label class="form-label" style="margin-top:6px;">Lehrer (auch mehrere Zeilen möglich):</label>
-            <input type="text" id="editLehrer" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Lehrer eingeben">
+            <label class="form-label" style="margin-top:8px;">Lehrer (z.B. Gro oder Kut Lin):</label>
+            <input type="text" id="editLehrer" class="modal-input" placeholder="Lehrer">
             
-            <label class="form-label" style="margin-top:6px;">Raum:</label>
-            <input type="text" id="editRaum" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Raum eingeben">
+            <label class="form-label" style="margin-top:8px;">Raum (z.B. 224 oder SH 124):</label>
+            <input type="text" id="editRaum" class="modal-input" placeholder="Raum">
 
-            <div style="margin: 10px 0; background: #f9f9f9; padding: 8px; border: 1px solid #ddd;">
-                <b>Einzeln Rot markieren:</b><br>
-                <label><input type="checkbox" id="checkRedFach"> Fach rot</label><br>
-                <label><input type="checkbox" id="checkRedLehrer"> Lehrer rot</label><br>
-                <label><input type="checkbox" id="checkRedRaum"> Raum rot</label>
+            <div style="margin: 10px 0; background: #f2f2f7; padding: 8px; border-radius: 6px; font-size: 13px;">
+                <b>Rot markieren (Änderung):</b><br>
+                <label style="margin-right:10px;"><input type="checkbox" id="checkRedFach"> Fach</label>
+                <label style="margin-right:10px;"><input type="checkbox" id="checkRedLehrer"> Lehrer</label>
+                <label><input type="checkbox" id="checkRedRaum"> Raum</label>
             </div>
 
-            <label class="form-label">Info-Text / Notiz:</label>
-            <input type="text" id="editInfo" class="form-input" style="border:1px solid #ccc; padding:4px;" placeholder="Hinweis eingeben">
+            <label class="form-label">Info-Popup Text (erzeugt blaues „i“):</label>
+            <input type="text" id="editInfo" class="modal-input" placeholder="Optionaler Hinweis">
 
-            <button class="modal-btn" style="background:#2ecc71;" onclick="speichereEigenenPlanBlock()">Speichern</button>
+            <button class="modal-btn" style="background:#34c759;" onclick="speichereEntwurfBlock()">Als Entwurf speichern</button>
+            <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde löschen</button>
         </div>
-        <button class="modal-btn" onclick="closeModal()">Schließen</button>
+
+        <!-- ADMIN BEREICH FÜR TAGES-INFO -->
+        <div id="adminTagArea" style="display:none;">
+            <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
+            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
+            <button class="modal-btn" style="background:#34c759;" onclick="speichereTagInfo()">Tages-Info speichern</button>
+        </div>
+
+        <button class="modal-btn" style="background:#8e8e93;" onclick="closeModal()">Schließen</button>
     </div>
 </div>
 
@@ -268,22 +420,41 @@
     var istAdmin = false;
     var istSchueler = false;
     var aktuellerCellKey = null;
+    var aktuellerTagIndex = null;
 
-    var wochenPläne = {};
+    // Datenstruktur:
+    // publishedPlaene: Das was Schüler & Lehrer sehen
+    // draftPlaene: Das was der Admin gerade bearbeitet (wird bei "Pläne hochladen" zu publishedPlaene)
+    // dayMeta: Speichert pro Objekt_Woche_Tag { exportTime: "2.11. 06:48", info: "..." }
+    var publishedPlaene = {};
+    var draftPlaene = {};
+    var dayMeta = {};
+    var hatUnveroeffentlichteAenderungen = false;
 
-    function savePlaene() {
-        localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
-        speichereDatenInCloud();
-    }
-
-    function druckeStundenplan() {
-        window.print();
+    function aktualisiereAdminStatusAnzeige() {
+        var box = document.getElementById('adminUploadContainer');
+        var statusTxt = document.getElementById('entwurfStatusText');
+        if (!istAdmin) {
+            box.style.display = 'none';
+            return;
+        }
+        box.style.display = 'block';
+        if (hatUnveroeffentlichteAenderungen) {
+            statusTxt.innerText = "⚠️ Du hast unveröffentlichte Stunden-Änderungen!";
+            statusTxt.style.color = "#d35400";
+        } else {
+            statusTxt.innerText = "✔️ Alle Pläne sind aktuell veröffentlicht.";
+            statusTxt.style.color = "#27ae60";
+        }
     }
 
     function zeigeScreen(screenId) {
         document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
         document.getElementById(screenId).classList.add('active');
-        if (screenId === 'hauptmenueScreen') erstelleFavoritenRaster();
+        if (screenId === 'hauptmenueScreen') {
+            erstelleFavoritenRaster();
+            aktualisiereAdminStatusAnzeige();
+        }
     }
 
     function speichereZugang() {
@@ -295,8 +466,7 @@
             istEingeloggt = true;
             istAdmin = true;
             istSchueler = false;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + '<br><small>Rolle: ADMIN</small>';
-            alert("Erfolgreich als Admin angemeldet!");
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + ' (ADMIN)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
@@ -305,8 +475,7 @@
             istEingeloggt = true;
             istAdmin = false;
             istSchueler = false;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: LEHRER</small>';
-            alert("Erfolgreich als Lehrer angemeldet!");
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (LEHRER)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
@@ -314,14 +483,13 @@
         if (rolle === "schueler" && pass === "Y34-1312") {
             istEingeloggt = true;
             istAdmin = false;
-            istSchueler = true; // Schüler-Rolle aktiv
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + '<br><small>Rolle: SCHÜLER</small>';
-            alert("Erfolgreich als Schüler angemeldet!");
+            istSchueler = true;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (SCHÜLER)';
             zeigeScreen('hauptmenueScreen');
             return;
         }
 
-        alert("Falsches Passwort oder ungültige Zugangsdaten für die gewählte Rolle!");
+        alert("Falsches Passwort oder ungültige Zugangsdaten!");
     }
 
     function abmelden() {
@@ -337,6 +505,7 @@
         var raster = document.getElementById('favoritenRaster');
         raster.innerHTML = '';
         favoriten.forEach(function(fav, index) {
+            if (istSchueler && fav.modus !== 'klassen') return;
             raster.innerHTML += '<div class="tile" onclick="ladePlanAnsicht(\'' + fav.name + '\', \'' + fav.modus + '\')">' +
                 '<span class="tile-remove" onclick="event.stopPropagation(); loescheFavoriten(' + index + ')">✕</span>' +
                 '<span class="tile-icon">☆</span>' +
@@ -345,7 +514,7 @@
         });
         raster.innerHTML += '<div class="tile tile-add" onclick="zeigeAuswahl(\'klassen\')">' +
             '<span class="tile-icon">+</span>' +
-            '<span>Plan anzeigen</span>' +
+            '<span>Plan auswählen</span>' +
             '</div>';
     }
 
@@ -355,21 +524,14 @@
     }
 
     function zeigeAuswahl(modus) {
-        // Wenn Schüler eingeloggt ist, darf er nur Klassen öffnen
-        if (istSchueler && modus !== 'klassen') {
-            modus = 'klassen';
-        }
+        if (istSchueler && modus !== 'klassen') modus = 'klassen';
         aktuellerModus = modus;
         zeigeScreen('auswahlScreen');
         wechselTab(modus);
     }
 
     function wechselTab(modus) {
-        // Schüler dürfen nicht auf Lehrer oder Räume wechseln
-        if (istSchueler && modus !== 'klassen') {
-            return;
-        }
-
+        if (istSchueler && modus !== 'klassen') return;
         aktuellerModus = modus;
         
         var tabKlassen = document.getElementById('tabKlassenHead');
@@ -390,7 +552,6 @@
             if(modus === 'lehrer') tabLehrer.classList.add('active');
             if(modus === 'raeume') tabRaeume.classList.add('active');
         }
-
         filterListe();
     }
 
@@ -399,9 +560,7 @@
         var container = document.getElementById('auswahlListe');
         container.innerHTML = '';
 
-        // Schüler sehen zwingend nur Klassen
         var aktiveModus = istSchueler ? 'klassen' : aktuellerModus;
-
         var liste = aktiveModus === 'klassen' ? datenKlassen :
                     aktiveModus === 'lehrer' ? datenLehrer : datenRaeume;
 
@@ -429,10 +588,7 @@
             zeigeScreen('zugangsdatenScreen');
             return;
         }
-        if (istSchueler && modus !== 'klassen') {
-            alert("Schüler haben nur Zugriff auf Klassenpläne!");
-            return;
-        }
+        if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
         schnelleWocheOffset = 0; 
         zeigePlan();
@@ -446,23 +602,38 @@
     function getWochenTageDaten(offset) {
         var now = new Date();
         var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
         var day = d.getDay();
         var diffToMon = (day === 0 ? -6 : 1) - day;
         
         var montag = new Date(d);
         montag.setDate(d.getDate() + diffToMon + (offset * 7));
 
+        var monateKurz = ["Jan.", "Feb.", "Mär.", "Apr.", "Mai", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
         var tage = [];
         var tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
         
         for (var i = 0; i < 5; i++) {
             var temp = new Date(montag);
             temp.setDate(montag.getDate() + i);
-            var tagStr = ("0" + temp.getDate()).slice(-2) + "." + ("0" + (temp.getMonth() + 1)).slice(-2) + ".";
-            tage.push({ kurz: tageNamen[i], datum: tagStr });
+            var tagKurzDatum = temp.getDate() + "." + (temp.getMonth() + 1) + ".";
+            var titelDatum = temp.getDate() + ". " + monateKurz[temp.getMonth()];
+            tage.push({ 
+                kurz: tageNamen[i], 
+                datum: tagKurzDatum, 
+                titelDatum: titelDatum,
+                jahr: temp.getFullYear()
+            });
         }
         return tage;
+    }
+
+    function getAktuellenZeitstempel() {
+        var now = new Date();
+        var tag = now.getDate();
+        var monat = now.getMonth() + 1;
+        var std = ("0" + now.getHours()).slice(-2);
+        var min = ("0" + now.getMinutes()).slice(-2);
+        return tag + "." + monat + ". " + std + ":" + min;
     }
 
     function zeigePlan() {
@@ -470,10 +641,24 @@
         document.getElementById('planObjektTitel').innerText = aktuellesObjekt;
 
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        document.getElementById('planWocheTitel').innerText = wochenDaten[0].datum.slice(0, 5) + " - " + wochenDaten[4].datum.slice(0, 5);
+        document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
+
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        
+        // Admin sieht seine Entwürfe (falls vorhanden), sonst veröffentlichte Pläne. Schüler/Lehrer sehen NUR veröffentlichte Pläne.
+        var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
 
         for (var t = 0; t < 5; t++) {
-            document.getElementById('th_' + t).innerHTML = wochenDaten[t].kurz + '<br>' + wochenDaten[t].datum.slice(0, 5);
+            var metaKey = planKey + '_d' + t;
+            var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
+            var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
+            var exportHtml = meta.exportTime ? '<span class="day-export-time">' + meta.exportTime + '</span>' : '<span class="day-export-time">&nbsp;</span>';
+
+            document.getElementById('th_' + t).innerHTML = 
+                infoBadge +
+                '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
+                '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
+                exportHtml;
         }
 
         zeigeScreen('planScreen');
@@ -493,47 +678,108 @@
         ];
 
         zeiten.forEach(function(s) {
-            var row = '<tr><td class="hour-col">' + s.start + '<br><b>' + s.stunde + '</b><br>' + s.ende + '</td>';
+            var row = '<tr><td class="hour-col">' +
+                '<span class="time-top">' + s.start + '</span>' +
+                '<span class="hour-num">' + s.stunde + '</span>' +
+                '<span class="time-bot">' + s.ende + '</span>' +
+                '</td>';
+
             for (var tag = 0; tag < 5; tag++) {
-                var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-                if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
-
                 var cellKey = s.stunde + '_' + tag;
-                var blockDaten = wochenPläne[planKey][cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                var blockDaten = aktiverPlanDaten[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                
+                // Prüfen ob es ein unveröffentlichter Entwurf ist (nur für Admin sichtbar)
+                var pubBlock = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", info: "" };
+                var istEntwurf = istAdmin && (JSON.stringify(blockDaten) !== JSON.stringify(pubBlock));
 
-                row += '<td>' + renderBlockHtml(blockDaten, cellKey) + '</td>';
+                row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, istEntwurf) + '</td>';
             }
             row += '</tr>';
             koerper.innerHTML += row;
         });
     }
 
-    function renderBlockHtml(d, cellKey) {
+    function renderBlockHtml(d, cellKey, istEntwurf) {
         if (!d.fach && !d.lehrer && !d.raum) {
-            return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')" style="background:transparent; border:none; box-shadow:none; width:100%;"></div>';
+            var draftClass = istEntwurf ? " draft-slot" : "";
+            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var fClass = d.redF ? "red-fach" : "";
-        var lClass = d.redL ? "red-lehrer" : "";
-        var rClass = d.redR ? "red-raum" : "";
+        var fClass = d.redF ? "red-text" : "";
+        var lClass = d.redL ? "red-text" : "";
+        var rClass = d.redR ? "red-text" : "";
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
+        var draftClass = istEntwurf ? " draft-slot" : "";
 
-        return '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')">' +
+        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
             hasInfo +
-            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '') + '</div>' +
-            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '') + '</div>' +
-            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '') + '</div>' +
+            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '&nbsp;') + '</div>' +
             '</div>';
+    }
+
+    function klickeTagHeader(tagIndex) {
+        aktuellerTagIndex = tagIndex;
+        aktuellerCellKey = null;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var metaKey = planKey + '_d' + tagIndex;
+        var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
+
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+        document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
+
+        document.getElementById('adminBearbeitenArea').style.display = 'none';
+
+        if (meta.info) {
+            document.getElementById('modalInfoBox').style.display = 'block';
+            document.getElementById('modalInfoBox').innerText = meta.info;
+        } else {
+            document.getElementById('modalInfoBox').style.display = 'none';
+        }
+
+        if (istAdmin) {
+            document.getElementById('adminTagArea').style.display = 'block';
+            document.getElementById('editTagInfo').value = meta.info || '';
+            document.getElementById('infoModal').style.display = 'flex';
+        } else if (meta.info) {
+            document.getElementById('adminTagArea').style.display = 'none';
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+    }
+
+    function speichereTagInfo() {
+        if (!istAdmin || aktuellerTagIndex === null) return;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var metaKey = planKey + '_d' + aktuellerTagIndex;
+        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+        dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
+
+        speichereDatenInCloud();
+        closeModal();
+        zeigePlan();
     }
 
     function klickeZelle(cellKey) {
         aktuellerCellKey = cellKey;
+        aktuellerTagIndex = null;
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        var d = (wochenPläne[planKey] && wochenPläne[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+        var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
+        var d = aktiverPlan[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
 
-        document.getElementById('modalText').innerText = d.info ? "Notiz: " + d.info : "Stundeninformation:";
+        // Wenn kein Admin und weder Info noch Inhalt da ist, nichts öffnen
+        if (!istAdmin && !d.info) return;
+
+        document.getElementById('modalTitle').innerText = d.fach ? (d.fach + " (" + (d.lehrer || "-") + ")") : "Stunde";
+        document.getElementById('adminTagArea').style.display = 'none';
+
+        if (d.info) {
+            document.getElementById('modalInfoBox').style.display = 'block';
+            document.getElementById('modalInfoBox').innerText = d.info;
+        } else {
+            document.getElementById('modalInfoBox').style.display = 'none';
+        }
         
-        // Nur Admins dürfen Stunden bearbeiten, Schüler & Lehrer sehen nur Info/Details
         if (istAdmin) {
             document.getElementById('adminBearbeitenArea').style.display = 'block';
             document.getElementById('editFach').value = d.fach || '';
@@ -549,24 +795,93 @@
         document.getElementById('infoModal').style.display = 'flex';
     }
 
-    function speichereEigenenPlanBlock() {
+    function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        if (!wochenPläne[planKey]) wochenPläne[planKey] = {};
+        
+        if (!draftPlaene[planKey]) {
+            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
+        }
 
-        wochenPläne[planKey][aktuellerCellKey] = {
-            fach: document.getElementById('editFach').value,
-            lehrer: document.getElementById('editLehrer').value,
-            raum: document.getElementById('editRaum').value,
+        draftPlaene[planKey][aktuellerCellKey] = {
+            fach: document.getElementById('editFach').value.trim(),
+            lehrer: document.getElementById('editLehrer').value.trim(),
+            raum: document.getElementById('editRaum').value.trim(),
             redF: document.getElementById('checkRedFach').checked,
             redL: document.getElementById('checkRedLehrer').checked,
             redR: document.getElementById('checkRedRaum').checked,
-            info: document.getElementById('editInfo').value
+            info: document.getElementById('editInfo').value.trim()
         };
 
-        savePlaene();
+        hatUnveroeffentlichteAenderungen = true;
+        speichereDatenInCloud();
         closeModal();
         zeigePlan();
+    }
+
+    function loescheEntwurfBlock() {
+        if (!istAdmin || !aktuellerCellKey) return;
+        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        
+        if (!draftPlaene[planKey]) {
+            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
+        }
+
+        delete draftPlaene[planKey][aktuellerCellKey];
+        hatUnveroeffentlichteAenderungen = true;
+        speichereDatenInCloud();
+        closeModal();
+        zeigePlan();
+    }
+
+    // ADMIN HOCHLADEN-FUNKTION: VERÖFFENTLICHT ENTWÜRFE & SETZT/LÖSCHT EXPORT-ZEITSTEMPEL
+    async function veroeffentlicheAllePlaene() {
+        if (!istAdmin) return;
+        var zeitstempel = getAktuellenZeitstempel();
+
+        Object.keys(draftPlaene).forEach(function(planKey) {
+            var draft = draftPlaene[planKey] || {};
+            var pub = publishedPlaene[planKey] || {};
+
+            // Prüfe jeden der 5 Wochentage (tag = 0..4)
+            for (var tag = 0; tag < 5; tag++) {
+                var tagHatStunden = false;
+                var tagWurdeGeaendert = false;
+
+                for (var stunde = 1; stunde <= 8; stunde++) {
+                    var cellKey = stunde + '_' + tag;
+                    var dCell = draft[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                    var pCell = pub[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+
+                    if (dCell.fach || dCell.lehrer || dCell.raum) {
+                        tagHatStunden = true;
+                    }
+                    if (JSON.stringify(dCell) !== JSON.stringify(pCell)) {
+                        tagWurdeGeaendert = true;
+                    }
+                }
+
+                var metaKey = planKey + '_d' + tag;
+                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+
+                if (!tagHatStunden) {
+                    // Wenn alle Stunden an diesem Tag entfernt wurden -> Tag zurücknehmen (Zeitstempel weg)
+                    dayMeta[metaKey].exportTime = "";
+                } else if (tagWurdeGeaendert) {
+                    // Wenn Stunden hinzugefügt/geändert wurden -> Neuen Export-Zeitstempel setzen
+                    dayMeta[metaKey].exportTime = zeitstempel;
+                }
+            }
+
+            // Entwurf als offiziellen Plan übernehmen
+            publishedPlaene[planKey] = JSON.parse(JSON.stringify(draft));
+        });
+
+        draftPlaene = {};
+        hatUnveroeffentlichteAenderungen = false;
+        aktualisiereAdminStatusAnzeige();
+        await speichereDatenInCloud();
+        alert("Alle fertigen Pläne wurden erfolgreich hochgeladen und für Schüler & Lehrer freigeschaltet!");
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -582,10 +897,17 @@
             if (response.ok) {
                 let data = await response.json();
                 if (data.record) {
-                    if (data.record.wochenPläne) wochenPläne = data.record.wochenPläne;
+                    // Abwärtskompatibilität falls alte Daten unter wochenPläne liegen
+                    if (data.record.publishedPlaene) {
+                        publishedPlaene = data.record.publishedPlaene;
+                    } else if (data.record.wochenPläne) {
+                        publishedPlaene = data.record.wochenPläne;
+                    }
+                    if (data.record.draftPlaene) draftPlaene = data.record.draftPlaene;
+                    if (data.record.dayMeta) dayMeta = data.record.dayMeta;
+                    hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
                     
-                    localStorage.setItem('vpmobil24_plaene', JSON.stringify(wochenPläne));
-                    
+                    if (istAdmin) aktualisiereAdminStatusAnzeige();
                     if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
                         zeigePlan();
                     }
@@ -599,20 +921,18 @@
     async function speichereDatenInCloud() {
         try {
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
-            let res = await fetch(responseUrl, {
+            await fetch(responseUrl, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "X-Master-Key": JSONBIN_MASTER_KEY
                 },
                 body: JSON.stringify({
-                    wochenPläne: wochenPläne,
-                    klassenPasswoerter: {}
+                    publishedPlaene: publishedPlaene,
+                    draftPlaene: draftPlaene,
+                    dayMeta: dayMeta
                 })
             });
-            if (!res.ok) {
-                console.error("Speichern fehlgeschlagen, Status:", res.status);
-            }
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
         }
