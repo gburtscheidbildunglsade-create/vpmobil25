@@ -202,8 +202,11 @@
         /* SCHRIFTFARBEN & SCHRIFTSTÄRKEN */
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
+        .black-text-bold { color: #000000 !important; font-weight: bold !important; }
 
-        .lesson-line { font-size: 11px; line-height: 1.15; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-2 { font-size: 12px; font-weight: bold; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
         
         .info-icon { 
             position: absolute; 
@@ -853,7 +856,6 @@
     }
 
     function getKlassenPlanKey() {
-        // Schlüssel jetzt strikt klassen- und wochenabhängig!
         return aktuellesObjekt + '_w' + schnelleWocheOffset;
     }
 
@@ -968,7 +970,8 @@
 
         var fClass = targetBlock.redF ? "red-text-thin" : "";
         var rClass = targetBlock.redR ? "red-text-thin" : "";
-        var lClass = targetBlock.redL ? "red-text-bold" : "";
+        // Lehrer ist jetzt immer fett (egal ob rot oder schwarz)
+        var lClass = targetBlock.redL ? "red-text-bold" : "black-text-bold";
         
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
