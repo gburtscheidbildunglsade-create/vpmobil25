@@ -199,11 +199,14 @@
             background-color: #fffaf0;
         }
         
-        /* SCHRIFTFARBEN & SCHRIFTSTÄRKEN */
+        /* FACH & RAUM ROT ABER DÜNN */
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
+        /* LEHRER ROT UND FETT */
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
 
-        .lesson-line { font-size: 11px; line-height: 1.15; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
         
         .info-icon { 
             position: absolute; 
@@ -840,26 +843,11 @@
         return tag + "." + monat + ". " + std + ":" + min;
     }
 
-    function istBlockSichtbarFuerNutzer(blockDaten) {
-        if (istAdmin) return true;
-        var liste = klassenUnterricht[aktuellesObjekt] || [];
-        if (liste.length === 0) return true;
-
-        var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
-        if (deaktivierte.length === 0) return true;
-
-        var key = (blockDaten.fach1 || blockDaten.fach || "") + "|" + (blockDaten.lehrer1 || blockDaten.lehrer || "");
-        return deaktivierte.indexOf(key) === -1;
-    }
-
-    // Hilfsfunktion zur Konvertierung alter Einzel-Stunden in das neue 3-Blöcke-Format
     function normalisiereBlockDaten(d) {
         if (!d) return null;
-        // Wenn es schon das neue Format ist
         if (d.fach1 !== undefined || d.fach2 !== undefined || d.fach3 !== undefined) {
             return d;
         }
-        // Konvertierung aus altem Format
         return {
             fach1: d.fach || "",
             lehrer1: d.lehrer || "",
@@ -871,6 +859,25 @@
             fach3: "", lehrer3: "", raum3: "", redF3: false, redL3: false, redR3: false,
             info: d.info || ""
         };
+    }
+
+    function istBlockSichtbarFuerNutzer(blockDaten) {
+        if (istAdmin) return true;
+        var liste = klassenUnterricht[aktuellesObjekt] || [];
+        if (liste.length === 0) return true;
+
+        var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
+        if (deaktivierte.length === 0) return true;
+
+        for (var i = 1; i <= 3; i++) {
+            var f = blockDaten['fach' + i];
+            var l = blockDaten['lehrer' + i];
+            if (f || l) {
+                var key = f + "|" + l;
+                if (deaktivierte.indexOf(key) === -1) return true;
+            }
+        }
+        return false;
     }
 
     function zeigePlan() {
@@ -940,59 +947,44 @@
     }
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
-        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3 && !d.fach && !d.lehrer && !d.raum)) {
+        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var hasInfo = (d.info1 || d.info2 || d.info3 || d.info) ? '<div class="info-icon">i</div>' : "";
-        var draftClass = istEntwurf ? " draft-slot" : "";
-
-        var html = '';
-        var blockZaehler = 0;
-        
-        // Unterstützung für altes Format falls noch vorhanden
-        if (d.fach !== undefined && d.fach1 === undefined) {
-            blockZaehler++;
-            var fClass = d.redF ? "red-text-thin" : "";
-            var lClass = d.redL ? "red-text-bold" : "";
-            var rClass = d.redR ? "red-text-thin" : "";
-            var textLine = [
-                d.fach ? '<span class="' + fClass + '">' + d.fach + '</span>' : '',
-                d.lehrer ? '<span class="' + lClass + '">' + d.lehrer + '</span>' : '',
-                d.raum ? '<span class="' + rClass + '">' + d.raum + '</span>' : ''
-            ].filter(Boolean).join(' ');
-            html += '<div class="lesson-line">' + (textLine || '&nbsp;') + '</div>';
-        } else {
-            for (var i = 1; i <= 3; i++) {
-                var f = d['fach' + i];
-                var l = d['lehrer' + i];
-                var r = d['raum' + i];
-
-                if (f || l || r) {
-                    blockZaehler++;
-                    var fClass = d['redF' + i] ? "red-text-thin" : "";
-                    var lClass = d['redL' + i] ? "red-text-bold" : "";
-                    var rClass = d['redR' + i] ? "red-text-thin" : "";
-
-                    var textLine = [
-                        f ? '<span class="' + fClass + '">' + f + '</span>' : '',
-                        l ? '<span class="' + lClass + '">' + l + '</span>' : '',
-                        r ? '<span class="' + rClass + '">' + r + '</span>' : ''
-                    ].filter(Boolean).join(' ');
-
-                    html += '<div class="lesson-line">' + (textLine || '&nbsp;') + '</div>';
+        // FÜR SCHÜLER: Zeige nur den ersten für ihn relevanten (oder eingetragenen) Block im alten, sauberen Design
+        var targetBlock = null;
+        for (var i = 1; i <= 3; i++) {
+            var f = d['fach' + i];
+            var l = d['lehrer' + i];
+            var r = d['raum' + i];
+            if (f || l || r) {
+                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
+                if (istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                    targetBlock = tempBlock;
+                    break;
                 }
+                if (!targetBlock) targetBlock = tempBlock; // Fallback
             }
         }
 
-        if (blockZaehler === 0) {
+        if (!targetBlock || (!targetBlock.fach && !targetBlock.lehrer && !targetBlock.raum)) {
+            var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
+        var fClass = targetBlock.redF ? "red-text-thin" : "";
+        var rClass = targetBlock.redR ? "red-text-thin" : "";
+        var lClass = targetBlock.redL ? "red-text-bold" : "";
+        
+        var hasInfo = (d.info1 || d.info2 || d.info3 || d.info) ? '<div class="info-icon">i</div>' : "";
+        var draftClass = istEntwurf ? " draft-slot" : "";
+
         return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
             hasInfo +
-            html +
+            '<div class="lesson-line-1 ' + fClass + '">' + (targetBlock.fach || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-2 ' + lClass + '">' + (targetBlock.lehrer || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-3 ' + rClass + '">' + (targetBlock.raum || '&nbsp;') + '</div>' +
             '</div>';
     }
 
