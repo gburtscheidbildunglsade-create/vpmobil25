@@ -126,7 +126,7 @@
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
         .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
 
-        /* STUNDENPLAN RASTER (MIT VIEL MEHR PLATZ RECHTS & UNTEN WIE IM 2. BILD) */
+        /* STUNDENPLAN RASTER */
         #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 40px; }
         .plan-wrapper { padding: 8px 6px; overflow-x: auto; }
         .schedule-table { 
@@ -199,7 +199,8 @@
             background-color: #fffaf0;
         }
         
-        .red-text { color: #b00000 !important; font-weight: bold !important; }
+        /* ROTE SCHRIFT OHNE FETTDRUCK (NORMALE SCHRIFTSTÄRKE) */
+        .red-text { color: #b00000 !important; font-weight: normal !important; }
 
         .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -226,7 +227,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
-        /* UNTERRICHT AUSWÄHLEN SCREEN (EXAKT WIE BILD 1) */
+        /* UNTERRICHT AUSWÄHLEN SCREEN */
         #unterrichtScreen {
             background-color: #f2f2f7;
             min-height: 100vh;
@@ -402,7 +403,6 @@
     <div style="padding-top: 5px;">
         <div class="school-banner" id="schulBannerText">Übersicht</div>
 
-        <!-- NUR FÜR ADMIN: HOCHLADEN BUTTON -->
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
             <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen</button>
             <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
@@ -490,7 +490,7 @@
     </div>
 </div>
 
-<!-- UNTERRICHT AUSWÄHLEN SCREEN (EXAKT WIE BILD 1) -->
+<!-- UNTERRICHT AUSWÄHLEN SCREEN -->
 <div id="unterrichtScreen" class="screen">
     <div class="u-header">
         <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(false)">ABBRUCH</span>
@@ -499,7 +499,6 @@
     </div>
 
     <div class="u-body">
-        <!-- NUR FÜR ADMIN: NEU HINZUFÜGEN LEISTE -->
         <div id="uAdminAddBar" class="u-admin-add-row" style="display: none;">
             <input type="text" id="uInputFach" class="u-input" placeholder="Fach (z.B. Deu)">
             <input type="text" id="uInputLehrer" class="u-input" placeholder="Lehrer (z.B. Brt)">
@@ -518,13 +517,12 @@
     </div>
 </div>
 
-<!-- MODAL FÜR STUNDEN- & TAGES-INFOS / BEARBEITUNG -->
+<!-- MODAL FÜR STUNDEN- & TAGES-INFOS -->
 <div id="infoModal" class="modal">
     <div class="modal-content">
         <div class="modal-title" id="modalTitle">Information</div>
         <div id="modalInfoBox" class="modal-info-text" style="display:none;"></div>
         
-        <!-- ADMIN BEREICH FÜR STUNDE -->
         <div id="adminBearbeitenArea" style="display:none;">
             <label class="form-label">Fach (z.B. Mat, Spo, ---):</label>
             <input type="text" id="editFach" class="modal-input" placeholder="Fach">
@@ -549,14 +547,12 @@
             <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde löschen</button>
         </div>
 
-        <!-- ADMIN BEREICH FÜR TAGES-INFO -->
         <div id="adminTagArea" style="display:none;">
             <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
             <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
             <button class="modal-btn" style="background:#34c759;" onclick="speichereTagInfo()">Tages-Info speichern</button>
         </div>
 
-        <!-- ADMIN BEREICH FÜR UNTERRICHT-EINTRAG BEARBEITEN -->
         <div id="adminUnterrichtEditArea" style="display:none;">
             <label class="form-label">Fach:</label>
             <input type="text" id="editUFach" class="modal-input">
@@ -579,7 +575,7 @@
 
     var datenLehrer = [
         "?", "Bau", "Brn", "Brs", "Brt", "Czo", "Dif", "Doe", "Fil", "Föl", "Fra", "Gen", "Ger", 
-        "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hzg", "Jae", "Kan", "Kas", 
+        "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hob", "Hzg", "Jae", "Kan", "Kas", 
         "Kem", "Kiw", "Kle", "Kls", "Kut", "Lbe", "Ldm", "Leh", "Lkb", "Lie", "Lin", "Lip", "Lis", 
         "Lüb", "Mai", "Mcl", "Mes", "Mik", "Mco", "Mun", "Nai", "Neu", "Nik", "Ott", "Pab", 
         "Pap", "Pat", "Pre", "Pwl", "Red", "Reg", "Rei", "Rie", "Rml", "Rös", "Sbg", "Snd", 
@@ -605,13 +601,11 @@
     var aktuellerTagIndex = null;
     var aktuellerUEditIndex = null;
 
-    // Cloud-Daten
     var publishedPlaene = {};
     var draftPlaene = {};
-    var dayMeta = {}; // Key: "Klasse_wOffset_dTag" -> { exportTime: "12.11. 16:02", info: "" }
-    var klassenUnterricht = {}; // Key: "06/1" -> [ { fach: "Bio", lehrer: "Lin" }, ... ]
+    var dayMeta = {}; 
+    var klassenUnterricht = {}; 
     
-    // Lokale Auswahl des Nutzers (welche Fächer abgehakt sind)
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = false;
@@ -821,11 +815,10 @@
         return tag + "." + monat + ". " + std + ":" + min;
     }
 
-    // Prüft ob ein Stundenblock durch den persönlichen Unterrichts-Filter ausgeblendet werden soll
     function istBlockSichtbarFuerNutzer(blockDaten) {
-        if (istAdmin) return true; // Admin sieht immer alles
+        if (istAdmin) return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
-        if (liste.length === 0) return true; // Wenn für diese Klasse noch keine Liste angelegt wurde, alles zeigen
+        if (liste.length === 0) return true;
 
         var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
         if (deaktivierte.length === 0) return true;
@@ -844,7 +837,6 @@
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
         var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
 
-        // Export-Datum und Uhrzeit auf jedem Datumsfeld anzeigen
         for (var t = 0; t < 5; t++) {
             var metaKey = planKey + '_d' + t;
             var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
@@ -885,7 +877,6 @@
                 var cellKey = s.stunde + '_' + tag;
                 var blockDaten = aktiverPlanDaten[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
                 
-                // Wenn Nutzer diesen Unterricht abgewählt hat, als leeres Feld darstellen
                 if (!istBlockSichtbarFuerNutzer(blockDaten)) {
                     blockDaten = { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
                 }
@@ -920,12 +911,10 @@
             '</div>';
     }
 
-    /* --- UNTERRICHT AUSWÄHLEN FENSTER (GRÜNER BUTTON) --- */
     function oeffneUnterrichtAuswahl() {
         if (!aktuellesObjekt) return;
         document.getElementById('unterrichtScreenTitel').innerText = "Unterricht auswählen (Klasse " + aktuellesObjekt + ")";
         
-        // Nur Admin darf neue Einträge hinzufügen
         document.getElementById('uAdminAddBar').style.display = istAdmin ? 'flex' : 'none';
         document.getElementById('uInputFach').value = '';
         document.getElementById('uInputLehrer').value = '';
@@ -933,7 +922,6 @@
         var liste = klassenUnterricht[aktuellesObjekt] || [];
         var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
 
-        // Temporäre Auswahl laden (true = angehakt, false = nicht angehakt)
         tempUnterrichtSelection = liste.map(function(item) {
             var key = item.fach + "|" + item.lehrer;
             return deaktivierte.indexOf(key) === -1;
@@ -1052,7 +1040,6 @@
         zeigePlan();
     }
 
-    /* --- TAGES- & STUNDEN-POPUPS --- */
     function klickeTagHeader(tagIndex) {
         aktuellerTagIndex = tagIndex;
         aktuellerCellKey = null;
@@ -1171,12 +1158,10 @@
         zeigePlan();
     }
 
-    /* --- ADMIN HOCHLADEN-FUNKTION --- */
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
         var zeitstempel = getAktuellenZeitstempel();
 
-        // Alle bekannten planKeys aus Entwürfen und veröffentlichten Plänen durchgehen
         var alleKeys = new Set([...Object.keys(draftPlaene), ...Object.keys(publishedPlaene)]);
 
         alleKeys.forEach(function(planKey) {
@@ -1205,10 +1190,8 @@
                 if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
 
                 if (!tagHatStunden) {
-                    // Tag hat keine Stunden -> Zeitstempel wird komplett entfernt
                     dayMeta[metaKey].exportTime = "";
                 } else if (tagWurdeGeaendert || !dayMeta[metaKey].exportTime) {
-                    // Tag wurde geändert oder hatte noch keinen Zeitstempel -> aktuelles Upload-Datum & Uhrzeit setzen
                     dayMeta[metaKey].exportTime = zeitstempel;
                 }
             }
