@@ -199,14 +199,11 @@
             background-color: #fffaf0;
         }
         
-        /* FACH & RAUM ROT ABER DÜNN */
+        /* SCHRIFTFARBEN & SCHRIFTSTÄRKEN */
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
-        /* LEHRER ROT UND FETT */
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
 
-        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+        .lesson-line { font-size: 11px; line-height: 1.15; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
         .info-icon { 
             position: absolute; 
@@ -575,12 +572,6 @@
             <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde komplett löschen</button>
         </div>
 
-        <div id="adminTagArea" style="display:none;">
-            <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
-            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
-            <button class="modal-btn" style="background:#34c759;" onclick="speichereTagInfo()">Tages-Info speichern</button>
-        </div>
-
         <div id="adminUnterrichtEditArea" style="display:none;">
             <label class="form-label">Fach:</label>
             <input type="text" id="editUFach" class="modal-input">
@@ -861,6 +852,11 @@
         };
     }
 
+    function getKlassenPlanKey() {
+        // Schlüssel jetzt strikt klassen- und wochenabhängig!
+        return aktuellesObjekt + '_w' + schnelleWocheOffset;
+    }
+
     function istBlockSichtbarFuerNutzer(blockDaten) {
         if (istAdmin) return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
@@ -887,17 +883,15 @@
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
 
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
 
         for (var t = 0; t < 5; t++) {
             var metaKey = planKey + '_d' + t;
-            var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
-            var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
+            var meta = dayMeta[metaKey] || { exportTime: "" };
             var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
 
             document.getElementById('th_' + t).innerHTML = 
-                infoBadge +
                 '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
                 '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
                 '<span class="day-export-time">' + exportText + '</span>';
@@ -952,7 +946,6 @@
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        // FÜR SCHÜLER: Zeige nur den ersten für ihn relevanten (oder eingetragenen) Block im alten, sauberen Design
         var targetBlock = null;
         for (var i = 1; i <= 3; i++) {
             var f = d['fach' + i];
@@ -964,7 +957,7 @@
                     targetBlock = tempBlock;
                     break;
                 }
-                if (!targetBlock) targetBlock = tempBlock; // Fallback
+                if (!targetBlock) targetBlock = tempBlock;
             }
         }
 
@@ -977,7 +970,7 @@
         var rClass = targetBlock.redR ? "red-text-thin" : "";
         var lClass = targetBlock.redL ? "red-text-bold" : "";
         
-        var hasInfo = (d.info1 || d.info2 || d.info3 || d.info) ? '<div class="info-icon">i</div>' : "";
+        var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
         return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
@@ -1082,7 +1075,6 @@
         document.getElementById('modalTitle').innerText = "Eintrag bearbeiten";
         document.getElementById('modalInfoBox').style.display = 'none';
         document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'block';
 
         document.getElementById('editUFach').value = item.fach;
@@ -1118,51 +1110,12 @@
     }
 
     function klickeTagHeader(tagIndex) {
-        aktuellerTagIndex = tagIndex;
-        aktuellerCellKey = null;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        var metaKey = planKey + '_d' + tagIndex;
-        var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
-
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
-
-        document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminUnterrichtEditArea').style.display = 'none';
-
-        if (meta.info) {
-            document.getElementById('modalInfoBox').style.display = 'block';
-            document.getElementById('modalInfoBox').innerText = meta.info;
-        } else {
-            document.getElementById('modalInfoBox').style.display = 'none';
-        }
-
-        if (istAdmin) {
-            document.getElementById('adminTagArea').style.display = 'block';
-            document.getElementById('editTagInfo').value = meta.info || '';
-            document.getElementById('infoModal').style.display = 'flex';
-        } else if (meta.info) {
-            document.getElementById('adminTagArea').style.display = 'none';
-            document.getElementById('infoModal').style.display = 'flex';
-        }
-    }
-
-    function speichereTagInfo() {
-        if (!istAdmin || aktuellerTagIndex === null) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        var metaKey = planKey + '_d' + aktuellerTagIndex;
-        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
-        dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
-
-        speichereDatenInCloud();
-        closeModal();
-        zeigePlan();
+        // Tages-Info Popup komplett entfernt per Kundenwunsch
     }
 
     function klickeZelle(cellKey) {
         aktuellerCellKey = cellKey;
-        aktuellerTagIndex = null;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
         var rawD = aktiverPlan[cellKey] || null;
         var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
@@ -1170,7 +1123,6 @@
         if (!istAdmin && !d.info) return;
 
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
-        document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'none';
 
         if (d.info) {
@@ -1199,7 +1151,7 @@
 
     function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
@@ -1228,7 +1180,7 @@
 
     function loescheEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
@@ -1271,7 +1223,7 @@
                 }
 
                 var metaKey = planKey + '_d' + tag;
-                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "" };
 
                 if (!tagHatStunden) {
                     dayMeta[metaKey].exportTime = "";
