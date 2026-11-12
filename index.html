@@ -600,7 +600,7 @@
 
     var datenLehrer = [
         "?", "Bau", "Brn", "Brs", "Brt", "Czo", "Dif", "Doe", "Fil", "Föl", "Fra", "Gen", "Ger", 
-        "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hob", "Hzg", "Jae", "Kan", "Kas", 
+        "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hzg", "Jae", "Kan", "Kas", 
         "Kem", "Kiw", "Kle", "Kls", "Kut", "Lbe", "Ldm", "Leh", "Lkb", "Lie", "Lin", "Lip", "Lis", 
         "Lüb", "Mai", "Mcl", "Mes", "Mik", "Mco", "Mun", "Nai", "Neu", "Nik", "Ott", "Pab", 
         "Pap", "Pat", "Pre", "Pwl", "Red", "Reg", "Rei", "Rie", "Rml", "Rös", "Sbg", "Snd", 
@@ -848,8 +848,29 @@
         var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
         if (deaktivierte.length === 0) return true;
 
-        var key = (blockDaten.fach1 || "") + "|" + (blockDaten.lehrer1 || "");
+        var key = (blockDaten.fach1 || blockDaten.fach || "") + "|" + (blockDaten.lehrer1 || blockDaten.lehrer || "");
         return deaktivierte.indexOf(key) === -1;
+    }
+
+    // Hilfsfunktion zur Konvertierung alter Einzel-Stunden in das neue 3-Blöcke-Format
+    function normalisiereBlockDaten(d) {
+        if (!d) return null;
+        // Wenn es schon das neue Format ist
+        if (d.fach1 !== undefined || d.fach2 !== undefined || d.fach3 !== undefined) {
+            return d;
+        }
+        // Konvertierung aus altem Format
+        return {
+            fach1: d.fach || "",
+            lehrer1: d.lehrer || "",
+            raum1: d.raum || "",
+            redF1: !!d.redF,
+            redL1: !!d.redL,
+            redR1: !!d.redR,
+            fach2: "", lehrer2: "", raum2: "", redF2: false, redL2: false, redR2: false,
+            fach3: "", lehrer3: "", raum3: "", redF3: false, redL3: false, redR3: false,
+            info: d.info || ""
+        };
     }
 
     function zeigePlan() {
@@ -900,13 +921,15 @@
 
             for (var tag = 0; tag < 5; tag++) {
                 var cellKey = s.stunde + '_' + tag;
-                var blockDaten = aktiverPlanDaten[cellKey] || null;
+                var rawBlock = aktiverPlanDaten[cellKey] || null;
+                var blockDaten = normalisiereBlockDaten(rawBlock);
                 
                 if (blockDaten && !istBlockSichtbarFuerNutzer(blockDaten)) {
                     blockDaten = null;
                 }
 
-                var pubBlock = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || null;
+                var rawPub = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || null;
+                var pubBlock = normalisiereBlockDaten(rawPub);
                 var istEntwurf = istAdmin && (JSON.stringify(blockDaten) !== JSON.stringify(pubBlock));
 
                 row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, istEntwurf) + '</td>';
@@ -917,7 +940,7 @@
     }
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
-        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
+        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3 && !d.fach && !d.lehrer && !d.raum)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
@@ -925,29 +948,41 @@
         var hasInfo = (d.info1 || d.info2 || d.info3 || d.info) ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
-        // Für Schüler zeigen wir NUR eingetragene Zeilen an (bis zu 3)
         var html = '';
         var blockZaehler = 0;
         
-        for (var i = 1; i <= 3; i++) {
-            var f = d['fach' + i];
-            var l = d['lehrer' + i];
-            var r = d['raum' + i];
+        // Unterstützung für altes Format falls noch vorhanden
+        if (d.fach !== undefined && d.fach1 === undefined) {
+            blockZaehler++;
+            var fClass = d.redF ? "red-text-thin" : "";
+            var lClass = d.redL ? "red-text-bold" : "";
+            var rClass = d.redR ? "red-text-thin" : "";
+            var textLine = [
+                d.fach ? '<span class="' + fClass + '">' + d.fach + '</span>' : '',
+                d.lehrer ? '<span class="' + lClass + '">' + d.lehrer + '</span>' : '',
+                d.raum ? '<span class="' + rClass + '">' + d.raum + '</span>' : ''
+            ].filter(Boolean).join(' ');
+            html += '<div class="lesson-line">' + (textLine || '&nbsp;') + '</div>';
+        } else {
+            for (var i = 1; i <= 3; i++) {
+                var f = d['fach' + i];
+                var l = d['lehrer' + i];
+                var r = d['raum' + i];
 
-            if (f || l || r) {
-                blockZaehler++;
-                var fClass = d['redF' + i] ? "red-text-thin" : "";
-                var lClass = d['redL' + i] ? "red-text-bold" : "";
-                var rClass = d['redR' + i] ? "red-text-thin" : "";
+                if (f || l || r) {
+                    blockZaehler++;
+                    var fClass = d['redF' + i] ? "red-text-thin" : "";
+                    var lClass = d['redL' + i] ? "red-text-bold" : "";
+                    var rClass = d['redR' + i] ? "red-text-thin" : "";
 
-                // Textzusammensetzung pro Zeile
-                var textLine = [
-                    f ? '<span class="' + fClass + '">' + f + '</span>' : '',
-                    l ? '<span class="' + lClass + '">' + l + '</span>' : '',
-                    r ? '<span class="' + rClass + '">' + r + '</span>' : ''
-                ].filter(Boolean).join(' ');
+                    var textLine = [
+                        f ? '<span class="' + fClass + '">' + f + '</span>' : '',
+                        l ? '<span class="' + lClass + '">' + l + '</span>' : '',
+                        r ? '<span class="' + rClass + '">' + r + '</span>' : ''
+                    ].filter(Boolean).join(' ');
 
-                html += '<div class="lesson-line">' + (textLine || '&nbsp;') + '</div>';
+                    html += '<div class="lesson-line">' + (textLine || '&nbsp;') + '</div>';
+                }
             }
         }
 
@@ -1137,18 +1172,18 @@
         aktuellerTagIndex = null;
         var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
         var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
-        var d = aktiverPlan[cellKey] || {};
+        var rawD = aktiverPlan[cellKey] || null;
+        var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
 
-        if (!istAdmin && !d.info && !d.info1 && !d.info2 && !d.info3) return;
+        if (!istAdmin && !d.info) return;
 
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
         document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'none';
 
-        var totalInfo = [d.info1, d.info2, d.info3, d.info].filter(Boolean).join("\n");
-        if (totalInfo) {
+        if (d.info) {
             document.getElementById('modalInfoBox').style.display = 'block';
-            document.getElementById('modalInfoBox').innerText = totalInfo;
+            document.getElementById('modalInfoBox').innerText = d.info;
         } else {
             document.getElementById('modalInfoBox').style.display = 'none';
         }
@@ -1232,8 +1267,8 @@
 
                 for (var stunde = 1; stunde <= 8; stunde++) {
                     var cellKey = stunde + '_' + tag;
-                    var dCell = draft[cellKey] || null;
-                    var pCell = pub[cellKey] || null;
+                    var dCell = normalisiereBlockDaten(draft[cellKey]);
+                    var pCell = normalisiereBlockDaten(pub[cellKey]);
 
                     if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
                         tagHatStunden = true;
