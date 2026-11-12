@@ -575,6 +575,12 @@
             <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde komplett löschen</button>
         </div>
 
+        <div id="adminTagArea" style="display:none;">
+            <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
+            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
+            <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Tages-Info speichern</button>
+        </div>
+
         <div id="adminUnterrichtEditArea" style="display:none;">
             <label class="form-label">Fach:</label>
             <input type="text" id="editUFach" class="modal-input">
@@ -583,7 +589,7 @@
             <button class="modal-btn" style="background:#34c759;" onclick="speichereUnterrichtEdit()">Speichern</button>
         </div>
 
-        <button class="modal-btn" style="background:#8e8e93;" onclick="closeModal()">Schließen</button>
+        <button class="modal-btn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
     </div>
 </div>
 
@@ -890,10 +896,12 @@
 
         for (var t = 0; t < 5; t++) {
             var metaKey = planKey + '_d' + t;
-            var meta = dayMeta[metaKey] || { exportTime: "" };
+            var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
+            var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
             var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
 
             document.getElementById('th_' + t).innerHTML = 
+                infoBadge +
                 '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
                 '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
                 '<span class="day-export-time">' + exportText + '</span>';
@@ -970,7 +978,6 @@
 
         var fClass = targetBlock.redF ? "red-text-thin" : "";
         var rClass = targetBlock.redR ? "red-text-thin" : "";
-        // Lehrer ist jetzt immer fett (egal ob rot oder schwarz)
         var lClass = targetBlock.redL ? "red-text-bold" : "black-text-bold";
         
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
@@ -1078,6 +1085,7 @@
         document.getElementById('modalTitle').innerText = "Eintrag bearbeiten";
         document.getElementById('modalInfoBox').style.display = 'none';
         document.getElementById('adminBearbeitenArea').style.display = 'none';
+        document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'block';
 
         document.getElementById('editUFach').value = item.fach;
@@ -1113,11 +1121,50 @@
     }
 
     function klickeTagHeader(tagIndex) {
-        // Tages-Info Popup komplett entfernt per Kundenwunsch
+        aktuellerTagIndex = tagIndex;
+        aktuellerCellKey = null;
+        var planKey = getKlassenPlanKey();
+        var metaKey = planKey + '_d' + tagIndex;
+        var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
+
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+        document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
+
+        document.getElementById('adminBearbeitenArea').style.display = 'none';
+        document.getElementById('adminUnterrichtEditArea').style.display = 'none';
+
+        if (meta.info) {
+            document.getElementById('modalInfoBox').style.display = 'block';
+            document.getElementById('modalInfoBox').innerText = meta.info;
+        } else {
+            document.getElementById('modalInfoBox').style.display = 'none';
+        }
+
+        if (istAdmin) {
+            document.getElementById('adminTagArea').style.display = 'block';
+            document.getElementById('editTagInfo').value = meta.info || '';
+            document.getElementById('infoModal').style.display = 'flex';
+        } else if (meta.info) {
+            document.getElementById('adminTagArea').style.display = 'none';
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+    }
+
+    function speichereTagInfo() {
+        if (!istAdmin || aktuellerTagIndex === null) return;
+        var planKey = getKlassenPlanKey();
+        var metaKey = planKey + '_d' + aktuellerTagIndex;
+        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+        dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
+
+        speichereDatenInCloud();
+        closeModal();
+        zeigePlan();
     }
 
     function klickeZelle(cellKey) {
         aktuellerCellKey = cellKey;
+        aktuellerTagIndex = null;
         var planKey = getKlassenPlanKey();
         var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
         var rawD = aktiverPlan[cellKey] || null;
@@ -1126,6 +1173,7 @@
         if (!istAdmin && !d.info) return;
 
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
+        document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'none';
 
         if (d.info) {
@@ -1226,7 +1274,7 @@
                 }
 
                 var metaKey = planKey + '_d' + tag;
-                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "" };
+                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
 
                 if (!tagHatStunden) {
                     dayMeta[metaKey].exportTime = "";
