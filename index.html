@@ -1373,7 +1373,7 @@
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
-    var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
+    var JSONBIN_MASTER_KEY = "$2a$10$g0DT.CmhPsUmF23IzQcIXe5asVnU.C1k6QjYWfjlYuC1Waa.JVTsi";
 
     async function ladeDatenAusCloud() {
         try {
@@ -1422,10 +1422,8 @@
         }
     }
 
-    // SICHERER SPEICHER-MECHANISMUS (VERHINDERT DATENVERLUST DURCH MERGE)
     async function speichereDatenInCloud() {
         try {
-            // 1. Erst aktuellen Stand aus der Cloud holen
             let getResp = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
                 headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
             });
@@ -1435,7 +1433,6 @@
                 remoteData = json.record || {};
             }
 
-            // 2. Mit lokalen Daten zusammenführen (keine Daten löschen)
             let mergedPublished = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene);
             let mergedDrafts = Object.assign({}, remoteData.draftPlaene || {}, draftPlaene);
             let mergedMeta = Object.assign({}, remoteData.dayMeta || {}, dayMeta);
@@ -1446,7 +1443,6 @@
             dayMeta = mergedMeta;
             klassenUnterricht = mergedUnterricht;
 
-            // 3. Sicher in die Cloud schreiben
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
             await fetch(responseUrl, {
                 method: "PUT",
