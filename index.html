@@ -899,7 +899,6 @@
         };
     }
 
-    // ROBUSTER SCHLÜSSEL-LOOKUP MIT FALLBACK (verhindert Geräte-Datums-Abweichungen)
     function getKlassenPlanKey(offset) {
         var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
         var wochenDaten = getWochenTageDaten(off);
@@ -1355,12 +1354,14 @@
         hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
 
-        await speichereDatenInCloud();
+        // Cloud-Speicherung mit sichtbarer Fehlermeldung im Fehlerfall
+        var success = await speichereDatenInCloud();
+        if (success === false) return;
 
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
         }
-        alert("Pläne erfolgreich veröffentlicht! (" + zeitstempel + ")");
+        alert("Pläne erfolgreich veröffentlicht & in die Cloud geladen! (" + zeitstempel + ")");
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -1411,7 +1412,7 @@
                 klassenUnterricht: klassenUnterricht
             };
 
-            await fetch(responseUrl, {
+            let response = await fetch(responseUrl, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -1419,8 +1420,16 @@
                 },
                 body: JSON.stringify(payload)
             });
+
+            if (!response.ok) {
+                let errText = await response.text();
+                throw new Error("HTTP " + response.status + " - " + errText);
+            }
+            return true;
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
+            alert("⚠️ Cloud-Fehler beim Speichern/Veröffentlichen:\n" + e.message);
+            return false;
         }
     }
 
