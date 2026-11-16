@@ -1354,7 +1354,6 @@
         hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
 
-        // Cloud-Speicherung mit sichtbarer Fehlermeldung im Fehlerfall
         var success = await speichereDatenInCloud();
         if (success === false) return;
 
@@ -1367,7 +1366,7 @@
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
-    var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
+    var JSONBIN_MASTER_KEY = "$2a$10$g0DT.CmhPsUmF23IzQcIXe5asVnU.C1k6QjYWfjlYuC1Waa.JVTsi";
 
     async function ladeDatenAusCloud() {
         try {
