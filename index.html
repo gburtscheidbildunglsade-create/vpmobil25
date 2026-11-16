@@ -648,7 +648,6 @@
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
-    var downloadStatusBereitsGezeigt = false;
 
     function aktualisiereAdminStatusAnzeige() {
         var box = document.getElementById('adminUploadContainer');
@@ -667,12 +666,39 @@
         }
     }
 
+    /* NEU: Rote Schrift pro Gerät pro Plan (nur für Lehrer und Schüler) */
+    function aktualisiereDownloadStatusAnzeige() {
+        var el = document.getElementById('downloadStatusAnzeige');
+        if (!el) return;
+
+        if (istAdmin) {
+            el.innerHTML = '';
+            return;
+        }
+
+        var planKey = aktuellesObjekt ? getKlassenPlanKey() : ('global_' + getGlobalWeekId());
+        var downloadedPlans = JSON.parse(localStorage.getItem('vpmobil24_downloaded_plans') || '{}');
+
+        if (!downloadedPlans[planKey]) {
+            el.style.color = "#ff3b30";
+            el.style.fontWeight = "bold";
+            el.innerText = "Plan heruntergeladen";
+            downloadedPlans[planKey] = true;
+            localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
+        } else {
+            el.style.color = "#000000";
+            el.style.fontWeight = "normal";
+            el.innerText = "Letzter Download: " + getAktuellenZeitstempel();
+        }
+    }
+
     function zeigeScreen(screenId) {
         document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
         document.getElementById(screenId).classList.add('active');
         if (screenId === 'hauptmenueScreen') {
             erstelleFavoritenRaster();
             aktualisiereAdminStatusAnzeige();
+            aktualisiereDownloadStatusAnzeige();
         }
     }
 
@@ -810,11 +836,13 @@
         if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
         schnelleWocheOffset = 0; 
+        aktualisiereDownloadStatusAnzeige();
         zeigePlan();
     }
 
     function wocheWechseln(richtung) {
         schnelleWocheOffset += richtung;
+        aktualisiereDownloadStatusAnzeige();
         zeigePlan();
     }
 
@@ -1330,7 +1358,11 @@
 
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
-        hatUnveroeffentlichteAenderungen = false;
+        
+        // FIX 1: dayMeta lokal speichern, damit das Veröffentlichungsdatum auf dem Datum-Block sofort angezeigt wird
+        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
+
+        hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
         aktualisiereAdminStatusAnzeige();
         await speichereDatenInCloud();
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
@@ -1343,29 +1375,6 @@
 
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
-
-    function triggerDownloadStatusBanner(uhrzeit) {
-        if (downloadStatusBereitsGezeigt) {
-            var el = document.getElementById('downloadStatusAnzeige');
-            if (el) {
-                el.style.color = "#000000";
-                el.innerText = "Letzter Download: " + uhrzeit;
-            }
-            return;
-        }
-
-        downloadStatusBereitsGezeigt = true;
-        var el = document.getElementById('downloadStatusAnzeige');
-        if (!el) return;
-
-        el.style.color = "#ff3b30";
-        el.innerText = "Plan Herunterladen";
-
-        setTimeout(function() {
-            el.style.color = "#000000";
-            el.innerText = "Letzter Download: " + uhrzeit;
-        }, 6000);
-    }
 
     async function ladeDatenAusCloud() {
         try {
@@ -1392,12 +1401,15 @@
                     
                     hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
                     
-                    if (istAdmin) aktualisiereAdminStatusAnzeige();
+                    if (istAdmin) {
+                        aktualisiereAdminStatusAnzeige();
+                    } else {
+                        aktualisiereDownloadStatusAnzeige();
+                    }
+
                     if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
                         zeigePlan();
                     }
-
-                    triggerDownloadStatusBanner(getAktuellenZeitstempel());
                 }
             }
         } catch (e) {
