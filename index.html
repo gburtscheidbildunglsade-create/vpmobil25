@@ -1434,9 +1434,11 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
-        setInterval(ladeDatenAusCloud, 5000);
         
-        // NEU: Sofortiger Cloud-Sync, sobald der Schüler das Handy/Tab wieder einschaltet oder auf die App wechselt
+        // Polling-Intervall auf 60 Sekunden eingestellt, um das JSONBin-Limit (403 Requests exhausted) zu schützen
+        setInterval(ladeDatenAusCloud, 60000);
+        
+        // Sofortiger Sync, sobald Schüler das Gerät entsperren oder auf den Tab wechseln
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {
                 ladeDatenAusCloud();
