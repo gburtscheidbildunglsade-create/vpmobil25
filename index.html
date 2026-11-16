@@ -71,8 +71,17 @@
         .menu-burger { position: absolute; right: 15px; top: 11px; cursor: pointer; font-size: 20px; color: #000; }
         
         #hauptmenueScreen { padding: 15px; min-height: 100vh; background-color: #f2f2f7; }
-        .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: bold; }
+        .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: bold; }
         
+        /* DOWNLOAD STATUS ANZEIGE AUF DER STARTSEITE */
+        #downloadStatusAnzeige {
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-weight: bold;
+            min-height: 18px;
+        }
+
         /* ADMIN HOCHLADEN BUTTON */
         .admin-upload-box {
             background-color: #ffffff;
@@ -189,6 +198,7 @@
             position: relative;
             cursor: pointer; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            overflow: hidden;
         }
         .lesson-box.empty-slot {
             background-color: transparent;
@@ -204,9 +214,9 @@
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
         .black-text-bold { color: #000000 !important; font-weight: bold !important; }
 
-        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-2 { font-size: 12px; font-weight: bold; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-2 { font-size: 12px; font-weight: bold; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-3 { font-size: 11px; color: #222; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
         
         .info-icon { 
             position: absolute; 
@@ -405,6 +415,7 @@
     
     <div style="padding-top: 5px;">
         <div class="school-banner" id="schulBannerText">Übersicht</div>
+        <div id="downloadStatusAnzeige"></div>
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
             <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen</button>
@@ -576,7 +587,7 @@
         </div>
 
         <div id="adminTagArea" style="display:none;">
-            <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
+            <label class="form-label">Tages-Info / Hinweis (gilt für ALLE Klassen an diesem Tag):</label>
             <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
             <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Tages-Info speichern</button>
         </div>
@@ -630,13 +641,14 @@
     var aktuellerUEditIndex = null;
 
     var publishedPlaene = {};
-    var draftPlaene = {};
-    var dayMeta = {}; 
+    var draftPlaene = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
+    var dayMeta = JSON.parse(localStorage.getItem('vpmobil24_daymeta') || '{}'); 
     var klassenUnterricht = {}; 
     
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
-    var hatUnveroeffentlichteAenderungen = false;
+    var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+    var downloadStatusBereitsGezeigt = false;
 
     function aktualisiereAdminStatusAnzeige() {
         var box = document.getElementById('adminUploadContainer');
@@ -797,7 +809,7 @@
         }
         if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
-        schnelleWocheOffset = 0; // Startet exakt auf der aktuellen Kalenderwoche
+        schnelleWocheOffset = 0; 
         zeigePlan();
     }
 
@@ -861,14 +873,12 @@
         };
     }
 
-    // ABSOLUTE KALENDERWOCHEN-SCHLÜSSEL (Jede Woche hat einen festen, unverwählbaren Schlüssel basierend auf ihrem Montag-Datum)
     function getKlassenPlanKey(offset) {
         var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
         var wochenDaten = getWochenTageDaten(off);
         var absoluteWochenId = wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
         var absKey = aktuellesObjekt + '_' + absoluteWochenId;
 
-        // Automatischer Fallback für alte Legacy-Schlüssel (_w0), falls noch Daten aus alten Versionen vorliegen
         var legacyKey = aktuellesObjekt + '_w' + off;
         if (!publishedPlaene[absKey] && publishedPlaene[legacyKey]) {
             publishedPlaene[absKey] = publishedPlaene[legacyKey];
@@ -878,6 +888,15 @@
         }
 
         return absKey;
+    }
+
+    function getGlobalWeekId() {
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+        return wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
+    }
+
+    function getDayMetaKey(tagIndex) {
+        return 'global_w_' + getGlobalWeekId() + '_d' + tagIndex;
     }
 
     function istBlockSichtbarFuerNutzer(blockDaten) {
@@ -910,7 +929,7 @@
         var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
 
         for (var t = 0; t < 5; t++) {
-            var metaKey = planKey + '_d' + t;
+            var metaKey = getDayMetaKey(t);
             var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
             var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
             var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
@@ -971,39 +990,48 @@
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var targetBlock = null;
+        var activeBlocks = [];
         for (var i = 1; i <= 3; i++) {
             var f = d['fach' + i];
             var l = d['lehrer' + i];
             var r = d['raum' + i];
             if (f || l || r) {
-                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
+                var tempBlock = { 
+                    fach: f, lehrer: l, raum: r, 
+                    redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] 
+                };
                 if (istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
-                    targetBlock = tempBlock;
-                    break;
+                    activeBlocks.push(tempBlock);
+                } else if (activeBlocks.length === 0) {
+                    activeBlocks.push(tempBlock);
                 }
-                if (!targetBlock) targetBlock = tempBlock;
             }
         }
 
-        if (!targetBlock || (!targetBlock.fach && !targetBlock.lehrer && !targetBlock.raum)) {
+        if (activeBlocks.length === 0) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var fClass = targetBlock.redF ? "red-text-thin" : "";
-        var rClass = targetBlock.redR ? "red-text-thin" : "";
-        var lClass = targetBlock.redL ? "red-text-bold" : "black-text-bold";
-        
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
-        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
-            hasInfo +
-            '<div class="lesson-line-1 ' + fClass + '">' + (targetBlock.fach || '&nbsp;') + '</div>' +
-            '<div class="lesson-line-2 ' + lClass + '">' + (targetBlock.lehrer || '&nbsp;') + '</div>' +
-            '<div class="lesson-line-3 ' + rClass + '">' + (targetBlock.raum || '&nbsp;') + '</div>' +
-            '</div>';
+        var innerHtml = hasInfo;
+        activeBlocks.forEach(function(b, idx) {
+            var fClass = b.redF ? "red-text-thin" : "";
+            var rClass = b.redR ? "red-text-thin" : "";
+            var lClass = b.redL ? "red-text-bold" : "black-text-bold";
+            var sepStyle = (idx > 0) ? "border-top: 1px solid rgba(0,0,0,0.12); margin-top: 1px; padding-top: 1px;" : "";
+            var fontSize = activeBlocks.length > 1 ? '10px' : '12px';
+
+            innerHtml += '<div style="width:100%; ' + sepStyle + '">' +
+                '<div class="lesson-line-1 ' + fClass + '" style="font-size:' + fontSize + '; line-height:1.1;">' + (b.fach || '&nbsp;') + '</div>' +
+                '<div class="lesson-line-2 ' + lClass + '" style="font-size:' + fontSize + '; line-height:1.1;">' + (b.lehrer || '&nbsp;') + '</div>' +
+                '<div class="lesson-line-3 ' + rClass + '" style="font-size:' + (activeBlocks.length > 1 ? '9.5px' : '11px') + '; line-height:1.1;">' + (b.raum || '&nbsp;') + '</div>' +
+                '</div>';
+        });
+
+        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' + innerHtml + '</div>';
     }
 
     function oeffneUnterrichtAuswahl() {
@@ -1138,8 +1166,7 @@
     function klickeTagHeader(tagIndex) {
         aktuellerTagIndex = tagIndex;
         aktuellerCellKey = null;
-        var planKey = getKlassenPlanKey();
-        var metaKey = planKey + '_d' + tagIndex;
+        var metaKey = getDayMetaKey(tagIndex);
         var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
 
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
@@ -1167,11 +1194,11 @@
 
     function speichereTagInfo() {
         if (!istAdmin || aktuellerTagIndex === null) return;
-        var planKey = getKlassenPlanKey();
-        var metaKey = planKey + '_d' + aktuellerTagIndex;
+        var metaKey = getDayMetaKey(aktuellerTagIndex);
         if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
         dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
 
+        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
         speichereDatenInCloud();
         closeModal();
         zeigePlan();
@@ -1238,6 +1265,8 @@
 
         draftPlaene[planKey][aktuellerCellKey] = newData;
         hatUnveroeffentlichteAenderungen = true;
+        localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
+        
         aktualisiereAdminStatusAnzeige();
         speichereDatenInCloud();
         closeModal();
@@ -1254,6 +1283,8 @@
 
         delete draftPlaene[planKey][aktuellerCellKey];
         hatUnveroeffentlichteAenderungen = true;
+        localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
+
         aktualisiereAdminStatusAnzeige();
         speichereDatenInCloud();
         closeModal();
@@ -1288,7 +1319,9 @@
                     }
                 }
 
-                var metaKey = planKey + '_d' + tag;
+                // Verwende den globalen DayMetaKey auch beim Veröffentlichen
+                var wochenIdPart = planKey.split('_').slice(1).join('_');
+                var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
                 if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
 
                 if (!tagHatStunden) {
@@ -1304,6 +1337,7 @@
         });
 
         draftPlaene = {};
+        localStorage.removeItem('vpmobil24_drafts');
         hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
         await speichereDatenInCloud();
@@ -1318,6 +1352,29 @@
     var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
     var JSONBIN_MASTER_KEY = "$2a$10$HQa/ToDJwz0aQmH6PdJcpuwHeuYJ377hTlINvF1FQLK10f1IZggYq";
 
+    function triggerDownloadStatusBanner(uhrzeit) {
+        if (downloadStatusBereitsGezeigt) {
+            var el = document.getElementById('downloadStatusAnzeige');
+            if (el) {
+                el.style.color = "#000000";
+                el.innerText = "Letzter Download: " + uhrzeit;
+            }
+            return;
+        }
+
+        downloadStatusBereitsGezeigt = true;
+        var el = document.getElementById('downloadStatusAnzeige');
+        if (!el) return;
+
+        el.style.color = "#ff3b30";
+        el.innerText = "Plan Herunterladen";
+
+        setTimeout(function() {
+            el.style.color = "#000000";
+            el.innerText = "Letzter Download: " + uhrzeit;
+        }, 6000);
+    }
+
     async function ladeDatenAusCloud() {
         try {
             let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -1329,8 +1386,17 @@
                     if (data.record.publishedPlaene) publishedPlaene = data.record.publishedPlaene;
                     else if (data.record.wochenPläne) publishedPlaene = data.record.wochenPläne;
                     
-                    if (data.record.draftPlaene) draftPlaene = data.record.draftPlaene;
-                    if (data.record.dayMeta) dayMeta = data.record.dayMeta;
+                    if (data.record.draftPlaene) {
+                        // Merge cloud drafts with local drafts if local drafts are active
+                        for (let k in data.record.draftPlaene) {
+                            if (!draftPlaene[k]) draftPlaene[k] = data.record.draftPlaene[k];
+                        }
+                    }
+                    if (data.record.dayMeta) {
+                        for (let k in data.record.dayMeta) {
+                            if (!dayMeta[k]) dayMeta[k] = data.record.dayMeta[k];
+                        }
+                    }
                     if (data.record.klassenUnterricht) klassenUnterricht = data.record.klassenUnterricht;
                     
                     hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
@@ -1339,6 +1405,8 @@
                     if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
                         zeigePlan();
                     }
+
+                    triggerDownloadStatusBanner(getAktuellenZeitstempel());
                 }
             }
         } catch (e) {
