@@ -188,7 +188,7 @@
         .lesson-box { 
             background-color: #ffffff; 
             border-radius: 4px; 
-            padding: 2px 2px; 
+            padding: 1px 2px; 
             width: 100%; 
             height: 62px; 
             display: flex; 
@@ -214,9 +214,9 @@
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
         .black-text-bold { color: #000000 !important; font-weight: bold !important; }
 
-        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-2 { font-size: 12px; font-weight: bold; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-3 { font-size: 11px; color: #222; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
+        .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.15; }
+        .lesson-line-2 { font-size: 12px; font-weight: bold; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.15; }
+        .lesson-line-3 { font-size: 11px; color: #222; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.15; } 
         
         .info-icon { 
             position: absolute; 
@@ -990,48 +990,41 @@
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var activeBlocks = [];
+        var html = '';
+        var draftClass = istEntwurf ? " draft-slot" : "";
+
         for (var i = 1; i <= 3; i++) {
             var f = d['fach' + i];
             var l = d['lehrer' + i];
             var r = d['raum' + i];
+            
             if (f || l || r) {
-                var tempBlock = { 
-                    fach: f, lehrer: l, raum: r, 
-                    redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] 
-                };
-                if (istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
-                    activeBlocks.push(tempBlock);
-                } else if (activeBlocks.length === 0) {
-                    activeBlocks.push(tempBlock);
+                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
+                
+                if (!istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                    continue;
                 }
+
+                var fClass = tempBlock.redF ? "red-text-thin" : "";
+                var rClass = tempBlock.redR ? "red-text-thin" : "";
+                var lClass = tempBlock.redL ? "red-text-bold" : "black-text-bold";
+                var hasInfo = (i === 1 && d.info) ? '<div class="info-icon">i</div>' : "";
+
+                html += '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
+                    hasInfo +
+                    '<div class="lesson-line-1 ' + fClass + '">' + (tempBlock.fach || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-2 ' + lClass + '">' + (tempBlock.lehrer || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-3 ' + rClass + '">' + (tempBlock.raum || '&nbsp;') + '</div>' +
+                    '</div>';
             }
         }
 
-        if (activeBlocks.length === 0) {
+        if (!html) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
-        var draftClass = istEntwurf ? " draft-slot" : "";
-
-        var innerHtml = hasInfo;
-        activeBlocks.forEach(function(b, idx) {
-            var fClass = b.redF ? "red-text-thin" : "";
-            var rClass = b.redR ? "red-text-thin" : "";
-            var lClass = b.redL ? "red-text-bold" : "black-text-bold";
-            var sepStyle = (idx > 0) ? "border-top: 1px solid rgba(0,0,0,0.12); margin-top: 1px; padding-top: 1px;" : "";
-            var fontSize = activeBlocks.length > 1 ? '10px' : '12px';
-
-            innerHtml += '<div style="width:100%; ' + sepStyle + '">' +
-                '<div class="lesson-line-1 ' + fClass + '" style="font-size:' + fontSize + '; line-height:1.1;">' + (b.fach || '&nbsp;') + '</div>' +
-                '<div class="lesson-line-2 ' + lClass + '" style="font-size:' + fontSize + '; line-height:1.1;">' + (b.lehrer || '&nbsp;') + '</div>' +
-                '<div class="lesson-line-3 ' + rClass + '" style="font-size:' + (activeBlocks.length > 1 ? '9.5px' : '11px') + '; line-height:1.1;">' + (b.raum || '&nbsp;') + '</div>' +
-                '</div>';
-        });
-
-        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' + innerHtml + '</div>';
+        return '<div style="display:flex; flex-direction:column; gap:2px; justify-content:center; width:100%; height:100%;">' + html + '</div>';
     }
 
     function oeffneUnterrichtAuswahl() {
@@ -1319,7 +1312,6 @@
                     }
                 }
 
-                // Verwende den globalen DayMetaKey auch beim Veröffentlichen
                 var wochenIdPart = planKey.split('_').slice(1).join('_');
                 var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
                 if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
@@ -1387,7 +1379,6 @@
                     else if (data.record.wochenPläne) publishedPlaene = data.record.wochenPläne;
                     
                     if (data.record.draftPlaene) {
-                        // Merge cloud drafts with local drafts if local drafts are active
                         for (let k in data.record.draftPlaene) {
                             if (!draftPlaene[k]) draftPlaene[k] = data.record.draftPlaene[k];
                         }
