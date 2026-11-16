@@ -797,7 +797,7 @@
         }
         if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
-        schnelleWocheOffset = 0; 
+        schnelleWocheOffset = 0; // Startet beim Öffnen exakt auf der aktuellen Woche
         zeigePlan();
     }
 
@@ -861,6 +861,7 @@
         };
     }
 
+    // Exakte Trennung pro Woche über den Offset (_w-1, _w0, _w1 etc.)
     function getKlassenPlanKey() {
         return aktuellesObjekt + '_w' + schnelleWocheOffset;
     }
@@ -1359,4 +1360,3 @@
 </script>
 </body>
 </html>
-
