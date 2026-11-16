@@ -161,16 +161,11 @@
         .u-btn-text { color: #007aff; font-size: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .u-title { font-size: 16px; font-weight: bold; color: #000; text-align: center; }
         .u-body { padding: 14px; flex: 1; max-width: 760px; width: 100%; margin: 0 auto; }
-        .u-admin-add-row { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
-        .u-input { flex: 1; background: #ffffff; border: 1px solid #c7c7cc; border-radius: 6px; padding: 9px 12px; font-size: 15px; outline: none; }
-        .u-add-btn { background-color: #2ecc71; color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 46px; }
         .u-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         @media (max-width: 480px) { .u-grid { grid-template-columns: 1fr; } }
         .u-card { background-color: #ffffff; border-radius: 6px; padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.06); cursor: pointer; border: 1px solid #e5e5ea; }
         .u-card-label { font-size: 15px; color: #000; font-weight: 400; }
-        .u-card-actions { display: flex; align-items: center; gap: 10px; }
         .u-check { font-size: 18px; font-weight: bold; color: #333; width: 22px; text-align: center; }
-        .u-admin-icon { font-size: 14px; padding: 3px 6px; border-radius: 4px; background: #f2f2f7; color: #333; }
         .u-footer { background-color: #ffffff; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d1d1d6; }
         .u-footer-link { color: #007aff; font-size: 15px; font-weight: bold; cursor: pointer; }
 
@@ -225,7 +220,7 @@
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
             <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen & Veröffentlichen</button>
-            <button type="button" class="upload-btn" style="background-color: #007aff;" onclick="erzwingeSofortAnzeige()">⚡ SOFORT ALLE DATEN ANZEIGEN</button>
+            <button type="button" class="upload-btn" style="background-color: #007aff;" onclick="ladeDatenAusCloud()">🔄 Cloud-Daten neu laden</button>
         </div>
 
         <div class="grid-container" id="favoritenRaster"></div>
@@ -319,15 +314,6 @@
     </div>
 
     <div class="u-body">
-        <div id="uAdminAddBar" class="u-admin-add-row" style="display: none;">
-            <input type="text" id="uInputFach" class="u-input" placeholder="Fach (z.B. Deu)">
-            <input type="text" id="uInputLehrer" class="u-input" placeholder="Lehrer (z.B. Brt)">
-            <button type="button" class="u-add-btn" onclick="adminFuegeUnterrichtHinzu()">
-                <span>+</span>
-                <span>Neu</span>
-            </button>
-        </div>
-
         <div id="uKartenRaster" class="u-grid"></div>
     </div>
 
@@ -381,18 +367,12 @@
             </div>
 
             <div style="margin-top:10px;">
-                <label class="form-label">Info-Popup Text (erzeugt blaues „i“):</label>
+                <label class="form-label">Info-Popup Text:</label>
                 <input type="text" id="editInfo" class="modal-input" placeholder="Optionaler Hinweis">
             </div>
 
             <button class="modal-btn" style="background:#34c759; margin-top:12px;" onclick="speichereEntwurfBlock()">Speichern</button>
             <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde löschen</button>
-        </div>
-
-        <div id="adminTagArea" style="display:none;">
-            <label class="form-label">Tages-Info / Hinweis:</label>
-            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="Hinweis..."></textarea>
-            <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Speichern</button>
         </div>
 
         <button class="modal-btn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
@@ -432,11 +412,9 @@
     var istAdmin = false;
     var istSchueler = false;
     var aktuellerCellKey = null;
-    var aktuellerTagIndex = null;
 
     var publishedPlaene = {};
     var draftPlaene = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
-    var dayMeta = JSON.parse(localStorage.getItem('vpmobil24_daymeta') || '{}'); 
     var klassenUnterricht = {}; 
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
@@ -552,6 +530,8 @@
         if (!istEingeloggt) { alert("Bitte zuerst einloggen!"); zeigeScreen('zugangsdatenScreen'); return; }
         aktuellesObjekt = name; schnelleWocheOffset = 0; 
         zeigePlan();
+        // Daten im Hintergrund frisch laden und Ansicht automatisch aktualisieren
+        ladeDatenAusCloud();
     }
 
     function wocheWechseln(richtung) { schnelleWocheOffset += richtung; zeigePlan(); }
@@ -588,25 +568,30 @@
         };
     }
 
-    // ABSOLUTER ALL-MATCH FINDER: Holt garantiert alle gespeicherten Stunden für dieses Objekt!
     function findePlanDaten() {
-        // 1. Zuerst im Admin-Draft-Speicher suchen
+        var merged = {};
+        
+        // 1. Lokale Entwürfe
         for (var k in draftPlaene) {
-            if (k.startsWith(aktuellesObjekt + '_') && draftPlaene[k] && Object.keys(draftPlaene[k]).length > 0) {
-                return draftPlaene[k];
+            if (k.startsWith(aktuellesObjekt)) {
+                var plan = draftPlaene[k];
+                for (var cellK in plan) {
+                    if (plan[cellK]) merged[cellK] = plan[cellK];
+                }
             }
         }
-        // 2. Dann im Published-Speicher suchen
+        
+        // 2. Veröffentlichte Cloud-Pläne
         for (var k in publishedPlaene) {
-            if (k.startsWith(aktuellesObjekt + '_') && publishedPlaene[k] && Object.keys(publishedPlaene[k]).length > 0) {
-                return publishedPlaene[k];
+            if (k.startsWith(aktuellesObjekt)) {
+                var plan = publishedPlaene[k];
+                for (var cellK in plan) {
+                    if (plan[cellK] && !merged[cellK]) merged[cellK] = plan[cellK];
+                }
             }
         }
-        // 3. Fallback: Gib irgendein gefundenes Objekt aus den Drafts zurück
-        for (var k in draftPlaene) {
-            if (draftPlaene[k] && typeof draftPlaene[k] === 'object') return draftPlaene[k];
-        }
-        return {};
+        
+        return merged;
     }
 
     function zeigePlan() {
@@ -674,23 +659,24 @@
     function oeffneUnterrichtAuswahl() {
         if (!aktuellesObjekt) return;
         document.getElementById('unterrichtScreenTitel').innerText = "Unterricht / Fächer (" + aktuellesObjekt + ")";
-        document.getElementById('uAdminAddBar').style.display = istAdmin ? 'flex' : 'none';
         
-        // Automatisch alle Fächer aus dem aktuellen Plan für das Männchen generieren, falls leer!
         var plan = findePlanDaten();
-        var auswahlListe = [];
+        var map = {};
         for (var k in plan) {
             var b = normalisiereBlockDaten(plan[k]);
             if (b) {
                 for (var i = 1; i <= 3; i++) {
-                    if (b['fach' + i] && b['lehrer' + i]) {
-                        auswahlListe.push({ fach: b['fach' + i], lehrer: b['lehrer' + i] });
+                    var f = b['fach' + i], l = b['lehrer' + i];
+                    if (f || l) {
+                        var key = (f || "") + "|" + (l || "");
+                        map[key] = { fach: f, lehrer: l };
                     }
                 }
             }
         }
-        if (auswahlListe.length === 0) {
-            auswahlListe = [{ fach: "Mat", lehrer: "Brt" }, { fach: "Deu", lehrer: "Bau" }];
+        var auswahlListe = [];
+        for (var k in map) {
+            auswahlListe.push(map[k]);
         }
         klassenUnterricht[aktuellesObjekt] = auswahlListe;
         tempUnterrichtSelection = auswahlListe.map(() => true);
@@ -702,31 +688,36 @@
     function renderUnterrichtKarten() {
         var container = document.getElementById('uKartenRaster'); container.innerHTML = '';
         var liste = klassenUnterricht[aktuellesObjekt] || [];
+        if (liste.length === 0) {
+            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#333; padding:20px;">Keine Fächer in diesem Plan vorhanden.</div>';
+            return;
+        }
         liste.forEach(function(item, idx) {
-            container.innerHTML += '<div class="u-card"><span class="u-card-label">📚 ' + item.fach + ' (' + item.lehrer + ')</span><span class="u-check">✓</span></div>';
+            container.innerHTML += '<div class="u-card"><span class="u-card-label">📚 ' + (item.fach || '---') + ' (' + (item.lehrer || '---') + ')</span><span class="u-check">✓</span></div>';
         });
     }
 
     function unterrichtAlleWaehlen(status) { renderUnterrichtKarten(); }
     function schliesseUnterrichtAuswahl(speichern) { zeigePlan(); }
 
-    function klickeTagHeader(tagIndex) {
-        if (!istAdmin) return;
-        aktuellerTagIndex = tagIndex;
-        document.getElementById('modalTitle').innerText = "Tages-Info bearbeiten";
-        document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminTagArea').style.display = 'block';
-        document.getElementById('infoModal').style.display = 'flex';
-    }
-
-    function speichereTagInfo() { closeModal(); zeigePlan(); }
-
     function klickeZelle(cellKey) {
         if (!istAdmin) return;
         aktuellerCellKey = cellKey;
+        var aktiverPlan = findePlanDaten();
+        var d = normalisiereBlockDaten(aktiverPlan[cellKey]) || { fach1: "", lehrer1: "", raum1: "", info: "" };
+
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
-        document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminBearbeitenArea').style.display = 'block';
+
+        for (var i = 1; i <= 3; i++) {
+            document.getElementById('editFach' + i).value = d['fach' + i] || '';
+            document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
+            document.getElementById('editRaum' + i).value = d['raum' + i] || '';
+            document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
+            document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
+            document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
+        }
+        document.getElementById('editInfo').value = d.info || '';
         document.getElementById('infoModal').style.display = 'flex';
     }
 
@@ -751,11 +742,12 @@
 
     function loescheEntwurfBlock() {
         if (!aktuellesObjekt || !aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w0';
-        if (draftPlaene[planKey]) {
-            delete draftPlaene[planKey][aktuellerCellKey];
-            localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
+        for (var k in draftPlaene) {
+            if (k.startsWith(aktuellesObjekt) && draftPlaene[k][aktuellerCellKey]) {
+                delete draftPlaene[k][aktuellerCellKey];
+            }
         }
+        localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
         closeModal(); zeigePlan();
     }
 
@@ -767,16 +759,6 @@
         await speichereDatenInCloud();
         alert("Erfolgreich veröffentlicht und gespeichert!");
         zeigePlan();
-    }
-
-    async function erzwingeSofortAnzeige() {
-        var drafts = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
-        for (var k in drafts) {
-            publishedPlaene[k] = drafts[k];
-        }
-        await speichereDatenInCloud();
-        alert("Alle lokalen Daten wurden erzwungen und geladen!");
-        if (aktuellesObjekt) zeigePlan();
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -791,9 +773,12 @@
             });
             if (res.ok) {
                 let json = await res.json();
-                if (json.record) {
-                    if (json.record.publishedPlaene) publishedPlaene = json.record.publishedPlaene;
-                    if (json.record.klassenUnterricht) klassenUnterricht = json.record.klassenUnterricht;
+                if (json.record && json.record.publishedPlaene) {
+                    publishedPlaene = json.record.publishedPlaene;
+                }
+                // AUTOMATISCHES NEUZEICHNEN SOBALD CLOUD-DATEN DA SIND
+                if (aktuellesObjekt && document.getElementById('planScreen').classList.contains('active')) {
+                    zeigePlan();
                 }
             }
         } catch (e) { console.error(e); }
@@ -810,7 +795,7 @@
             await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_MASTER_KEY },
-                body: JSON.stringify({ publishedPlaene: mergedPub, klassenUnterricht: klassenUnterricht })
+                body: JSON.stringify({ publishedPlaene: mergedPub })
             });
         } catch (e) { console.error(e); }
     }
