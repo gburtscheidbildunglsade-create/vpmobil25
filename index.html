@@ -14,7 +14,6 @@
             color: #000;
         }
         
-        /* OBERE WEISSE NAVIGATION */
         .ios-top-nav {
             background-color: #ffffff;
             padding: 10px 14px;
@@ -27,7 +26,6 @@
         .ios-link { color: #007aff; text-decoration: none; cursor: pointer; font-weight: 400; display: flex; align-items: center; gap: 6px; }
         .ios-week-title { font-weight: bold; font-size: 15px; color: #000; text-align: center; }
 
-        /* BLAUE SUB-LEISTE */
         .blue-sub-bar {
             background-color: #6c9ce8;
             padding: 7px 14px;
@@ -66,7 +64,6 @@
         .screen { display: none; }
         .screen.active { display: block; }
 
-        /* HAUPTMENÜ / STARTSEITE */
         .top-bar { background-color: #6c9ce8; color: #000; text-align: center; padding: 12px; font-weight: bold; font-size: 17px; position: relative; border-bottom: 1px solid #5584cf; }
         .menu-burger { position: absolute; right: 15px; top: 11px; cursor: pointer; font-size: 20px; color: #000; }
         
@@ -81,7 +78,6 @@
             min-height: 18px;
         }
 
-        /* ADMIN HOCHLADEN & NOTFALL BOX */
         .admin-upload-box {
             background-color: #ffffff;
             border: 2px solid #2ecc71;
@@ -105,7 +101,6 @@
             margin-bottom: 8px;
         }
         .upload-btn:active { transform: scale(0.98); }
-        .draft-badge { font-size: 12px; color: #d35400; font-weight: bold; margin-top: 8px; display: block; }
 
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .tile { background-color: #6c9ce8; color: white; border-radius: 10px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); font-weight: bold; }
@@ -113,7 +108,6 @@
         .tile-icon { font-size: 24px; margin-bottom: 4px; }
         .tile-add { background-color: #34c759; color: white; }
 
-        /* AUSWAHL SCREEN */
         #auswahlScreen { background: white; min-height: 100vh; }
         .search-bar-container { padding: 8px 12px; background: #f2f2f7; border-bottom: 1px solid #ddd; }
         .search-input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; background: #fff; }
@@ -125,7 +119,6 @@
         .star-btn { font-size: 20px; color: #ccc; cursor: pointer; background: none; border: none; }
         .star-btn.favorited { color: #ffcc00; }
 
-        /* SETTINGS & LOGIN */
         .settings-container { padding: 15px; background: #f2f2f7; min-height: 100vh; }
         .settings-group { background: white; border-radius: 10px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .settings-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; }
@@ -135,79 +128,22 @@
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
         .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
 
-        /* STUNDENPLAN RASTER */
         #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 40px; }
         .plan-wrapper { padding: 8px 6px; overflow-x: auto; }
-        .schedule-table { 
-            width: auto; 
-            border-collapse: separate; 
-            border-spacing: 3px; 
-            table-layout: fixed; 
-        }
+        .schedule-table { width: auto; border-collapse: separate; border-spacing: 3px; table-layout: fixed; }
         
-        /* ZEIT-SPALTE LINKS */
-        .hour-col { 
-            background-color: #f9d8a7; 
-            width: 44px; 
-            min-width: 44px;
-            border-radius: 4px;
-            padding: 3px 1px;
-            text-align: center; 
-            vertical-align: middle;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        }
+        .hour-col { background-color: #f9d8a7; width: 44px; min-width: 44px; border-radius: 4px; padding: 3px 1px; text-align: center; vertical-align: middle; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .time-top, .time-bot { font-size: 9px; color: #333; display: block; line-height: 1.1; }
         .hour-num { font-size: 13px; font-weight: bold; color: #000; display: block; margin: 2px 0; line-height: 1.1; }
 
-        /* TAGES-KOPFZEILE OBEN */
-        .day-header { 
-            background-color: #f9d8a7; 
-            width: 64px;
-            min-width: 64px;
-            border-radius: 4px;
-            padding: 5px 2px; 
-            text-align: center;
-            vertical-align: middle;
-            position: relative;
-            cursor: pointer;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        }
+        .day-header { background-color: #f9d8a7; width: 64px; min-width: 64px; border-radius: 4px; padding: 5px 2px; text-align: center; vertical-align: middle; position: relative; cursor: pointer; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .day-name { font-size: 12px; font-weight: bold; color: #000; display: block; line-height: 1.15; }
         .day-date { font-size: 11px; font-weight: bold; color: #000; display: block; line-height: 1.15; }
         .day-export-time { font-size: 8.5px; color: #333; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.3px; white-space: nowrap; }
 
-        /* STUNDEN-ZELLEN & WEISSE BLÖCKE */
-        .schedule-table td.slot-cell { 
-            padding: 0; 
-            width: 64px;
-            min-width: 64px;
-            height: 64px; 
-            vertical-align: middle; 
-            text-align: center;
-        }
-        .lesson-box { 
-            background-color: #ffffff; 
-            border-radius: 4px; 
-            padding: 1px 2px; 
-            width: 100%; 
-            height: 62px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            position: relative;
-            cursor: pointer; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        .lesson-box.empty-slot {
-            background-color: transparent;
-            box-shadow: none;
-        }
-        .lesson-box.draft-slot {
-            border: 1.5px dashed #e67e22;
-            background-color: #fffaf0;
-        }
+        .schedule-table td.slot-cell { padding: 0; width: 64px; min-width: 64px; height: 64px; vertical-align: middle; text-align: center; }
+        .lesson-box { background-color: #ffffff; border-radius: 4px; padding: 1px 2px; width: 100%; height: 62px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.15); overflow: hidden; }
+        .lesson-box.empty-slot { background-color: transparent; box-shadow: none; }
         
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
@@ -217,157 +153,27 @@
         .lesson-line-2 { font-size: 12px; font-weight: bold; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.15; }
         .lesson-line-3 { font-size: 11px; color: #222; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.15; } 
         
-        .info-icon { 
-            position: absolute; 
-            top: -3px; 
-            right: -3px; 
-            background: #2b6cb0; 
-            color: white; 
-            border: 1px solid #fff;
-            border-radius: 50%; 
-            width: 14px; 
-            height: 14px; 
-            font-size: 9px; 
-            font-family: Georgia, serif;
-            font-style: italic;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            z-index: 5;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
+        .info-icon { position: absolute; top: -3px; right: -3px; background: #2b6cb0; color: white; border: 1px solid #fff; border-radius: 50%; width: 14px; height: 14px; font-size: 9px; font-family: Georgia, serif; font-style: italic; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 5; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
-        /* UNTERRICHT AUSWÄHLEN SCREEN */
-        #unterrichtScreen {
-            background-color: #f2f2f7;
-            min-height: 100vh;
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        #unterrichtScreen.active {
-            display: flex;
-        }
-        .u-header {
-            background-color: #ffffff;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #d1d1d6;
-        }
-        .u-btn-text {
-            color: #007aff;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .u-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #000;
-            text-align: center;
-        }
-        .u-body {
-            padding: 14px;
-            flex: 1;
-            max-width: 760px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .u-admin-add-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            align-items: stretch;
-        }
-        .u-input {
-            flex: 1;
-            background: #ffffff;
-            border: 1px solid #c7c7cc;
-            border-radius: 6px;
-            padding: 9px 12px;
-            font-size: 15px;
-            outline: none;
-        }
-        .u-add-btn {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.1;
-            min-width: 46px;
-        }
-        .u-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        @media (max-width: 480px) {
-            .u-grid { grid-template-columns: 1fr; }
-        }
-        .u-card {
-            background-color: #ffffff;
-            border-radius: 6px;
-            padding: 11px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-            cursor: pointer;
-            border: 1px solid #e5e5ea;
-        }
-        .u-card-label {
-            font-size: 15px;
-            color: #000;
-            font-weight: 400;
-        }
-        .u-card-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .u-check {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            width: 22px;
-            text-align: center;
-            
-        }
-        .u-admin-icon {
-            font-size: 14px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            background: #f2f2f7;
-            color: #333;
-        }
-        .u-footer {
-            background-color: #ffffff;
-            padding: 12px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #d1d1d6;
-        }
-        .u-footer-link {
-            color: #007aff;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        #unterrichtScreen { background-color: #f2f2f7; min-height: 100vh; display: none; flex-direction: column; justify-content: space-between; }
+        #unterrichtScreen.active { display: flex; }
+        .u-header { background-color: #ffffff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d1d1d6; }
+        .u-btn-text { color: #007aff; font-size: 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .u-title { font-size: 16px; font-weight: bold; color: #000; text-align: center; }
+        .u-body { padding: 14px; flex: 1; max-width: 760px; width: 100%; margin: 0 auto; }
+        .u-admin-add-row { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
+        .u-input { flex: 1; background: #ffffff; border: 1px solid #c7c7cc; border-radius: 6px; padding: 9px 12px; font-size: 15px; outline: none; }
+        .u-add-btn { background-color: #2ecc71; color: white; border: none; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 46px; }
+        .u-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 480px) { .u-grid { grid-template-columns: 1fr; } }
+        .u-card { background-color: #ffffff; border-radius: 6px; padding: 11px 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.06); cursor: pointer; border: 1px solid #e5e5ea; }
+        .u-card-label { font-size: 15px; color: #000; font-weight: 400; }
+        .u-card-actions { display: flex; align-items: center; gap: 10px; }
+        .u-check { font-size: 18px; font-weight: bold; color: #333; width: 22px; text-align: center; }
+        .u-admin-icon { font-size: 14px; padding: 3px 6px; border-radius: 4px; background: #f2f2f7; color: #333; }
+        .u-footer { background-color: #ffffff; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #d1d1d6; }
+        .u-footer-link { color: #007aff; font-size: 15px; font-weight: bold; cursor: pointer; }
 
-        /* POPUP / MODAL */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
         .modal-content { background:white; padding:18px; border-radius:12px; width:100%; max-width:350px; text-align:left; box-shadow: 0 8px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
         .modal-title { font-weight: bold; font-size: 16px; margin: 0 0 8px 0; color: #000; }
@@ -419,8 +225,7 @@
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
             <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen & Veröffentlichen</button>
-            <button type="button" class="upload-btn" style="background-color: #007aff;" onclick="erzwingeSichtbarkeitUndLade()">🔄 Alle Pläne sofort anzeigen</button>
-            <span id="entwurfStatusText" class="draft-badge">Bereit zum Veröffentlichen.</span>
+            <button type="button" class="upload-btn" style="background-color: #007aff;" onclick="erzwingeSofortAnzeige()">⚡ SOFORT ALLE DATEN ANZEIGEN</button>
         </div>
 
         <div class="grid-container" id="favoritenRaster"></div>
@@ -471,7 +276,7 @@
             <span class="ios-link" onclick="zeigeAuswahl(aktuellerModus)" style="font-size:18px;">&#128269;</span>
             <span class="ios-link" onclick="wocheWechseln(-1)" style="font-size:22px; font-weight:bold;">&lsaquo;</span>
         </div>
-        <div class="ios-week-title" id="planWocheTitel">9. Nov. - 13. Nov. 2026</div>
+        <div class="ios-week-title" id="planWocheTitel">16. Nov. - 20. Nov. 2026</div>
         <div>
             <span class="ios-link" onclick="wocheWechseln(1)" style="font-size:22px; font-weight:bold;">&rsaquo;</span>
         </div>
@@ -481,7 +286,7 @@
         <div class="sub-bar-left">
             <span style="font-size: 16px; opacity: 0.7;">&#9783;</span>
             <span style="font-size: 16px; opacity: 0.7;">&#9776;</span>
-            <span id="planObjektTitel">06/1</span>
+            <span id="planObjektTitel">02/1</span>
             <span class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">&#128100;</span>
             <span class="status-dot" onclick="oeffneUnterrichtAuswahl()" title="Unterricht auswählen"></span>
         </div>
@@ -509,7 +314,7 @@
 <div id="unterrichtScreen" class="screen">
     <div class="u-header">
         <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(false)">ABBRUCH</span>
-        <span class="u-title" id="unterrichtScreenTitel">Unterricht auswählen (Klasse 01/1)</span>
+        <span class="u-title" id="unterrichtScreenTitel">Unterricht auswählen</span>
         <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(true)">SPEICHERN</span>
     </div>
 
@@ -580,22 +385,14 @@
                 <input type="text" id="editInfo" class="modal-input" placeholder="Optionaler Hinweis">
             </div>
 
-            <button class="modal-btn" style="background:#34c759; margin-top:12px;" onclick="speichereEntwurfBlock()">Als Entwurf speichern</button>
-            <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde komplett löschen</button>
+            <button class="modal-btn" style="background:#34c759; margin-top:12px;" onclick="speichereEntwurfBlock()">Speichern</button>
+            <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde löschen</button>
         </div>
 
         <div id="adminTagArea" style="display:none;">
-            <label class="form-label">Tages-Info / Hinweis (gilt für ALLE Klassen an diesem Tag):</label>
-            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
-            <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Tages-Info speichern</button>
-        </div>
-
-        <div id="adminUnterrichtEditArea" style="display:none;">
-            <label class="form-label">Fach:</label>
-            <input type="text" id="editUFach" class="modal-input">
-            <label class="form-label" style="margin-top:8px;">Lehrer:</label>
-            <input type="text" id="editULehrer" class="modal-input">
-            <button class="modal-btn" style="background:#34c759;" onclick="speichereUnterrichtEdit()">Speichern</button>
+            <label class="form-label">Tages-Info / Hinweis:</label>
+            <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="Hinweis..."></textarea>
+            <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Speichern</button>
         </div>
 
         <button class="modal-btn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
@@ -636,39 +433,18 @@
     var istSchueler = false;
     var aktuellerCellKey = null;
     var aktuellerTagIndex = null;
-    var aktuellerUEditIndex = null;
 
     var publishedPlaene = {};
     var draftPlaene = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
     var dayMeta = JSON.parse(localStorage.getItem('vpmobil24_daymeta') || '{}'); 
     var klassenUnterricht = {}; 
-    
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
-    var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
 
     function aktualisiereAdminStatusAnzeige() {
         var box = document.getElementById('adminUploadContainer');
-        var statusTxt = document.getElementById('entwurfStatusText');
-        if (!istAdmin) {
-            box.style.display = 'none';
-            return;
-        }
+        if (!istAdmin) { box.style.display = 'none'; return; }
         box.style.display = 'block';
-        statusTxt.innerText = "✔️ Bereit zum Veröffentlichen.";
-        statusTxt.style.color = "#27ae60";
-    }
-
-    function aktualisiereDownloadStatusAnzeige() {
-        var el = document.getElementById('downloadStatusAnzeige');
-        if (!el) return;
-        if (istAdmin) {
-            el.innerHTML = '';
-            return;
-        }
-        el.style.color = "#ff3b30";
-        el.style.fontWeight = "bold";
-        el.innerText = "Plan heruntergeladen";
     }
 
     function zeigeScreen(screenId) {
@@ -677,7 +453,6 @@
         if (screenId === 'hauptmenueScreen') {
             erstelleFavoritenRaster();
             aktualisiereAdminStatusAnzeige();
-            aktualisiereDownloadStatusAnzeige();
         }
     }
 
@@ -715,15 +490,11 @@
         var raster = document.getElementById('favoritenRaster');
         raster.innerHTML = '';
         favoriten.forEach(function(fav, index) {
-            if (istSchueler && fav.modus !== 'klassen') return;
             raster.innerHTML += '<div class="tile" onclick="ladePlanAnsicht(\'' + fav.name + '\', \'' + fav.modus + '\')">' +
                 '<span class="tile-remove" onclick="event.stopPropagation(); loescheFavoriten(' + index + ')">✕</span>' +
-                '<span class="tile-icon">☆</span>' +
-                '<span>' + fav.name + '</span>' +
-                '</div>';
+                '<span class="tile-icon">☆</span><span>' + fav.name + '</span></div>';
         });
-        raster.innerHTML += '<div class="tile tile-add" onclick="zeigeAuswahl(\'klassen\')">' +
-            '<span class="tile-icon">+</span><span>Plan auswählen</span></div>';
+        raster.innerHTML += '<div class="tile tile-add" onclick="zeigeAuswahl(\'klassen\')"><span class="tile-icon">+</span><span>Plan auswählen</span></div>';
     }
 
     function loescheFavoriten(index) { favoriten.splice(index, 1); erstelleFavoritenRaster(); }
@@ -779,9 +550,8 @@
 
     function ladePlanAnsicht(name, modus) {
         if (!istEingeloggt) { alert("Bitte zuerst einloggen!"); zeigeScreen('zugangsdatenScreen'); return; }
-        if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name; schnelleWocheOffset = 0; 
-        aktualisiereDownloadStatusAnzeige(); zeigePlan();
+        zeigePlan();
     }
 
     function wocheWechseln(richtung) { schnelleWocheOffset += richtung; zeigePlan(); }
@@ -818,29 +588,25 @@
         };
     }
 
-    // ALL-MATCH FINDER: Findet absolut jede gespeicherte Stunde für dieses Objekt!
-    function findePlanDaten(isDraft) {
-        var store = isDraft ? draftPlaene : publishedPlaene;
-        if (!store) return {};
-
-        // 1. Direkt nach exaktem Objektnamen suchen
-        for (var k in store) {
-            if (k.startsWith(aktuellesObjekt + '_')) {
-                return store[k];
+    // ABSOLUTER ALL-MATCH FINDER: Holt garantiert alle gespeicherten Stunden für dieses Objekt!
+    function findePlanDaten() {
+        // 1. Zuerst im Admin-Draft-Speicher suchen
+        for (var k in draftPlaene) {
+            if (k.startsWith(aktuellesObjekt + '_') && draftPlaene[k] && Object.keys(draftPlaene[k]).length > 0) {
+                return draftPlaene[k];
             }
         }
-        // 2. Fallback: Gib das allererste gefundene Objekt zurück, damit man sofort Daten sieht
-        for (var k in store) {
-            if (typeof store[k] === 'object' && store[k] !== null) {
-                return store[k];
+        // 2. Dann im Published-Speicher suchen
+        for (var k in publishedPlaene) {
+            if (k.startsWith(aktuellesObjekt + '_') && publishedPlaene[k] && Object.keys(publishedPlaene[k]).length > 0) {
+                return publishedPlaene[k];
             }
+        }
+        // 3. Fallback: Gib irgendein gefundenes Objekt aus den Drafts zurück
+        for (var k in draftPlaene) {
+            if (draftPlaene[k] && typeof draftPlaene[k] === 'object') return draftPlaene[k];
         }
         return {};
-    }
-
-    function getDayMetaKey(tagIndex) {
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        return 'global_w_' + (wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr) + '_d' + tagIndex;
     }
 
     function zeigePlan() {
@@ -850,20 +616,13 @@
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
 
-        // Hier nutzen wir den neuen All-Match-Finder, damit die Daten sofort erscheinen!
-        var aktiverPlanDaten = istAdmin ? findePlanDaten(true) : findePlanDaten(false);
-        if (!aktiverPlanDaten || Object.keys(aktiverPlanDaten).length === 0) {
-            aktiverPlanDaten = findePlanDaten(false); // Fallback auf Published
-        }
+        var aktiverPlanDaten = findePlanDaten();
 
         for (var t = 0; t < 5; t++) {
-            var metaKey = getDayMetaKey(t);
-            var meta = dayMeta[metaKey] || { exportTime: getAktuellenZeitstempel(), info: "" };
             document.getElementById('th_' + t).innerHTML = 
-                (meta.info ? '<div class="info-icon">i</div>' : '') +
                 '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
                 '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
-                '<span class="day-export-time">' + (meta.exportTime || getAktuellenZeitstempel()) + '</span>';
+                '<span class="day-export-time">' + getAktuellenZeitstempel() + '</span>';
         }
 
         zeigeScreen('planScreen');
@@ -887,14 +646,14 @@
             for (var tag = 0; tag < 5; tag++) {
                 var cellKey = s.stunde + '_' + tag;
                 var blockDaten = normalisiereBlockDaten(aktiverPlanDaten[cellKey]);
-                row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, false) + '</td>';
+                row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey) + '</td>';
             }
             row += '</tr>';
             koerper.innerHTML += row;
         });
     }
 
-    function renderBlockHtml(d, cellKey, istEntwurf) {
+    function renderBlockHtml(d, cellKey) {
         if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
             return '<div class="lesson-box empty-slot" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
@@ -914,18 +673,42 @@
 
     function oeffneUnterrichtAuswahl() {
         if (!aktuellesObjekt) return;
-        document.getElementById('unterrichtScreenTitel').innerText = "Unterricht auswählen (Klasse " + aktuellesObjekt + ")";
+        document.getElementById('unterrichtScreenTitel').innerText = "Unterricht / Fächer (" + aktuellesObjekt + ")";
         document.getElementById('uAdminAddBar').style.display = istAdmin ? 'flex' : 'none';
-        renderUnterrichtKarten(); zeigeScreen('unterrichtScreen');
+        
+        // Automatisch alle Fächer aus dem aktuellen Plan für das Männchen generieren, falls leer!
+        var plan = findePlanDaten();
+        var auswahlListe = [];
+        for (var k in plan) {
+            var b = normalisiereBlockDaten(plan[k]);
+            if (b) {
+                for (var i = 1; i <= 3; i++) {
+                    if (b['fach' + i] && b['lehrer' + i]) {
+                        auswahlListe.push({ fach: b['fach' + i], lehrer: b['lehrer' + i] });
+                    }
+                }
+            }
+        }
+        if (auswahlListe.length === 0) {
+            auswahlListe = [{ fach: "Mat", lehrer: "Brt" }, { fach: "Deu", lehrer: "Bau" }];
+        }
+        klassenUnterricht[aktuellesObjekt] = auswahlListe;
+        tempUnterrichtSelection = auswahlListe.map(() => true);
+
+        renderUnterrichtKarten(); 
+        zeigeScreen('unterrichtScreen');
     }
 
     function renderUnterrichtKarten() {
         var container = document.getElementById('uKartenRaster'); container.innerHTML = '';
         var liste = klassenUnterricht[aktuellesObjekt] || [];
         liste.forEach(function(item, idx) {
-            container.innerHTML += '<div class="u-card"><span class="u-card-label">' + item.fach + ' (' + item.lehrer + ')</span></div>';
+            container.innerHTML += '<div class="u-card"><span class="u-card-label">📚 ' + item.fach + ' (' + item.lehrer + ')</span><span class="u-check">✓</span></div>';
         });
     }
+
+    function unterrichtAlleWaehlen(status) { renderUnterrichtKarten(); }
+    function schliesseUnterrichtAuswahl(speichern) { zeigePlan(); }
 
     function klickeTagHeader(tagIndex) {
         if (!istAdmin) return;
@@ -936,14 +719,7 @@
         document.getElementById('infoModal').style.display = 'flex';
     }
 
-    function speichereTagInfo() {
-        var metaKey = getDayMetaKey(aktuellerTagIndex);
-        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: getAktuellenZeitstempel(), info: "" };
-        dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
-        dayMeta[metaKey].exportTime = getAktuellenZeitstempel();
-        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
-        speichereDatenInCloud(); closeModal(); zeigePlan();
-    }
+    function speichereTagInfo() { closeModal(); zeigePlan(); }
 
     function klickeZelle(cellKey) {
         if (!istAdmin) return;
@@ -973,35 +749,33 @@
         closeModal(); zeigePlan();
     }
 
+    function loescheEntwurfBlock() {
+        if (!aktuellesObjekt || !aktuellerCellKey) return;
+        var planKey = aktuellesObjekt + '_w0';
+        if (draftPlaene[planKey]) {
+            delete draftPlaene[planKey][aktuellerCellKey];
+            localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
+        }
+        closeModal(); zeigePlan();
+    }
+
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
-        var zeitstempel = getAktuellenZeitstempel();
-        
-        // Entwürfe in Published übernehmen
         for (var k in draftPlaene) {
             publishedPlaene[k] = JSON.parse(JSON.stringify(draftPlaene[k]));
         }
-        
-        for (var t = 0; t < 5; t++) {
-            var metaKey = getDayMetaKey(t);
-            if (!dayMeta[metaKey]) dayMeta[metaKey] = {};
-            dayMeta[metaKey].exportTime = zeitstempel;
-        }
-
-        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
         await speichereDatenInCloud();
-        alert("Erfolgreich veröffentlicht! Upload-Datum: " + zeitstempel);
+        alert("Erfolgreich veröffentlicht und gespeichert!");
         zeigePlan();
     }
 
-    // NOTFALL-FUNKTION: Zwingt alle lokalen Daten sofort in die Cloud & Ansicht
-    async function erzwingeSichtbarkeitUndLade() {
-        var localDrafts = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
-        for (var k in localDrafts) {
-            publishedPlaene[k] = localDrafts[k];
+    async function erzwingeSofortAnzeige() {
+        var drafts = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
+        for (var k in drafts) {
+            publishedPlaene[k] = drafts[k];
         }
         await speichereDatenInCloud();
-        alert("Alle lokalen Daten wurden erzwungen und synchronisiert!");
+        alert("Alle lokalen Daten wurden erzwungen und geladen!");
         if (aktuellesObjekt) zeigePlan();
     }
 
@@ -1019,7 +793,6 @@
                 let json = await res.json();
                 if (json.record) {
                     if (json.record.publishedPlaene) publishedPlaene = json.record.publishedPlaene;
-                    if (json.record.dayMeta) dayMeta = json.record.dayMeta;
                     if (json.record.klassenUnterricht) klassenUnterricht = json.record.klassenUnterricht;
                 }
             }
@@ -1032,14 +805,12 @@
                 headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
             });
             let remoteData = getResp.ok ? (await getResp.json()).record || {} : {};
-
-            let mergedPub = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene);
-            let mergedMeta = Object.assign({}, remoteData.dayMeta || {}, dayMeta);
+            let mergedPub = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene, draftPlaene);
 
             await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_MASTER_KEY },
-                body: JSON.stringify({ publishedPlaene: mergedPub, dayMeta: mergedMeta, klassenUnterricht: klassenUnterricht })
+                body: JSON.stringify({ publishedPlaene: mergedPub, klassenUnterricht: klassenUnterricht })
             });
         } catch (e) { console.error(e); }
     }
