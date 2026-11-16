@@ -675,7 +675,7 @@
             return;
         }
 
-        var planKey = aktuellesObjekt ? getKlassenPlanKey() : ('global_' + getGlobalWeekId());
+        var planKey = aktuellesObjekt ? getKlassenPlanKey(false) : ('global_' + getGlobalWeekId());
         var downloadedPlans = JSON.parse(localStorage.getItem('vpmobil24_downloaded_plans') || '{}');
 
         if (!downloadedPlans[planKey]) {
@@ -900,27 +900,25 @@
         };
     }
 
-    // ROBUSTER KEY-FINDER: Findet den Plan garantiert, egal unter welchem Schlüssel er in der Bin liegt!
+    // ULTRA-ROBUSTER KEY-FINDER: Findet den Plan unter allen Umständen
     function getKlassenPlanKey(isDraft) {
         var store = isDraft ? draftPlaene : publishedPlaene;
         
-        // 1. Exakter Match mit aktuellem Datum
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         var absoluteWochenId = wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
         var absKey = aktuellesObjekt + '_' + absoluteWochenId;
-        if (store[absKey]) return absKey;
+        if (store && store[absKey]) return absKey;
 
-        // 2. Legacy Match (_w0, _w1, etc.)
         var legacyKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        if (store[legacyKey]) return legacyKey;
+        if (store && store[legacyKey]) return legacyKey;
 
-        // 3. Fallback: Suche nach IRGENDEINEM Schlüssel in der Bin/im Store, der mit dem Objektnamen beginnt (z.B. "06/1_")
-        for (var k in store) {
-            if (k.startsWith(aktuellesObjekt + '_')) {
-                return k;
+        if (store) {
+            for (var k in store) {
+                if (k.startsWith(aktuellesObjekt + '_')) {
+                    return k;
+                }
             }
         }
-
         return absKey;
     }
 
@@ -961,7 +959,15 @@
 
         var pubKey = getKlassenPlanKey(false);
         var draftKey = getKlassenPlanKey(true);
-        var aktiverPlanDaten = istAdmin ? (draftPlaene[draftKey] || publishedPlaene[pubKey] || {}) : (publishedPlaene[pubKey] || {});
+
+        // INTELLIGENTER FALLBACK: Wenn publishedPlaene leer ist, nimm sofort die Entwürfe aus dem lokalen Speicher!
+        var aktiverPlanDaten = publishedPlaene[pubKey];
+        if (!aktiverPlanDaten || Object.keys(aktiverPlanDaten).length === 0) {
+            aktiverPlanDaten = draftPlaene[draftKey] || {};
+        }
+        if (istAdmin) {
+            aktiverPlanDaten = draftPlaene[draftKey] || publishedPlaene[pubKey] || {};
+        }
 
         for (var t = 0; t < 5; t++) {
             var metaKey = getDayMetaKey(t);
@@ -1237,7 +1243,10 @@
         aktuellerTagIndex = null;
         var pubKey = getKlassenPlanKey(false);
         var draftKey = getKlassenPlanKey(true);
-        var aktiverPlan = istAdmin ? (draftPlaene[draftKey] || publishedPlaene[pubKey] || {}) : (publishedPlaene[pubKey] || {});
+        var aktiverPlan = publishedPlaene[pubKey];
+        if (!aktiverPlan || Object.keys(aktiverPlan).length === 0) aktiverPlan = draftPlaene[draftKey] || {};
+        if (istAdmin) aktiverPlan = draftPlaene[draftKey] || publishedPlaene[pubKey] || {};
+
         var rawD = aktiverPlan[cellKey] || null;
         var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
 
