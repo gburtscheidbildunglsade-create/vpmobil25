@@ -666,7 +666,6 @@
         }
     }
 
-    /* NEU: Rote Schrift pro Gerät pro Plan (nur für Lehrer und Schüler) */
     function aktualisiereDownloadStatusAnzeige() {
         var el = document.getElementById('downloadStatusAnzeige');
         if (!el) return;
@@ -1358,17 +1357,17 @@
 
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
-        
-        // FIX 1: dayMeta lokal speichern, damit das Veröffentlichungsdatum auf dem Datum-Block sofort angezeigt wird
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
 
         hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
         aktualisiereAdminStatusAnzeige();
+        
         await speichereDatenInCloud();
+        
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
         }
-        alert("Alle Pläne wurden hochgeladen! Das Upload-Datum (" + zeitstempel + ") ist jetzt sichtbar.");
+        alert("Alle Pläne wurden erfolgreich veröffentlicht! Datum: " + zeitstempel);
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -1384,9 +1383,11 @@
             if (response.ok) {
                 let data = await response.json();
                 if (data.record) {
-                    if (data.record.publishedPlaene) publishedPlaene = data.record.publishedPlaene;
-                    else if (data.record.wochenPläne) publishedPlaene = data.record.wochenPläne;
-                    
+                    if (data.record.publishedPlaene) {
+                        for (let k in data.record.publishedPlaene) {
+                            if (!publishedPlaene[k]) publishedPlaene[k] = data.record.publishedPlaene[k];
+                        }
+                    }
                     if (data.record.draftPlaene) {
                         for (let k in data.record.draftPlaene) {
                             if (!draftPlaene[k]) draftPlaene[k] = data.record.draftPlaene[k];
@@ -1397,7 +1398,11 @@
                             if (!dayMeta[k]) dayMeta[k] = data.record.dayMeta[k];
                         }
                     }
-                    if (data.record.klassenUnterricht) klassenUnterricht = data.record.klassenUnterricht;
+                    if (data.record.klassenUnterricht) {
+                        for (let k in data.record.klassenUnterricht) {
+                            if (!klassenUnterricht[k]) klassenUnterricht[k] = data.record.klassenUnterricht[k];
+                        }
+                    }
                     
                     hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
                     
@@ -1417,8 +1422,31 @@
         }
     }
 
+    // SICHERER SPEICHER-MECHANISMUS (VERHINDERT DATENVERLUST DURCH MERGE)
     async function speichereDatenInCloud() {
         try {
+            // 1. Erst aktuellen Stand aus der Cloud holen
+            let getResp = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
+            });
+            let remoteData = {};
+            if (getResp.ok) {
+                let json = await getResp.json();
+                remoteData = json.record || {};
+            }
+
+            // 2. Mit lokalen Daten zusammenführen (keine Daten löschen)
+            let mergedPublished = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene);
+            let mergedDrafts = Object.assign({}, remoteData.draftPlaene || {}, draftPlaene);
+            let mergedMeta = Object.assign({}, remoteData.dayMeta || {}, dayMeta);
+            let mergedUnterricht = Object.assign({}, remoteData.klassenUnterricht || {}, klassenUnterricht);
+
+            publishedPlaene = mergedPublished;
+            draftPlaene = mergedDrafts;
+            dayMeta = mergedMeta;
+            klassenUnterricht = mergedUnterricht;
+
+            // 3. Sicher in die Cloud schreiben
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
             await fetch(responseUrl, {
                 method: "PUT",
@@ -1440,7 +1468,6 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
-        setInterval(ladeDatenAusCloud, 5000);
     });
 </script>
 </body>
