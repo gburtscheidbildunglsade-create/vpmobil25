@@ -530,7 +530,6 @@
         if (!istEingeloggt) { alert("Bitte zuerst einloggen!"); zeigeScreen('zugangsdatenScreen'); return; }
         aktuellesObjekt = name; schnelleWocheOffset = 0; 
         zeigePlan();
-        // Daten im Hintergrund frisch laden und Ansicht automatisch aktualisieren
         ladeDatenAusCloud();
     }
 
@@ -546,6 +545,7 @@
         var tage = [], tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
         for (var i = 0; i < 5; i++) {
             var temp = new Date(montag); temp.setDate(montag.getDate() + i);
+            tage.path({ kurz: tageNamen[i], datum: temp.getDate() + "." + (temp.getMonth() + 1) + ".", titelDatum: temp.getDate() + ". " + monateKurz[temp.getMonth()], jahr: temp.getFullYear() });
             tage.push({ kurz: tageNamen[i], datum: temp.getDate() + "." + (temp.getMonth() + 1) + ".", titelDatum: temp.getDate() + ". " + monateKurz[temp.getMonth()], jahr: temp.getFullYear() });
         }
         return tage;
@@ -568,29 +568,26 @@
         };
     }
 
+    // MEGA-ROBUSTER GLOBALER FINDER: Ignoriert jegliche Schlüssel-Präfixe und sammelt ALLES ein!
     function findePlanDaten() {
         var merged = {};
+        var stores = [draftPlaene, publishedPlaene];
         
-        // 1. Lokale Entwürfe
-        for (var k in draftPlaene) {
-            if (k.startsWith(aktuellesObjekt)) {
-                var plan = draftPlaene[k];
-                for (var cellK in plan) {
-                    if (plan[cellK]) merged[cellK] = plan[cellK];
+        stores.forEach(function(store) {
+            if (!store) return;
+            for (var k in store) {
+                var plan = store[k];
+                if (plan && typeof plan === 'object') {
+                    // Wenn der Schlüssel das Objekt enthält ODER wir einfach alle Zellen-Daten einsammeln wollen:
+                    for (var cellK in plan) {
+                        // Zellen-Format ist z.B. "1_0", "2_3" (Stunde_Tag)
+                        if (cellK.indexOf('_') > -1 && plan[cellK]) {
+                            merged[cellK] = plan[cellK];
+                        }
+                    }
                 }
             }
-        }
-        
-        // 2. Veröffentlichte Cloud-Pläne
-        for (var k in publishedPlaene) {
-            if (k.startsWith(aktuellesObjekt)) {
-                var plan = publishedPlaene[k];
-                for (var cellK in plan) {
-                    if (plan[cellK] && !merged[cellK]) merged[cellK] = plan[cellK];
-                }
-            }
-        }
-        
+        });
         return merged;
     }
 
@@ -743,7 +740,7 @@
     function loescheEntwurfBlock() {
         if (!aktuellesObjekt || !aktuellerCellKey) return;
         for (var k in draftPlaene) {
-            if (k.startsWith(aktuellesObjekt) && draftPlaene[k][aktuellerCellKey]) {
+            if (draftPlaene[k] && draftPlaene[k][aktuellerCellKey]) {
                 delete draftPlaene[k][aktuellerCellKey];
             }
         }
@@ -776,7 +773,6 @@
                 if (json.record && json.record.publishedPlaene) {
                     publishedPlaene = json.record.publishedPlaene;
                 }
-                // AUTOMATISCHES NEUZEICHNEN SOBALD CLOUD-DATEN DA SIND
                 if (aktuellesObjekt && document.getElementById('planScreen').classList.contains('active')) {
                     zeigePlan();
                 }
