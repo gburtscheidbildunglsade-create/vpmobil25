@@ -899,17 +899,27 @@
         };
     }
 
+    // ROBUSTER SCHLÜSSEL-LOOKUP MIT FALLBACK (verhindert Geräte-Datums-Abweichungen)
     function getKlassenPlanKey(offset) {
         var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
         var wochenDaten = getWochenTageDaten(off);
         var m = wochenDaten[0].dateObj;
         var isoWochenId = m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
         var absKey = aktuellesObjekt + '_' + isoWochenId;
+
+        if (!publishedPlaene[absKey] && !draftPlaene[absKey]) {
+            for (var k in publishedPlaene) {
+                if (k.startsWith(aktuellesObjekt + '_')) {
+                    return k;
+                }
+            }
+        }
         return absKey;
     }
 
-    function getGlobalWeekId() {
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+    function getGlobalWeekId(offset) {
+        var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
+        var wochenDaten = getWochenTageDaten(off);
         var m = wochenDaten[0].dateObj;
         return m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
     }
@@ -1303,44 +1313,43 @@
         zeigePlan();
     }
 
-    // SAUBERE VERÖFFENTLICHUNG: Nur Tage mit tatsächlichen Stunden erhalten ein Upload-Datum
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
         var zeitstempel = getAktuellenZeitstempel();
 
         for (var k in draftPlaene) {
             publishedPlaene[k] = JSON.parse(JSON.stringify(draftPlaene[k]));
+
+            var parts = k.split('_');
+            if (parts.length >= 2) {
+                var wochenIdPart = parts.slice(1).join('_');
+
+                for (var tag = 0; tag < 5; tag++) {
+                    var tagHatStunden = false;
+                    for (var stunde = 1; stunde <= 8; stunde++) {
+                        var cellKey = stunde + '_' + tag;
+                        var cellData = publishedPlaene[k] && publishedPlaene[k][cellKey];
+                        var dCell = normalisiereBlockDaten(cellData);
+                        if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
+                            tagHatStunden = true;
+                            break;
+                        }
+                    }
+
+                    var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
+                    if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+
+                    if (tagHatStunden) {
+                        dayMeta[metaKey].exportTime = zeitstempel;
+                    } else {
+                        dayMeta[metaKey].exportTime = "";
+                    }
+                }
+            }
         }
 
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
-
-        var planKey = getKlassenPlanKey();
-        var wochenIdPart = getGlobalWeekId();
-
-        for (var tag = 0; tag < 5; tag++) {
-            var tagHatStunden = false;
-            for (var stunde = 1; stunde <= 8; stunde++) {
-                var cellKey = stunde + '_' + tag;
-                var cellData = publishedPlaene[planKey] && publishedPlaene[planKey][cellKey];
-                var dCell = normalisiereBlockDaten(cellData);
-                if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
-                    tagHatStunden = true;
-                    break;
-                }
-            }
-
-            var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
-            if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
-
-            // Datum nur setzen, wenn an diesem Tag Stunden vorhanden sind
-            if (tagHatStunden) {
-                dayMeta[metaKey].exportTime = zeitstempel;
-            } else {
-                dayMeta[metaKey].exportTime = "";
-            }
-        }
-
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
 
         hatUnveroeffentlichteAenderungen = false;
@@ -1351,7 +1360,7 @@
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
         }
-        alert("Plan erfolgreich veröffentlicht! (" + zeitstempel + ")");
+        alert("Pläne erfolgreich veröffentlicht! (" + zeitstempel + ")");
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
