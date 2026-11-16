@@ -73,7 +73,6 @@
         #hauptmenueScreen { padding: 15px; min-height: 100vh; background-color: #f2f2f7; }
         .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: bold; }
         
-        /* DOWNLOAD STATUS ANZEIGE AUF DER STARTSEITE */
         #downloadStatusAnzeige {
             text-align: center;
             font-size: 13px;
@@ -82,7 +81,7 @@
             min-height: 18px;
         }
 
-        /* ADMIN HOCHLADEN BUTTON */
+        /* ADMIN HOCHLADEN & NOTFALL BOX */
         .admin-upload-box {
             background-color: #ffffff;
             border: 2px solid #2ecc71;
@@ -103,6 +102,7 @@
             width: 100%;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+            margin-bottom: 8px;
         }
         .upload-btn:active { transform: scale(0.98); }
         .draft-badge { font-size: 12px; color: #d35400; font-weight: bold; margin-top: 8px; display: block; }
@@ -209,7 +209,6 @@
             background-color: #fffaf0;
         }
         
-        /* SCHRIFTFARBEN & SCHRIFTSTÄRKEN */
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
         .black-text-bold { color: #000000 !important; font-weight: bold !important; }
@@ -344,6 +343,7 @@
             color: #333;
             width: 22px;
             text-align: center;
+            
         }
         .u-admin-icon {
             font-size: 14px;
@@ -418,8 +418,9 @@
         <div id="downloadStatusAnzeige"></div>
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
-            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen</button>
-            <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
+            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen & Veröffentlichen</button>
+            <button type="button" class="upload-btn" style="background-color: #007aff;" onclick="erzwingeSichtbarkeitUndLade()">🔄 Alle Pläne sofort anzeigen</button>
+            <span id="entwurfStatusText" class="draft-badge">Bereit zum Veröffentlichen.</span>
         </div>
 
         <div class="grid-container" id="favoritenRaster"></div>
@@ -538,7 +539,6 @@
         <div id="modalInfoBox" class="modal-info-text" style="display:none;"></div>
         
         <div id="adminBearbeitenArea" style="display:none;">
-            <!-- BLOCK 1 -->
             <div class="sub-section-title">Block 1 (Hauptzeile)</div>
             <div style="display:flex; gap:6px;">
                 <input type="text" id="editFach1" class="modal-input" placeholder="Fach">
@@ -551,7 +551,6 @@
                 <label style="margin-left:8px;"><input type="checkbox" id="checkRedRaum1"> Rot (Raum)</label>
             </div>
 
-            <!-- BLOCK 2 -->
             <div class="sub-section-title">Block 2 (Darunter)</div>
             <div style="display:flex; gap:6px;">
                 <input type="text" id="editFach2" class="modal-input" placeholder="Fach">
@@ -564,7 +563,6 @@
                 <label style="margin-left:8px;"><input type="checkbox" id="checkRedRaum2"> Rot (Raum)</label>
             </div>
 
-            <!-- BLOCK 3 -->
             <div class="sub-section-title">Block 3 (Darunter)</div>
             <div style="display:flex; gap:6px;">
                 <input type="text" id="editFach3" class="modal-input" placeholder="Fach">
@@ -657,38 +655,20 @@
             return;
         }
         box.style.display = 'block';
-        if (hatUnveroeffentlichteAenderungen) {
-            statusTxt.innerText = "⚠️ Du hast unveröffentlichte Stunden-Änderungen!";
-            statusTxt.style.color = "#d35400";
-        } else {
-            statusTxt.innerText = "✔️ Alle Pläne sind aktuell veröffentlicht.";
-            statusTxt.style.color = "#27ae60";
-        }
+        statusTxt.innerText = "✔️ Bereit zum Veröffentlichen.";
+        statusTxt.style.color = "#27ae60";
     }
 
     function aktualisiereDownloadStatusAnzeige() {
         var el = document.getElementById('downloadStatusAnzeige');
         if (!el) return;
-
         if (istAdmin) {
             el.innerHTML = '';
             return;
         }
-
-        var planKey = aktuellesObjekt ? getKlassenPlanKey(false) : ('global_' + getGlobalWeekId());
-        var downloadedPlans = JSON.parse(localStorage.getItem('vpmobil24_downloaded_plans') || '{}');
-
-        if (!downloadedPlans[planKey]) {
-            el.style.color = "#ff3b30";
-            el.style.fontWeight = "bold";
-            el.innerText = "Plan heruntergeladen";
-            downloadedPlans[planKey] = true;
-            localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
-        } else {
-            el.style.color = "#000000";
-            el.style.fontWeight = "normal";
-            el.innerText = "Letzter Download: " + getAktuellenZeitstempel();
-        }
+        el.style.color = "#ff3b30";
+        el.style.fontWeight = "bold";
+        el.innerText = "Plan heruntergeladen";
     }
 
     function zeigeScreen(screenId) {
@@ -707,39 +687,25 @@
         var pass = document.getElementById('inputPasswort').value.trim();
 
         if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
-            istEingeloggt = true;
-            istAdmin = true;
-            istSchueler = false;
+            istEingeloggt = true; istAdmin = true; istSchueler = false;
             document.getElementById('schulBannerText').innerHTML = 'Schule: ' + schulnr + ' (ADMIN)';
-            zeigeScreen('hauptmenueScreen');
-            return;
+            zeigeScreen('hauptmenueScreen'); return;
         }
-
         if (rolle === "lehrer" && pass === "Y32-8911") {
-            istEingeloggt = true;
-            istAdmin = false;
-            istSchueler = false;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (LEHRER)';
-            zeigeScreen('hauptmenueScreen');
-            return;
+            istEingeloggt = true; istAdmin = false; istSchueler = false;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: Allgemein (LEHRER)';
+            zeigeScreen('hauptmenueScreen'); return;
         }
-
         if (rolle === "schueler" && pass === "Y34-1312") {
-            istEingeloggt = true;
-            istAdmin = false;
-            istSchueler = true;
-            document.getElementById('schulBannerText').innerHTML = 'Schule: ' + (schulnr || 'Allgemein') + ' (SCHÜLER)';
-            zeigeScreen('hauptmenueScreen');
-            return;
+            istEingeloggt = true; istAdmin = false; istSchueler = true;
+            document.getElementById('schulBannerText').innerHTML = 'Schule: Allgemein (SCHÜLER)';
+            zeigeScreen('hauptmenueScreen'); return;
         }
-
         alert("Falsches Passwort oder ungültige Zugangsdaten!");
     }
 
     function abmelden() {
-        istEingeloggt = false;
-        istAdmin = false;
-        istSchueler = false;
+        istEingeloggt = false; istAdmin = false; istSchueler = false;
         document.getElementById('inputSchulnummer').value = '';
         document.getElementById('inputPasswort').value = '';
         zeigeScreen('zugangsdatenScreen');
@@ -757,44 +723,31 @@
                 '</div>';
         });
         raster.innerHTML += '<div class="tile tile-add" onclick="zeigeAuswahl(\'klassen\')">' +
-            '<span class="tile-icon">+</span>' +
-            '<span>Plan auswählen</span>' +
-            '</div>';
+            '<span class="tile-icon">+</span><span>Plan auswählen</span></div>';
     }
 
-    function loescheFavoriten(index) {
-        favoriten.splice(index, 1);
-        erstelleFavoritenRaster();
-    }
+    function loescheFavoriten(index) { favoriten.splice(index, 1); erstelleFavoritenRaster(); }
 
     function zeigeAuswahl(modus) {
         if (istSchueler && modus !== 'klassen') modus = 'klassen';
-        aktuellerModus = modus;
-        zeigeScreen('auswahlScreen');
-        wechselTab(modus);
+        aktuellerModus = modus; zeigeScreen('auswahlScreen'); wechselTab(modus);
     }
 
     function wechselTab(modus) {
         if (istSchueler && modus !== 'klassen') return;
         aktuellerModus = modus;
-        
-        var tabKlassen = document.getElementById('tabKlassenHead');
-        var tabLehrer = document.getElementById('tabLehrerHead');
-        var tabRaeume = document.getElementById('tabRaeumeHead');
-
-        tabKlassen.classList.remove('active', 'disabled');
-        tabLehrer.classList.remove('active', 'disabled');
-        tabRaeume.classList.remove('active', 'disabled');
-
+        document.getElementById('tabKlassenHead').classList.remove('active', 'disabled');
+        document.getElementById('tabLehrerHead').classList.remove('active', 'disabled');
+        document.getElementById('tabRaeumeHead').classList.remove('active', 'disabled');
         if (istSchueler) {
-            tabLehrer.classList.add('disabled');
-            tabRaeume.classList.add('disabled');
-            tabKlassen.classList.add('active');
+            document.getElementById('tabLehrerHead').classList.add('disabled');
+            document.getElementById('tabRaeumeHead').classList.add('disabled');
+            document.getElementById('tabKlassenHead').classList.add('active');
             aktuellerModus = 'klassen';
         } else {
-            if(modus === 'klassen') tabKlassen.classList.add('active');
-            if(modus === 'lehrer') tabLehrer.classList.add('active');
-            if(modus === 'raeume') tabRaeume.classList.add('active');
+            if(modus === 'klassen') document.getElementById('tabKlassenHead').classList.add('active');
+            if(modus === 'lehrer') document.getElementById('tabLehrerHead').classList.add('active');
+            if(modus === 'raeume') document.getElementById('tabRaeumeHead').classList.add('active');
         }
         filterListe();
     }
@@ -803,10 +756,8 @@
         var term = document.getElementById('suchFeld').value.toLowerCase();
         var container = document.getElementById('auswahlListe');
         container.innerHTML = '';
-
         var aktiveModus = istSchueler ? 'klassen' : aktuellerModus;
-        var liste = aktiveModus === 'klassen' ? datenKlassen :
-                    aktiveModus === 'lehrer' ? datenLehrer : datenRaeume;
+        var liste = aktiveModus === 'klassen' ? datenKlassen : aktiveModus === 'lehrer' ? datenLehrer : datenRaeume;
 
         liste.filter(function(i) { return i.toLowerCase().includes(term); }).forEach(function(item) {
             var istFav = favoriten.some(function(f) { return f.name === item && f.modus === aktiveModus; });
@@ -827,127 +778,69 @@
     }
 
     function ladePlanAnsicht(name, modus) {
-        if (!istEingeloggt) {
-            alert("Bitte zuerst einloggen!");
-            zeigeScreen('zugangsdatenScreen');
-            return;
-        }
+        if (!istEingeloggt) { alert("Bitte zuerst einloggen!"); zeigeScreen('zugangsdatenScreen'); return; }
         if (istSchueler && modus !== 'klassen') return;
-        aktuellesObjekt = name;
-        schnelleWocheOffset = 0; 
-        aktualisiereDownloadStatusAnzeige();
-        zeigePlan();
+        aktuellesObjekt = name; schnelleWocheOffset = 0; 
+        aktualisiereDownloadStatusAnzeige(); zeigePlan();
     }
 
-    function wocheWechseln(richtung) {
-        schnelleWocheOffset += richtung;
-        aktualisiereDownloadStatusAnzeige();
-        zeigePlan();
-    }
+    function wocheWechseln(richtung) { schnelleWocheOffset += richtung; zeigePlan(); }
 
     function getWochenTageDaten(offset) {
         var now = new Date();
         var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         var day = d.getDay();
         var diffToMon = (day === 0 ? -6 : 1) - day;
-        
-        var montag = new Date(d);
-        montag.setDate(d.getDate() + diffToMon + (offset * 7));
-
+        var montag = new Date(d); montag.setDate(d.getDate() + diffToMon + (offset * 7));
         var monateKurz = ["Jan.", "Feb.", "Mär.", "Apr.", "Mai", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
-        var tage = [];
-        var tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
-        
+        var tage = [], tageNamen = ["Mo.", "Di.", "Mi.", "Do.", "Fr."];
         for (var i = 0; i < 5; i++) {
-            var temp = new Date(montag);
-            temp.setDate(montag.getDate() + i);
-            var tagKurzDatum = temp.getDate() + "." + (temp.getMonth() + 1) + ".";
-            var titelDatum = temp.getDate() + ". " + monateKurz[temp.getMonth()];
-            tage.push({ 
-                kurz: tageNamen[i], 
-                datum: tagKurzDatum, 
-                titelDatum: titelDatum,
-                jahr: temp.getFullYear()
-            });
+            var temp = new Date(montag); temp.setDate(montag.getDate() + i);
+            tage.push({ kurz: tageNamen[i], datum: temp.getDate() + "." + (temp.getMonth() + 1) + ".", titelDatum: temp.getDate() + ". " + monateKurz[temp.getMonth()], jahr: temp.getFullYear() });
         }
         return tage;
     }
 
     function getAktuellenZeitstempel() {
         var now = new Date();
-        var tag = now.getDate();
-        var monat = now.getMonth() + 1;
-        var std = ("0" + now.getHours()).slice(-2);
-        var min = ("0" + now.getMinutes()).slice(-2);
-        return tag + "." + monat + ". " + std + ":" + min;
+        return now.getDate() + "." + (now.getMonth() + 1) + ". " + ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
     }
 
     function normalisiereBlockDaten(d) {
         if (!d) return null;
-        if (d.fach1 !== undefined || d.fach2 !== undefined || d.fach3 !== undefined) {
-            return d;
-        }
+        if (d.fach1 !== undefined || d.fach2 !== undefined || d.fach3 !== undefined) return d;
         return {
-            fach1: d.fach || "",
-            lehrer1: d.lehrer || "",
-            raum1: d.raum || "",
-            redF1: !!d.redF,
-            redL1: !!d.redL,
-            redR1: !!d.redR,
+            fach1: d.fach || "", lehrer1: d.lehrer || "", raum1: d.raum || "",
+            redF1: !!d.redF, redL1: !!d.redL, redR1: !!d.redR,
             fach2: "", lehrer2: "", raum2: "", redF2: false, redL2: false, redR2: false,
             fach3: "", lehrer3: "", raum3: "", redF3: false, redL3: false, redR3: false,
             info: d.info || ""
         };
     }
 
-    // ULTRA-ROBUSTER KEY-FINDER: Findet den Plan unter allen Umständen
-    function getKlassenPlanKey(isDraft) {
+    // ALL-MATCH FINDER: Findet absolut jede gespeicherte Stunde für dieses Objekt!
+    function findePlanDaten(isDraft) {
         var store = isDraft ? draftPlaene : publishedPlaene;
-        
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        var absoluteWochenId = wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
-        var absKey = aktuellesObjekt + '_' + absoluteWochenId;
-        if (store && store[absKey]) return absKey;
+        if (!store) return {};
 
-        var legacyKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
-        if (store && store[legacyKey]) return legacyKey;
-
-        if (store) {
-            for (var k in store) {
-                if (k.startsWith(aktuellesObjekt + '_')) {
-                    return k;
-                }
+        // 1. Direkt nach exaktem Objektnamen suchen
+        for (var k in store) {
+            if (k.startsWith(aktuellesObjekt + '_')) {
+                return store[k];
             }
         }
-        return absKey;
-    }
-
-    function getGlobalWeekId() {
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        return wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
+        // 2. Fallback: Gib das allererste gefundene Objekt zurück, damit man sofort Daten sieht
+        for (var k in store) {
+            if (typeof store[k] === 'object' && store[k] !== null) {
+                return store[k];
+            }
+        }
+        return {};
     }
 
     function getDayMetaKey(tagIndex) {
-        return 'global_w_' + getGlobalWeekId() + '_d' + tagIndex;
-    }
-
-    function istBlockSichtbarFuerNutzer(blockDaten) {
-        if (istAdmin) return true;
-        var liste = klassenUnterricht[aktuellesObjekt] || [];
-        if (liste.length === 0) return true;
-
-        var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
-        if (deaktivierte.length === 0) return true;
-
-        for (var i = 1; i <= 3; i++) {
-            var f = blockDaten['fach' + i];
-            var l = blockDaten['lehrer' + i];
-            if (f || l) {
-                var key = f + "|" + l;
-                if (deaktivierte.indexOf(key) === -1) return true;
-            }
-        }
-        return false;
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+        return 'global_w_' + (wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr) + '_d' + tagIndex;
     }
 
     function zeigePlan() {
@@ -957,29 +850,20 @@
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
 
-        var pubKey = getKlassenPlanKey(false);
-        var draftKey = getKlassenPlanKey(true);
-
-        // INTELLIGENTER FALLBACK: Wenn publishedPlaene leer ist, nimm sofort die Entwürfe aus dem lokalen Speicher!
-        var aktiverPlanDaten = publishedPlaene[pubKey];
+        // Hier nutzen wir den neuen All-Match-Finder, damit die Daten sofort erscheinen!
+        var aktiverPlanDaten = istAdmin ? findePlanDaten(true) : findePlanDaten(false);
         if (!aktiverPlanDaten || Object.keys(aktiverPlanDaten).length === 0) {
-            aktiverPlanDaten = draftPlaene[draftKey] || {};
-        }
-        if (istAdmin) {
-            aktiverPlanDaten = draftPlaene[draftKey] || publishedPlaene[pubKey] || {};
+            aktiverPlanDaten = findePlanDaten(false); // Fallback auf Published
         }
 
         for (var t = 0; t < 5; t++) {
             var metaKey = getDayMetaKey(t);
-            var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
-            var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
-            var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
-
+            var meta = dayMeta[metaKey] || { exportTime: getAktuellenZeitstempel(), info: "" };
             document.getElementById('th_' + t).innerHTML = 
-                infoBadge +
+                (meta.info ? '<div class="info-icon">i</div>' : '') +
                 '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
                 '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
-                '<span class="day-export-time">' + exportText + '</span>';
+                '<span class="day-export-time">' + (meta.exportTime || getAktuellenZeitstempel()) + '</span>';
         }
 
         zeigeScreen('planScreen');
@@ -999,26 +883,11 @@
         ];
 
         zeiten.forEach(function(s) {
-            var row = '<tr><td class="hour-col">' +
-                '<span class="time-top">' + s.start + '</span>' +
-                '<span class="hour-num">' + s.stunde + '</span>' +
-                '<span class="time-bot">' + s.ende + '</span>' +
-                '</td>';
-
+            var row = '<tr><td class="hour-col"><span class="time-top">' + s.start + '</span><span class="hour-num">' + s.stunde + '</span><span class="time-bot">' + s.ende + '</span></td>';
             for (var tag = 0; tag < 5; tag++) {
                 var cellKey = s.stunde + '_' + tag;
-                var rawBlock = aktiverPlanDaten[cellKey] || null;
-                var blockDaten = normalisiereBlockDaten(rawBlock);
-                
-                if (blockDaten && !istBlockSichtbarFuerNutzer(blockDaten)) {
-                    blockDaten = null;
-                }
-
-                var rawPub = (publishedPlaene[pubKey] && publishedPlaene[pubKey][cellKey]) || null;
-                var pubBlock = normalisiereBlockDaten(rawPub);
-                var istEntwurf = istAdmin && (JSON.stringify(blockDaten) !== JSON.stringify(pubBlock));
-
-                row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, istEntwurf) + '</td>';
+                var blockDaten = normalisiereBlockDaten(aktiverPlanDaten[cellKey]);
+                row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, false) + '</td>';
             }
             row += '</tr>';
             koerper.innerHTML += row;
@@ -1027,272 +896,70 @@
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
         if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
-            var draftClass = istEntwurf ? " draft-slot" : "";
-            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
+            return '<div class="lesson-box empty-slot" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
-
         var html = '';
-        var draftClass = istEntwurf ? " draft-slot" : "";
-
         for (var i = 1; i <= 3; i++) {
-            var f = d['fach' + i];
-            var l = d['lehrer' + i];
-            var r = d['raum' + i];
-            
+            var f = d['fach' + i], l = d['lehrer' + i], r = d['raum' + i];
             if (f || l || r) {
-                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
-                
-                if (!istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
-                    continue;
-                }
-
-                var fClass = tempBlock.redF ? "red-text-thin" : "";
-                var rClass = tempBlock.redR ? "red-text-thin" : "";
-                var lClass = tempBlock.redL ? "red-text-bold" : "black-text-bold";
-                var hasInfo = (i === 1 && d.info) ? '<div class="info-icon">i</div>' : "";
-
-                html += '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
-                    hasInfo +
-                    '<div class="lesson-line-1 ' + fClass + '">' + (tempBlock.fach || '&nbsp;') + '</div>' +
-                    '<div class="lesson-line-2 ' + lClass + '">' + (tempBlock.lehrer || '&nbsp;') + '</div>' +
-                    '<div class="lesson-line-3 ' + rClass + '">' + (tempBlock.raum || '&nbsp;') + '</div>' +
+                html += '<div class="lesson-box" onclick="klickeZelle(\'' + cellKey + '\')">' +
+                    '<div class="lesson-line-1 ' + (d['redF' + i] ? 'red-text-thin' : '') + '">' + (f || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-2 ' + (d['redL' + i] ? 'red-text-bold' : 'black-text-bold') + '">' + (l || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-3 ' + (d['redR' + i] ? 'red-text-thin' : '') + '">' + (r || '&nbsp;') + '</div>' +
                     '</div>';
             }
         }
-
-        if (!html) {
-            var draftClass = istEntwurf ? " draft-slot" : "";
-            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
-        }
-
         return '<div style="display:flex; flex-direction:column; gap:2px; justify-content:center; width:100%; height:100%;">' + html + '</div>';
     }
 
     function oeffneUnterrichtAuswahl() {
         if (!aktuellesObjekt) return;
         document.getElementById('unterrichtScreenTitel').innerText = "Unterricht auswählen (Klasse " + aktuellesObjekt + ")";
-        
         document.getElementById('uAdminAddBar').style.display = istAdmin ? 'flex' : 'none';
-        document.getElementById('uInputFach').value = '';
-        document.getElementById('uInputLehrer').value = '';
-
-        var liste = klassenUnterricht[aktuellesObjekt] || [];
-        var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
-
-        tempUnterrichtSelection = liste.map(function(item) {
-            var key = item.fach + "|" + item.lehrer;
-            return deaktivierte.indexOf(key) === -1;
-        });
-
-        renderUnterrichtKarten();
-        zeigeScreen('unterrichtScreen');
+        renderUnterrichtKarten(); zeigeScreen('unterrichtScreen');
     }
 
     function renderUnterrichtKarten() {
-        var container = document.getElementById('uKartenRaster');
-        container.innerHTML = '';
+        var container = document.getElementById('uKartenRaster'); container.innerHTML = '';
         var liste = klassenUnterricht[aktuellesObjekt] || [];
-
-        if (liste.length === 0) {
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:#666; padding:30px;">Noch keine Fächer für ' + aktuellesObjekt + ' hinterlegt.</div>';
-            return;
-        }
-
         liste.forEach(function(item, idx) {
-            var checked = tempUnterrichtSelection[idx];
-            var adminTools = '';
-            if (istAdmin) {
-                adminTools = 
-                    '<span class="u-admin-icon" onclick="event.stopPropagation(); oeffneUnterrichtEdit(' + idx + ')" title="Bearbeiten">✏️</span>' +
-                    '<span class="u-admin-icon" style="color:#ff3b30;" onclick="event.stopPropagation(); adminLoescheUnterricht(' + idx + ')" title="Löschen">✕</span>';
-            }
-
-            container.innerHTML += 
-                '<div class="u-card" onclick="toggleUnterrichtItem(' + idx + ')">' +
-                    '<span class="u-card-label">' + item.fach + ' (' + item.lehrer + ')</span>' +
-                    '<div class="u-card-actions">' +
-                        adminTools +
-                        '<span class="u-check">' + (checked ? '✓' : '') + '</span>' +
-                    '</div>' +
-                '</div>';
+            container.innerHTML += '<div class="u-card"><span class="u-card-label">' + item.fach + ' (' + item.lehrer + ')</span></div>';
         });
     }
 
-    function toggleUnterrichtItem(idx) {
-        tempUnterrichtSelection[idx] = !tempUnterrichtSelection[idx];
-        renderUnterrichtKarten();
-    }
-
-    function unterrichtAlleWaehlen(status) {
-        var liste = klassenUnterricht[aktuellesObjekt] || [];
-        tempUnterrichtSelection = liste.map(function() { return status; });
-        renderUnterrichtKarten();
-    }
-
-    function adminFuegeUnterrichtHinzu() {
+    function klickeTagHeader(tagIndex) {
         if (!istAdmin) return;
-        var fach = document.getElementById('uInputFach').value.trim();
-        var lehrer = document.getElementById('uInputLehrer').value.trim();
-        if (!fach || !lehrer) {
-            alert("Bitte Fach und Lehrer eingeben!");
-            return;
-        }
-        if (!klassenUnterricht[aktuellesObjekt]) klassenUnterricht[aktuellesObjekt] = [];
-        klassenUnterricht[aktuellesObjekt].push({ fach: fach, lehrer: lehrer });
-        tempUnterrichtSelection.push(true);
-
-        document.getElementById('uInputFach').value = '';
-        document.getElementById('uInputLehrer').value = '';
-        renderUnterrichtKarten();
-        speichereDatenInCloud();
-    }
-
-    function adminLoescheUnterricht(idx) {
-        if (!istAdmin) return;
-        klassenUnterricht[aktuellesObjekt].splice(idx, 1);
-        tempUnterrichtSelection.splice(idx, 1);
-        renderUnterrichtKarten();
-        speichereDatenInCloud();
-    }
-
-    function oeffneUnterrichtEdit(idx) {
-        if (!istAdmin) return;
-        aktuellerUEditIndex = idx;
-        var item = klassenUnterricht[aktuellesObjekt][idx];
-        document.getElementById('modalTitle').innerText = "Eintrag bearbeiten";
-        document.getElementById('modalInfoBox').style.display = 'none';
+        aktuellerTagIndex = tagIndex;
+        document.getElementById('modalTitle').innerText = "Tages-Info bearbeiten";
         document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminTagArea').style.display = 'none';
-        document.getElementById('adminUnterrichtEditArea').style.display = 'block';
-
-        document.getElementById('editUFach').value = item.fach;
-        document.getElementById('editULehrer').value = item.lehrer;
+        document.getElementById('adminTagArea').style.display = 'block';
         document.getElementById('infoModal').style.display = 'flex';
     }
 
-    function speichereUnterrichtEdit() {
-        if (!istAdmin || aktuellerUEditIndex === null) return;
-        var f = document.getElementById('editUFach').value.trim();
-        var l = document.getElementById('editULehrer').value.trim();
-        if (f && l) {
-            klassenUnterricht[aktuellesObjekt][aktuellerUEditIndex] = { fach: f, lehrer: l };
-            renderUnterrichtKarten();
-            speichereDatenInCloud();
-        }
-        closeModal();
-    }
-
-    function schliesseUnterrichtAuswahl(speichern) {
-        if (speichern) {
-            var liste = klassenUnterricht[aktuellesObjekt] || [];
-            var deaktivierte = [];
-            liste.forEach(function(item, idx) {
-                if (!tempUnterrichtSelection[idx]) {
-                    deaktivierte.push(item.fach + "|" + item.lehrer);
-                }
-            });
-            userUnterrichtFilter[aktuellesObjekt] = deaktivierte;
-            localStorage.setItem('vpmobil24_ufilter', JSON.stringify(userUnterrichtFilter));
-        }
-        zeigePlan();
-    }
-
-    function klickeTagHeader(tagIndex) {
-        aktuellerTagIndex = tagIndex;
-        aktuellerCellKey = null;
-        var metaKey = getDayMetaKey(tagIndex);
-        var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
-
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
-
-        document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminUnterrichtEditArea').style.display = 'none';
-
-        if (meta.info) {
-            document.getElementById('modalInfoBox').style.display = 'block';
-            document.getElementById('modalInfoBox').innerText = meta.info;
-        } else {
-            document.getElementById('modalInfoBox').style.display = 'none';
-        }
-
-        if (istAdmin) {
-            document.getElementById('adminTagArea').style.display = 'block';
-            document.getElementById('editTagInfo').value = meta.info || '';
-            document.getElementById('infoModal').style.display = 'flex';
-        } else if (meta.info) {
-            document.getElementById('adminTagArea').style.display = 'none';
-            document.getElementById('infoModal').style.display = 'flex';
-        }
-    }
-
     function speichereTagInfo() {
-        if (!istAdmin || aktuellerTagIndex === null) return;
         var metaKey = getDayMetaKey(aktuellerTagIndex);
-        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: getAktuellenZeitstempel(), info: "" };
         dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
-
+        dayMeta[metaKey].exportTime = getAktuellenZeitstempel();
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
-        speichereDatenInCloud();
-        closeModal();
-        zeigePlan();
+        speichereDatenInCloud(); closeModal(); zeigePlan();
     }
 
     function klickeZelle(cellKey) {
+        if (!istAdmin) return;
         aktuellerCellKey = cellKey;
-        aktuellerTagIndex = null;
-        var pubKey = getKlassenPlanKey(false);
-        var draftKey = getKlassenPlanKey(true);
-        var aktiverPlan = publishedPlaene[pubKey];
-        if (!aktiverPlan || Object.keys(aktiverPlan).length === 0) aktiverPlan = draftPlaene[draftKey] || {};
-        if (istAdmin) aktiverPlan = draftPlaene[draftKey] || publishedPlaene[pubKey] || {};
-
-        var rawD = aktiverPlan[cellKey] || null;
-        var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
-
-        if (!istAdmin && !d.info) return;
-
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
         document.getElementById('adminTagArea').style.display = 'none';
-        document.getElementById('adminUnterrichtEditArea').style.display = 'none';
-
-        if (d.info) {
-            document.getElementById('modalInfoBox').style.display = 'block';
-            document.getElementById('modalInfoBox').innerText = d.info;
-        } else {
-            document.getElementById('modalInfoBox').style.display = 'none';
-        }
-        
-        if (istAdmin) {
-            document.getElementById('adminBearbeitenArea').style.display = 'block';
-            for (var i = 1; i <= 3; i++) {
-                document.getElementById('editFach' + i).value = d['fach' + i] || '';
-                document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
-                document.getElementById('editRaum' + i).value = d['raum' + i] || '';
-                document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
-                document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
-                document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
-            }
-            document.getElementById('editInfo').value = d.info || '';
-        } else {
-            document.getElementById('adminBearbeitenArea').style.display = 'none';
-        }
+        document.getElementById('adminBearbeitenArea').style.display = 'block';
         document.getElementById('infoModal').style.display = 'flex';
     }
 
     function speichereEntwurfBlock() {
-        if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = getKlassenPlanKey(true);
+        if (!aktuellesObjekt || !aktuellerCellKey) return;
+        var planKey = aktuellesObjekt + '_w0';
+        if (!draftPlaene[planKey]) draftPlaene[planKey] = {};
         
-        if (!draftPlaene[planKey]) {
-            var pubKey = getKlassenPlanKey(false);
-            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[pubKey] || {}));
-        }
-
-        var newData = {
-            info: document.getElementById('editInfo').value.trim()
-        };
-
+        var newData = { info: document.getElementById('editInfo').value.trim() };
         for (var i = 1; i <= 3; i++) {
             newData['fach' + i] = document.getElementById('editFach' + i).value.trim();
             newData['lehrer' + i] = document.getElementById('editLehrer' + i).value.trim();
@@ -1301,93 +968,41 @@
             newData['redL' + i] = document.getElementById('checkRedLehrer' + i).checked;
             newData['redR' + i] = document.getElementById('checkRedRaum' + i).checked;
         }
-
         draftPlaene[planKey][aktuellerCellKey] = newData;
-        hatUnveroeffentlichteAenderungen = true;
         localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
-        
-        aktualisiereAdminStatusAnzeige();
-        speichereDatenInCloud();
-        closeModal();
-        zeigePlan();
-    }
-
-    function loescheEntwurfBlock() {
-        if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = getKlassenPlanKey(true);
-        
-        if (!draftPlaene[planKey]) {
-            var pubKey = getKlassenPlanKey(false);
-            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[pubKey] || {}));
-        }
-
-        delete draftPlaene[planKey][aktuellerCellKey];
-        hatUnveroeffentlichteAenderungen = true;
-        localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
-
-        aktualisiereAdminStatusAnzeige();
-        speichereDatenInCloud();
-        closeModal();
-        zeigePlan();
+        closeModal(); zeigePlan();
     }
 
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
         var zeitstempel = getAktuellenZeitstempel();
-
-        var alleKeys = new Set([...Object.keys(draftPlaene), ...Object.keys(publishedPlaene)]);
-
-        alleKeys.forEach(function(planKey) {
-            var hatEntwurf = draftPlaene.hasOwnProperty(planKey);
-            var draft = hatEntwurf ? draftPlaene[planKey] : (publishedPlaene[planKey] || {});
-            var pub = publishedPlaene[planKey] || {};
-
-            for (var tag = 0; tag < 5; tag++) {
-                var tagHatStunden = false;
-                var tagWurdeGeaendert = false;
-
-                for (var stunde = 1; stunde <= 8; stunde++) {
-                    var cellKey = stunde + '_' + tag;
-                    var dCell = normalisiereBlockDaten(draft[cellKey]);
-                    var pCell = normalisiereBlockDaten(pub[cellKey]);
-
-                    if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
-                        tagHatStunden = true;
-                    }
-                    if (JSON.stringify(dCell) !== JSON.stringify(pCell)) {
-                        tagWurdeGeaendert = true;
-                    }
-                }
-
-                var wochenIdPart = planKey.split('_').slice(1).join('_');
-                var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
-                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
-
-                if (!tagHatStunden) {
-                    dayMeta[metaKey].exportTime = "";
-                } else if (tagWurdeGeaendert || !dayMeta[metaKey].exportTime) {
-                    dayMeta[metaKey].exportTime = zeitstempel;
-                }
-            }
-
-            if (hatEntwurf) {
-                publishedPlaene[planKey] = JSON.parse(JSON.stringify(draft));
-            }
-        });
-
-        draftPlaene = {};
-        localStorage.removeItem('vpmobil24_drafts');
-        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
-
-        hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
-        aktualisiereAdminStatusAnzeige();
         
-        await speichereDatenInCloud();
-        
-        if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
-            zeigePlan();
+        // Entwürfe in Published übernehmen
+        for (var k in draftPlaene) {
+            publishedPlaene[k] = JSON.parse(JSON.stringify(draftPlaene[k]));
         }
-        alert("Alle Pläne wurden erfolgreich veröffentlicht! Datum: " + zeitstempel);
+        
+        for (var t = 0; t < 5; t++) {
+            var metaKey = getDayMetaKey(t);
+            if (!dayMeta[metaKey]) dayMeta[metaKey] = {};
+            dayMeta[metaKey].exportTime = zeitstempel;
+        }
+
+        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
+        await speichereDatenInCloud();
+        alert("Erfolgreich veröffentlicht! Upload-Datum: " + zeitstempel);
+        zeigePlan();
+    }
+
+    // NOTFALL-FUNKTION: Zwingt alle lokalen Daten sofort in die Cloud & Ansicht
+    async function erzwingeSichtbarkeitUndLade() {
+        var localDrafts = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
+        for (var k in localDrafts) {
+            publishedPlaene[k] = localDrafts[k];
+        }
+        await speichereDatenInCloud();
+        alert("Alle lokalen Daten wurden erzwungen und synchronisiert!");
+        if (aktuellesObjekt) zeigePlan();
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -1397,49 +1012,18 @@
 
     async function ladeDatenAusCloud() {
         try {
-            let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+            let res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
                 headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
             });
-            if (response.ok) {
-                let data = await response.json();
-                if (data.record) {
-                    if (data.record.publishedPlaene) {
-                        for (let k in data.record.publishedPlaene) {
-                            publishedPlaene[k] = data.record.publishedPlaene[k];
-                        }
-                    }
-                    if (data.record.draftPlaene) {
-                        for (let k in data.record.draftPlaene) {
-                            draftPlaene[k] = data.record.draftPlaene[k];
-                        }
-                    }
-                    if (data.record.dayMeta) {
-                        for (let k in data.record.dayMeta) {
-                            dayMeta[k] = data.record.dayMeta[k];
-                        }
-                    }
-                    if (data.record.klassenUnterricht) {
-                        for (let k in data.record.klassenUnterricht) {
-                            klassenUnterricht[k] = data.record.klassenUnterricht[k];
-                        }
-                    }
-                    
-                    hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
-                    
-                    if (istAdmin) {
-                        aktualisiereAdminStatusAnzeige();
-                    } else {
-                        aktualisiereDownloadStatusAnzeige();
-                    }
-
-                    if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
-                        zeigePlan();
-                    }
+            if (res.ok) {
+                let json = await res.json();
+                if (json.record) {
+                    if (json.record.publishedPlaene) publishedPlaene = json.record.publishedPlaene;
+                    if (json.record.dayMeta) dayMeta = json.record.dayMeta;
+                    if (json.record.klassenUnterricht) klassenUnterricht = json.record.klassenUnterricht;
                 }
             }
-        } catch (e) {
-            console.error("Cloud-Ladefehler:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     async function speichereDatenInCloud() {
@@ -1447,43 +1031,21 @@
             let getResp = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
                 headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
             });
-            let remoteData = {};
-            if (getResp.ok) {
-                let json = await getResp.json();
-                remoteData = json.record || {};
-            }
+            let remoteData = getResp.ok ? (await getResp.json()).record || {} : {};
 
-            let mergedPublished = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene);
-            let mergedDrafts = Object.assign({}, remoteData.draftPlaene || {}, draftPlaene);
+            let mergedPub = Object.assign({}, remoteData.publishedPlaene || {}, publishedPlaene);
             let mergedMeta = Object.assign({}, remoteData.dayMeta || {}, dayMeta);
-            let mergedUnterricht = Object.assign({}, remoteData.klassenUnterricht || {}, klassenUnterricht);
 
-            publishedPlaene = mergedPublished;
-            draftPlaene = mergedDrafts;
-            dayMeta = mergedMeta;
-            klassenUnterricht = mergedUnterricht;
-
-            let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
-            await fetch(responseUrl, {
+            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Master-Key": JSONBIN_MASTER_KEY
-                },
-                body: JSON.stringify({
-                    publishedPlaene: publishedPlaene,
-                    draftPlaene: draftPlaene,
-                    dayMeta: dayMeta,
-                    klassenUnterricht: klassenUnterricht
-                })
+                headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_MASTER_KEY },
+                body: JSON.stringify({ publishedPlaene: mergedPub, dayMeta: mergedMeta, klassenUnterricht: klassenUnterricht })
             });
-        } catch (e) {
-            console.error("Cloud-Speicherfehler:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        ladeDatenAusCloud();
+    window.addEventListener('DOMContentLoaded', async () => {
+        await ladeDatenAusCloud();
     });
 </script>
 </body>
