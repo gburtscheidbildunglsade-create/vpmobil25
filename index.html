@@ -1435,6 +1435,13 @@
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
         setInterval(ladeDatenAusCloud, 5000);
+        
+        // NEU: Sofortiger Cloud-Sync, sobald der Schüler das Handy/Tab wieder einschaltet oder auf die App wechselt
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                ladeDatenAusCloud();
+            }
+        });
     });
 </script>
 </body>
