@@ -199,13 +199,13 @@
             background-color: #fffaf0;
         }
         
-        /* FACH & RAUM ROT ABER DÜNN */
+        /* SCHRIFTFARBEN & SCHRIFTSTÄRKEN */
         .red-text-thin { color: #b00000 !important; font-weight: normal !important; }
-        /* LEHRER ROT UND FETT */
         .red-text-bold { color: #b00000 !important; font-weight: bold !important; }
+        .black-text-bold { color: #000000 !important; font-weight: bold !important; }
 
         .lesson-line-1 { font-size: 12px; color: #111; font-weight: 500; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .lesson-line-2 { font-weight: bold; font-size: 12px; color: #000; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lesson-line-2 { font-size: 12px; font-weight: bold; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lesson-line-3 { font-size: 11px; color: #222; line-height: 1.18; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } 
         
         .info-icon { 
@@ -364,6 +364,7 @@
         .modal-info-text { font-size: 14px; color: #333; background: #f2f2f7; padding: 10px; border-radius: 6px; margin-bottom: 10px; white-space: pre-wrap; }
         .modal-btn { background:#007aff; color:white; border:none; padding:10px 14px; margin-top:8px; border-radius:8px; cursor:pointer; font-weight:bold; width: 100%; text-align: center; font-size: 15px; }
         .modal-input { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px; font-size: 15px; margin-top: 3px; }
+        .sub-section-title { font-size: 12px; font-weight: bold; color: #666; margin-top: 10px; margin-bottom: 2px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -526,33 +527,58 @@
         <div id="modalInfoBox" class="modal-info-text" style="display:none;"></div>
         
         <div id="adminBearbeitenArea" style="display:none;">
-            <label class="form-label">Fach (z.B. Mat, Spo):</label>
-            <input type="text" id="editFach" class="modal-input" placeholder="Fach">
-            
-            <label class="form-label" style="margin-top:8px;">Lehrer (z.B. Kut Lin):</label>
-            <input type="text" id="editLehrer" class="modal-input" placeholder="Lehrer">
-            
-            <label class="form-label" style="margin-top:8px;">Raum (z.B. 224):</label>
-            <input type="text" id="editRaum" class="modal-input" placeholder="Raum">
-
-            <div style="margin: 10px 0; background: #f2f2f7; padding: 8px; border-radius: 6px; font-size: 13px;">
-                <b>Rot markieren (Änderung):</b><br>
-                <label style="margin-right:10px;"><input type="checkbox" id="checkRedFach"> Fach</label>
-                <label style="margin-right:10px;"><input type="checkbox" id="checkRedLehrer"> Lehrer</label>
-                <label><input type="checkbox" id="checkRedRaum"> Raum</label>
+            <!-- BLOCK 1 -->
+            <div class="sub-section-title">Block 1 (Hauptzeile)</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="editFach1" class="modal-input" placeholder="Fach">
+                <input type="text" id="editLehrer1" class="modal-input" placeholder="Lehrer">
+                <input type="text" id="editRaum1" class="modal-input" placeholder="Raum">
+            </div>
+            <div style="font-size:11px; margin-top:2px;">
+                <label><input type="checkbox" id="checkRedFach1"> Rot (Fach)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedLehrer1"> Rot (Lehrer)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedRaum1"> Rot (Raum)</label>
             </div>
 
-            <label class="form-label">Info-Popup Text (erzeugt blaues „i“):</label>
-            <input type="text" id="editInfo" class="modal-input" placeholder="Optionaler Hinweis">
+            <!-- BLOCK 2 -->
+            <div class="sub-section-title">Block 2 (Darunter)</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="editFach2" class="modal-input" placeholder="Fach">
+                <input type="text" id="editLehrer2" class="modal-input" placeholder="Lehrer">
+                <input type="text" id="editRaum2" class="modal-input" placeholder="Raum">
+            </div>
+            <div style="font-size:11px; margin-top:2px;">
+                <label><input type="checkbox" id="checkRedFach2"> Rot (Fach)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedLehrer2"> Rot (Lehrer)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedRaum2"> Rot (Raum)</label>
+            </div>
 
-            <button class="modal-btn" style="background:#34c759;" onclick="speichereEntwurfBlock()">Als Entwurf speichern</button>
-            <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde löschen</button>
+            <!-- BLOCK 3 -->
+            <div class="sub-section-title">Block 3 (Darunter)</div>
+            <div style="display:flex; gap:6px;">
+                <input type="text" id="editFach3" class="modal-input" placeholder="Fach">
+                <input type="text" id="editLehrer3" class="modal-input" placeholder="Lehrer">
+                <input type="text" id="editRaum3" class="modal-input" placeholder="Raum">
+            </div>
+            <div style="font-size:11px; margin-top:2px;">
+                <label><input type="checkbox" id="checkRedFach3"> Rot (Fach)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedLehrer3"> Rot (Lehrer)</label>
+                <label style="margin-left:8px;"><input type="checkbox" id="checkRedRaum3"> Rot (Raum)</label>
+            </div>
+
+            <div style="margin-top:10px;">
+                <label class="form-label">Info-Popup Text (erzeugt blaues „i“):</label>
+                <input type="text" id="editInfo" class="modal-input" placeholder="Optionaler Hinweis">
+            </div>
+
+            <button class="modal-btn" style="background:#34c759; margin-top:12px;" onclick="speichereEntwurfBlock()">Als Entwurf speichern</button>
+            <button class="modal-btn" style="background:#ff3b30;" onclick="loescheEntwurfBlock()">Stunde komplett löschen</button>
         </div>
 
         <div id="adminTagArea" style="display:none;">
             <label class="form-label">Tages-Info / Hinweis (erzeugt blaues „i“ am Tag):</label>
             <textarea id="editTagInfo" class="modal-input" rows="3" placeholder="z.B. Projekttag oder Ausfall..."></textarea>
-            <button class="modal-btn" style="background:#34c759;" onclick="speichereTagInfo()">Tages-Info speichern</button>
+            <button class="modal-btn" style="background:#34c759; margin-top:8px;" onclick="speichereTagInfo()">Tages-Info speichern</button>
         </div>
 
         <div id="adminUnterrichtEditArea" style="display:none;">
@@ -563,7 +589,7 @@
             <button class="modal-btn" style="background:#34c759;" onclick="speichereUnterrichtEdit()">Speichern</button>
         </div>
 
-        <button class="modal-btn" style="background:#8e8e93;" onclick="closeModal()">Schließen</button>
+        <button class="modal-btn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
     </div>
 </div>
 
@@ -817,6 +843,28 @@
         return tag + "." + monat + ". " + std + ":" + min;
     }
 
+    function normalisiereBlockDaten(d) {
+        if (!d) return null;
+        if (d.fach1 !== undefined || d.fach2 !== undefined || d.fach3 !== undefined) {
+            return d;
+        }
+        return {
+            fach1: d.fach || "",
+            lehrer1: d.lehrer || "",
+            raum1: d.raum || "",
+            redF1: !!d.redF,
+            redL1: !!d.redL,
+            redR1: !!d.redR,
+            fach2: "", lehrer2: "", raum2: "", redF2: false, redL2: false, redR2: false,
+            fach3: "", lehrer3: "", raum3: "", redF3: false, redL3: false, redR3: false,
+            info: d.info || ""
+        };
+    }
+
+    function getKlassenPlanKey() {
+        return aktuellesObjekt + '_w' + schnelleWocheOffset;
+    }
+
     function istBlockSichtbarFuerNutzer(blockDaten) {
         if (istAdmin) return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
@@ -825,8 +873,15 @@
         var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
         if (deaktivierte.length === 0) return true;
 
-        var key = (blockDaten.fach || "") + "|" + (blockDaten.lehrer || "");
-        return deaktivierte.indexOf(key) === -1;
+        for (var i = 1; i <= 3; i++) {
+            var f = blockDaten['fach' + i];
+            var l = blockDaten['lehrer' + i];
+            if (f || l) {
+                var key = f + "|" + l;
+                if (deaktivierte.indexOf(key) === -1) return true;
+            }
+        }
+        return false;
     }
 
     function zeigePlan() {
@@ -836,7 +891,7 @@
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
 
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
 
         for (var t = 0; t < 5; t++) {
@@ -877,13 +932,15 @@
 
             for (var tag = 0; tag < 5; tag++) {
                 var cellKey = s.stunde + '_' + tag;
-                var blockDaten = aktiverPlanDaten[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                var rawBlock = aktiverPlanDaten[cellKey] || null;
+                var blockDaten = normalisiereBlockDaten(rawBlock);
                 
-                if (!istBlockSichtbarFuerNutzer(blockDaten)) {
-                    blockDaten = { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                if (blockDaten && !istBlockSichtbarFuerNutzer(blockDaten)) {
+                    blockDaten = null;
                 }
 
-                var pubBlock = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || { fach: "", lehrer: "", raum: "", info: "" };
+                var rawPub = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || null;
+                var pubBlock = normalisiereBlockDaten(rawPub);
                 var istEntwurf = istAdmin && (JSON.stringify(blockDaten) !== JSON.stringify(pubBlock));
 
                 row += '<td class="slot-cell">' + renderBlockHtml(blockDaten, cellKey, istEntwurf) + '</td>';
@@ -894,23 +951,43 @@
     }
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
-        if (!d.fach && !d.lehrer && !d.raum) {
+        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var fClass = d.redF ? "red-text-thin" : "";
-        var rClass = d.redR ? "red-text-thin" : "";
-        var lClass = d.redL ? "red-text-bold" : "";
+        var targetBlock = null;
+        for (var i = 1; i <= 3; i++) {
+            var f = d['fach' + i];
+            var l = d['lehrer' + i];
+            var r = d['raum' + i];
+            if (f || l || r) {
+                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
+                if (istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                    targetBlock = tempBlock;
+                    break;
+                }
+                if (!targetBlock) targetBlock = tempBlock;
+            }
+        }
+
+        if (!targetBlock || (!targetBlock.fach && !targetBlock.lehrer && !targetBlock.raum)) {
+            var draftClass = istEntwurf ? " draft-slot" : "";
+            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
+        }
+
+        var fClass = targetBlock.redF ? "red-text-thin" : "";
+        var rClass = targetBlock.redR ? "red-text-thin" : "";
+        var lClass = targetBlock.redL ? "red-text-bold" : "black-text-bold";
         
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
         return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
             hasInfo +
-            '<div class="lesson-line-1 ' + fClass + '">' + (d.fach || '&nbsp;') + '</div>' +
-            '<div class="lesson-line-2 ' + lClass + '">' + (d.lehrer || '&nbsp;') + '</div>' +
-            '<div class="lesson-line-3 ' + rClass + '">' + (d.raum || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-1 ' + fClass + '">' + (targetBlock.fach || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-2 ' + lClass + '">' + (targetBlock.lehrer || '&nbsp;') + '</div>' +
+            '<div class="lesson-line-3 ' + rClass + '">' + (targetBlock.raum || '&nbsp;') + '</div>' +
             '</div>';
     }
 
@@ -1046,7 +1123,7 @@
     function klickeTagHeader(tagIndex) {
         aktuellerTagIndex = tagIndex;
         aktuellerCellKey = null;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var metaKey = planKey + '_d' + tagIndex;
         var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
 
@@ -1075,7 +1152,7 @@
 
     function speichereTagInfo() {
         if (!istAdmin || aktuellerTagIndex === null) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var metaKey = planKey + '_d' + aktuellerTagIndex;
         if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
         dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
@@ -1088,13 +1165,14 @@
     function klickeZelle(cellKey) {
         aktuellerCellKey = cellKey;
         aktuellerTagIndex = null;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
-        var d = aktiverPlan[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+        var rawD = aktiverPlan[cellKey] || null;
+        var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
 
         if (!istAdmin && !d.info) return;
 
-        document.getElementById('modalTitle').innerText = d.fach ? (d.fach + " (" + (d.lehrer || "-") + ")") : "Stunde";
+        document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
         document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'none';
 
@@ -1107,12 +1185,14 @@
         
         if (istAdmin) {
             document.getElementById('adminBearbeitenArea').style.display = 'block';
-            document.getElementById('editFach').value = d.fach || '';
-            document.getElementById('editLehrer').value = d.lehrer || '';
-            document.getElementById('editRaum').value = d.raum || '';
-            document.getElementById('checkRedFach').checked = !!d.redF;
-            document.getElementById('checkRedLehrer').checked = !!d.redL;
-            document.getElementById('checkRedRaum').checked = !!d.redR;
+            for (var i = 1; i <= 3; i++) {
+                document.getElementById('editFach' + i).value = d['fach' + i] || '';
+                document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
+                document.getElementById('editRaum' + i).value = d['raum' + i] || '';
+                document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
+                document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
+                document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
+            }
             document.getElementById('editInfo').value = d.info || '';
         } else {
             document.getElementById('adminBearbeitenArea').style.display = 'none';
@@ -1122,22 +1202,26 @@
 
     function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
         }
 
-        draftPlaene[planKey][aktuellerCellKey] = {
-            fach: document.getElementById('editFach').value.trim(),
-            lehrer: document.getElementById('editLehrer').value.trim(),
-            raum: document.getElementById('editRaum').value.trim(),
-            redF: document.getElementById('checkRedFach').checked,
-            redL: document.getElementById('checkRedLehrer').checked,
-            redR: document.getElementById('checkRedRaum').checked,
+        var newData = {
             info: document.getElementById('editInfo').value.trim()
         };
 
+        for (var i = 1; i <= 3; i++) {
+            newData['fach' + i] = document.getElementById('editFach' + i).value.trim();
+            newData['lehrer' + i] = document.getElementById('editLehrer' + i).value.trim();
+            newData['raum' + i] = document.getElementById('editRaum' + i).value.trim();
+            newData['redF' + i] = document.getElementById('checkRedFach' + i).checked;
+            newData['redL' + i] = document.getElementById('checkRedLehrer' + i).checked;
+            newData['redR' + i] = document.getElementById('checkRedRaum' + i).checked;
+        }
+
+        draftPlaene[planKey][aktuellerCellKey] = newData;
         hatUnveroeffentlichteAenderungen = true;
         aktualisiereAdminStatusAnzeige();
         speichereDatenInCloud();
@@ -1147,7 +1231,7 @@
 
     function loescheEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        var planKey = getKlassenPlanKey();
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
@@ -1178,10 +1262,10 @@
 
                 for (var stunde = 1; stunde <= 8; stunde++) {
                     var cellKey = stunde + '_' + tag;
-                    var dCell = draft[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
-                    var pCell = pub[cellKey] || { fach: "", lehrer: "", raum: "", redF: false, redL: false, redR: false, info: "" };
+                    var dCell = normalisiereBlockDaten(draft[cellKey]);
+                    var pCell = normalisiereBlockDaten(pub[cellKey]);
 
-                    if (dCell.fach || dCell.lehrer || dCell.raum) {
+                    if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
                         tagHatStunden = true;
                     }
                     if (JSON.stringify(dCell) !== JSON.stringify(pCell)) {
