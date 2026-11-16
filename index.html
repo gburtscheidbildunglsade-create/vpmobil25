@@ -861,7 +861,6 @@
         };
     }
 
-    /* WICHTIG: Wieder exakt auf das Original-Format zurückgestellt, damit deine Daten aus der Cloud (z.B. 05/1_w0) sofort wieder geladen werden! */
     function getKlassenPlanKey() {
         return aktuellesObjekt + '_w' + schnelleWocheOffset;
     }
@@ -954,7 +953,7 @@
     function renderBlockHtml(d, cellKey, istEntwurf) {
         if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
-            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + \'\')"></div>';
+            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
         var targetBlock = null;
@@ -974,7 +973,7 @@
 
         if (!targetBlock || (!targetBlock.fach && !targetBlock.lehrer && !targetBlock.raum)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
-            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + \'\')"></div>';
+            return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
         var fClass = targetBlock.redF ? "red-text-thin" : "";
@@ -984,7 +983,7 @@
         var hasInfo = d.info ? '<div class="info-icon">i</div>' : "";
         var draftClass = istEntwurf ? " draft-slot" : "";
 
-        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + \'\')">' +
+        return '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
             hasInfo +
             '<div class="lesson-line-1 ' + fClass + '">' + (targetBlock.fach || '&nbsp;') + '</div>' +
             '<div class="lesson-line-2 ' + lClass + '">' + (targetBlock.lehrer || '&nbsp;') + '</div>' +
