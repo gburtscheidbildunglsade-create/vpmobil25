@@ -418,7 +418,7 @@
         <div id="downloadStatusAnzeige"></div>
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
-            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne hochladen</button>
+            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Neuen Plan veröffentlichen (Alten ersetzen)</button>
             <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
         </div>
 
@@ -1311,62 +1311,37 @@
         zeigePlan();
     }
 
+    // SAUBERER CLEAN-OVERWRITE: Ersetzt alle alten Pläne komplett durch den neuen Stand
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
         var zeitstempel = getAktuellenZeitstempel();
 
-        var alleKeys = new Set([...Object.keys(draftPlaene), ...Object.keys(publishedPlaene)]);
-
-        alleKeys.forEach(function(planKey) {
-            var hatEntwurf = draftPlaene.hasOwnProperty(planKey);
-            var draft = hatEntwurf ? draftPlaene[planKey] : (publishedPlaene[planKey] || {});
-            var pub = publishedPlaene[planKey] || {};
-
-            for (var tag = 0; tag < 5; tag++) {
-                var tagHatStunden = false;
-                var tagWurdeGeaendert = false;
-
-                for (var stunde = 1; stunde <= 8; stunde++) {
-                    var cellKey = stunde + '_' + tag;
-                    var dCell = normalisiereBlockDaten(draft[cellKey]);
-                    var pCell = normalisiereBlockDaten(pub[cellKey]);
-
-                    if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
-                        tagHatStunden = true;
-                    }
-                    if (JSON.stringify(dCell) !== JSON.stringify(pCell)) {
-                        tagWurdeGeaendert = true;
-                    }
-                }
-
-                var wochenIdPart = planKey.split('_').slice(1).join('_');
-                var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
-                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
-
-                if (!tagHatStunden) {
-                    dayMeta[metaKey].exportTime = "";
-                } else if (tagWurdeGeaendert || !dayMeta[metaKey].exportTime) {
-                    dayMeta[metaKey].exportTime = zeitstempel;
-                }
-            }
-
-            if (hatEntwurf) {
-                publishedPlaene[planKey] = JSON.parse(JSON.stringify(draft));
-            }
-        });
-
+        // Übernehme die aktuellen Entwürfe als alleinigen Stand (alte Pläne komplett vergessen)
+        publishedPlaene = JSON.parse(JSON.stringify(draftPlaene));
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
-        
+
+        for (var planKey in publishedPlaene) {
+            var wochenIdPart = planKey.split('_').slice(1).join('_');
+            for (var tag = 0; tag < 5; tag++) {
+                var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
+                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+                dayMeta[metaKey].exportTime = zeitstempel;
+            }
+        }
+
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
 
-        hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+        hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
-        await speichereDatenInCloud();
+
+        // Cloud komplett mit dem neuen Stand überschreiben (cleanOverwrite = true)
+        await speichereDatenInCloud(true);
+
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
         }
-        alert("Alle Pläne wurden hochgeladen! Das Upload-Datum (" + zeitstempel + ") ist jetzt sichtbar.");
+        alert("Neuer Plan erfolgreich veröffentlicht! Alle alten Pläne wurden gelöscht (" + zeitstempel + ").");
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -1383,21 +1358,13 @@
                 let data = await response.json();
                 if (data.record) {
                     if (data.record.publishedPlaene) publishedPlaene = data.record.publishedPlaene;
-                    else if (data.record.wochenPläne) publishedPlaene = data.record.wochenPläne;
                     
-                    if (data.record.draftPlaene) {
-                        for (let k in data.record.draftPlaene) {
-                            if (!draftPlaene[k]) draftPlaene[k] = data.record.draftPlaene[k];
-                        }
-                    }
                     if (data.record.dayMeta) {
                         for (let k in data.record.dayMeta) {
                             if (!dayMeta[k]) dayMeta[k] = data.record.dayMeta[k];
                         }
                     }
                     if (data.record.klassenUnterricht) klassenUnterricht = data.record.klassenUnterricht;
-                    
-                    hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
                     
                     if (istAdmin) {
                         aktualisiereAdminStatusAnzeige();
@@ -1415,21 +1382,24 @@
         }
     }
 
-    async function speichereDatenInCloud() {
+    // Speichern mit optionalem Clean-Overwrite zum Löschen alter Daten in der Cloud
+    async function speichereDatenInCloud(cleanOverwrite = false) {
         try {
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+            let payload = {
+                publishedPlaene: publishedPlaene,
+                draftPlaene: cleanOverwrite ? {} : draftPlaene,
+                dayMeta: dayMeta,
+                klassenUnterricht: klassenUnterricht
+            };
+
             await fetch(responseUrl, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "X-Master-Key": JSONBIN_MASTER_KEY
                 },
-                body: JSON.stringify({
-                    publishedPlaene: publishedPlaene,
-                    draftPlaene: draftPlaene,
-                    dayMeta: dayMeta,
-                    klassenUnterricht: klassenUnterricht
-                })
+                body: JSON.stringify(payload)
             });
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
