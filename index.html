@@ -418,7 +418,7 @@
         <div id="downloadStatusAnzeige"></div>
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
-            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Neuen Plan veröffentlichen (Alten ersetzen)</button>
+            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne veröffentlichen & hochladen</button>
             <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
         </div>
 
@@ -1311,23 +1311,25 @@
         zeigePlan();
     }
 
-    // SAUBERER CLEAN-OVERWRITE: Ersetzt alle alten Pläne komplett durch den neuen Stand
+    // SICHERE VERÖFFENTLICHUNG: Mergt Entwürfe in publishedPlaene, ohne andere Pläne zu löschen
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
         var zeitstempel = getAktuellenZeitstempel();
 
-        // Übernehme die aktuellen Entwürfe als alleinigen Stand (alte Pläne komplett vergessen)
-        publishedPlaene = JSON.parse(JSON.stringify(draftPlaene));
+        // Nur vorhandene Entwürfe sauber übernehmen
+        for (var k in draftPlaene) {
+            publishedPlaene[k] = JSON.parse(JSON.stringify(draftPlaene[k]));
+        }
+
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
 
-        for (var planKey in publishedPlaene) {
-            var wochenIdPart = planKey.split('_').slice(1).join('_');
-            for (var tag = 0; tag < 5; tag++) {
-                var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
-                if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
-                dayMeta[metaKey].exportTime = zeitstempel;
-            }
+        var planKey = getKlassenPlanKey();
+        var wochenIdPart = planKey.split('_').slice(1).join('_');
+        for (var tag = 0; tag < 5; tag++) {
+            var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
+            if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+            dayMeta[metaKey].exportTime = zeitstempel;
         }
 
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
@@ -1335,13 +1337,12 @@
         hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
 
-        // Cloud komplett mit dem neuen Stand überschreiben (cleanOverwrite = true)
-        await speichereDatenInCloud(true);
+        await speichereDatenInCloud();
 
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
         }
-        alert("Neuer Plan erfolgreich veröffentlicht! Alle alten Pläne wurden gelöscht (" + zeitstempel + ").");
+        alert("Plan erfolgreich veröffentlicht! (" + zeitstempel + ")");
     }
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
@@ -1382,13 +1383,12 @@
         }
     }
 
-    // Speichern mit optionalem Clean-Overwrite zum Löschen alter Daten in der Cloud
-    async function speichereDatenInCloud(cleanOverwrite = false) {
+    async function speichereDatenInCloud() {
         try {
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
             let payload = {
                 publishedPlaene: publishedPlaene,
-                draftPlaene: cleanOverwrite ? {} : draftPlaene,
+                draftPlaene: draftPlaene,
                 dayMeta: dayMeta,
                 klassenUnterricht: klassenUnterricht
             };
