@@ -900,18 +900,25 @@
         };
     }
 
-    function getKlassenPlanKey(offset) {
-        var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
-        var wochenDaten = getWochenTageDaten(off);
+    // ROBUSTER KEY-FINDER: Findet den Plan garantiert, egal unter welchem Schlüssel er in der Bin liegt!
+    function getKlassenPlanKey(isDraft) {
+        var store = isDraft ? draftPlaene : publishedPlaene;
+        
+        // 1. Exakter Match mit aktuellem Datum
+        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         var absoluteWochenId = wochenDaten[0].datum.replace(/\./g, '_') + wochenDaten[0].jahr;
         var absKey = aktuellesObjekt + '_' + absoluteWochenId;
+        if (store[absKey]) return absKey;
 
-        var legacyKey = aktuellesObjekt + '_w' + off;
-        if (!publishedPlaene[absKey] && publishedPlaene[legacyKey]) {
-            publishedPlaene[absKey] = publishedPlaene[legacyKey];
-        }
-        if (!draftPlaene[absKey] && draftPlaene[legacyKey]) {
-            draftPlaene[absKey] = draftPlaene[legacyKey];
+        // 2. Legacy Match (_w0, _w1, etc.)
+        var legacyKey = aktuellesObjekt + '_w' + schnelleWocheOffset;
+        if (store[legacyKey]) return legacyKey;
+
+        // 3. Fallback: Suche nach IRGENDEINEM Schlüssel in der Bin/im Store, der mit dem Objektnamen beginnt (z.B. "06/1_")
+        for (var k in store) {
+            if (k.startsWith(aktuellesObjekt + '_')) {
+                return k;
+            }
         }
 
         return absKey;
@@ -952,8 +959,9 @@
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
         document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
 
-        var planKey = getKlassenPlanKey();
-        var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
+        var pubKey = getKlassenPlanKey(false);
+        var draftKey = getKlassenPlanKey(true);
+        var aktiverPlanDaten = istAdmin ? (draftPlaene[draftKey] || publishedPlaene[pubKey] || {}) : (publishedPlaene[pubKey] || {});
 
         for (var t = 0; t < 5; t++) {
             var metaKey = getDayMetaKey(t);
@@ -1000,7 +1008,7 @@
                     blockDaten = null;
                 }
 
-                var rawPub = (publishedPlaene[planKey] && publishedPlaene[planKey][cellKey]) || null;
+                var rawPub = (publishedPlaene[pubKey] && publishedPlaene[pubKey][cellKey]) || null;
                 var pubBlock = normalisiereBlockDaten(rawPub);
                 var istEntwurf = istAdmin && (JSON.stringify(blockDaten) !== JSON.stringify(pubBlock));
 
@@ -1227,8 +1235,9 @@
     function klickeZelle(cellKey) {
         aktuellerCellKey = cellKey;
         aktuellerTagIndex = null;
-        var planKey = getKlassenPlanKey();
-        var aktiverPlan = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
+        var pubKey = getKlassenPlanKey(false);
+        var draftKey = getKlassenPlanKey(true);
+        var aktiverPlan = istAdmin ? (draftPlaene[draftKey] || publishedPlaene[pubKey] || {}) : (publishedPlaene[pubKey] || {});
         var rawD = aktiverPlan[cellKey] || null;
         var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
 
@@ -1264,10 +1273,11 @@
 
     function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = getKlassenPlanKey();
+        var planKey = getKlassenPlanKey(true);
         
         if (!draftPlaene[planKey]) {
-            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
+            var pubKey = getKlassenPlanKey(false);
+            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[pubKey] || {}));
         }
 
         var newData = {
@@ -1295,10 +1305,11 @@
 
     function loescheEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
-        var planKey = getKlassenPlanKey();
+        var planKey = getKlassenPlanKey(true);
         
         if (!draftPlaene[planKey]) {
-            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
+            var pubKey = getKlassenPlanKey(false);
+            draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[pubKey] || {}));
         }
 
         delete draftPlaene[planKey][aktuellerCellKey];
@@ -1385,22 +1396,22 @@
                 if (data.record) {
                     if (data.record.publishedPlaene) {
                         for (let k in data.record.publishedPlaene) {
-                            if (!publishedPlaene[k]) publishedPlaene[k] = data.record.publishedPlaene[k];
+                            publishedPlaene[k] = data.record.publishedPlaene[k];
                         }
                     }
                     if (data.record.draftPlaene) {
                         for (let k in data.record.draftPlaene) {
-                            if (!draftPlaene[k]) draftPlaene[k] = data.record.draftPlaene[k];
+                            draftPlaene[k] = data.record.draftPlaene[k];
                         }
                     }
                     if (data.record.dayMeta) {
                         for (let k in data.record.dayMeta) {
-                            if (!dayMeta[k]) dayMeta[k] = data.record.dayMeta[k];
+                            dayMeta[k] = data.record.dayMeta[k];
                         }
                     }
                     if (data.record.klassenUnterricht) {
                         for (let k in data.record.klassenUnterricht) {
-                            if (!klassenUnterricht[k]) klassenUnterricht[k] = data.record.klassenUnterricht[k];
+                            klassenUnterricht[k] = data.record.klassenUnterricht[k];
                         }
                     }
                     
