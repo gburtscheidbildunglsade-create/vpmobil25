@@ -1365,8 +1365,8 @@
 
     function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
 
-    var JSONBIN_BIN_ID = "6aef3058ac6210605a755fc4";
-    var JSONBIN_MASTER_KEY = "$2a$10$g0DT.CmhPsUmF23IzQcIXe5asVnU.C1k6QjYWfjlYuC1Waa.JVTsi";
+    var JSONBIN_BIN_ID = "6afb5266ffd5d16053c67bce";
+    var JSONBIN_MASTER_KEY = "$2a$10$Bqwhzn8Fb9ga6ekS1kpXJ.1bbmPlPYhNaEqx20GS62ubHRFCgmSm.";
 
     async function ladeDatenAusCloud() {
         try {
@@ -1435,7 +1435,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
         
-        // Polling-Intervall auf 60 Sekunden eingestellt, um das JSONBin-Limit (403 Requests exhausted) zu schützen
+        // Polling-Intervall auf 60 Sekunden eingestellt, um das JSONBin-Limit zu schonen
         setInterval(ladeDatenAusCloud, 60000);
         
         // Sofortiger Sync, sobald Schüler das Gerät entsperren oder auf den Tab wechseln
