@@ -904,16 +904,9 @@
         var wochenDaten = getWochenTageDaten(off);
         var m = wochenDaten[0].dateObj;
         var isoWochenId = m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
-        var absKey = aktuellesObjekt + '_' + isoWochenId;
-
-        if (!publishedPlaene[absKey] && !draftPlaene[absKey]) {
-            for (var k in publishedPlaene) {
-                if (k.startsWith(aktuellesObjekt + '_')) {
-                    return k;
-                }
-            }
-        }
-        return absKey;
+        
+        // Jede Woche bleibt streng isoliert – kein automatisches Fallback mehr auf andere Wochen!
+        return aktuellesObjekt + '_' + isoWochenId;
     }
 
     function getGlobalWeekId(offset) {
@@ -1435,10 +1428,8 @@
     window.addEventListener('DOMContentLoaded', () => {
         ladeDatenAusCloud();
         
-        // Polling-Intervall auf 60 Sekunden eingestellt, um das JSONBin-Limit zu schonen
         setInterval(ladeDatenAusCloud, 60000);
         
-        // Sofortiger Sync, sobald Schüler das Gerät entsperren oder auf den Tab wechseln
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {
                 ladeDatenAusCloud();
