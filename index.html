@@ -135,13 +135,13 @@
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
         .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
 
-        /* STUNDENPLAN RASTER - FELDER, SCHRIFTGRÖßE & SCHRIFTART */
+        /* STUNDENPLAN RASTER - SCREENSHOT-GRÖSSE & SCHRIFT */
         #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 40px; }
         .plan-wrapper { padding: 8px 6px; overflow-x: auto; }
         .schedule-table { 
             width: auto; 
             border-collapse: separate; 
-            border-spacing: 5px; 
+            border-spacing: 3px; 
             table-layout: fixed; 
             font-family: Arial, Helvetica, sans-serif;
         }
@@ -149,60 +149,60 @@
         /* ZEIT-SPALTE LINKS */
         .hour-col { 
             background-color: #f9d8a7; 
-            width: 48px; 
-            min-width: 48px;
-            max-width: 48px;
-            border-radius: 5px;
-            padding: 4px 2px;
+            width: 38px; 
+            min-width: 38px;
+            max-width: 38px;
+            border-radius: 3px;
+            padding: 2px 1px;
             text-align: center; 
             vertical-align: middle;
             box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
-        .time-top, .time-bot { font-size: 10px; color: #222; display: block; line-height: 1.15; font-weight: 400; }
-        .hour-num { font-size: 14px; font-weight: 700; color: #000; display: block; margin: 3px 0; line-height: 1.15; }
+        .time-top, .time-bot { font-size: 8.5px; color: #222; display: block; line-height: 1.1; font-weight: 400; }
+        .hour-num { font-size: 12px; font-weight: 700; color: #000; display: block; margin: 2px 0; line-height: 1.1; }
 
         /* TAGES-KOPFZEILE OBEN */
         .day-header { 
             background-color: #f9d8a7; 
-            width: 84px;
-            min-width: 84px;
-            max-width: 84px;
-            border-radius: 5px;
-            padding: 6px 3px; 
+            width: 58px;
+            min-width: 58px;
+            max-width: 58px;
+            border-radius: 3px;
+            padding: 4px 2px; 
             text-align: center;
             vertical-align: middle;
             position: relative;
             cursor: pointer;
             box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
-        .day-name { font-size: 14px; font-weight: 700; color: #000; display: block; line-height: 1.2; }
-        .day-date { font-size: 13px; font-weight: 700; color: #000; display: block; line-height: 1.2; }
-        .day-export-time { font-size: 10px; color: #333; display: block; margin-top: 3px; line-height: 1.1; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
+        .day-name { font-size: 11px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
+        .day-date { font-size: 10.5px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
+        .day-export-time { font-size: 7.5px; color: #333; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.3px; white-space: nowrap; font-weight: 400; }
 
         /* STUNDEN-ZELLEN & FELDER */
         .schedule-table td.slot-cell { 
             padding: 0; 
-            width: 84px;
-            min-width: 84px;
-            max-width: 84px;
-            height: 84px; 
+            width: 58px;
+            min-width: 58px;
+            max-width: 58px;
+            height: 58px; 
             vertical-align: middle; 
             text-align: center;
         }
         .lesson-box { 
             background-color: #fefcf3; 
-            border-radius: 5px; 
-            padding: 5px 3px; 
-            width: 84px; 
-            height: 84px; 
+            border-radius: 3px; 
+            padding: 3px 2px; 
+            width: 58px; 
+            height: 58px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            gap: 3px;
+            gap: 2px;
             position: relative;
             cursor: pointer; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
             overflow: visible;
         }
         .lesson-box.empty-slot {
@@ -219,21 +219,21 @@
         .red-text-bold { color: #b00000 !important; font-weight: 700 !important; }
         .black-text-bold { color: #000000 !important; font-weight: 700 !important; }
 
-        .lesson-line-1 { font-size: 15px; color: #111111; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
-        .lesson-line-2 { font-size: 15px; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
-        .lesson-line-3 { font-size: 14px; color: #222222; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; } 
+        .lesson-line-1 { font-size: 12px; color: #111111; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
+        .lesson-line-2 { font-size: 12px; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
+        .lesson-line-3 { font-size: 10.5px; color: #222222; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; } 
         
         .info-icon { 
             position: absolute; 
-            top: -6px; 
-            right: -6px; 
+            top: -5px; 
+            right: -5px; 
             background: #2b6cb0; 
             color: white; 
             border: 1.5px solid #fff;
             border-radius: 50%; 
-            width: 17px; 
-            height: 17px; 
-            font-size: 10.5px; 
+            width: 15px; 
+            height: 15px; 
+            font-size: 9px; 
             font-family: Georgia, serif;
             font-style: italic;
             display: flex; 
