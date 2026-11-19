@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: Arial, Helvetica, sans-serif; 
             background-color: #9bb5d1; 
             margin: 0; 
             padding: 0; 
@@ -141,67 +141,68 @@
         .schedule-table { 
             width: auto; 
             border-collapse: separate; 
-            border-spacing: 3px; 
+            border-spacing: 5px; 
             table-layout: fixed; 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
         }
         
         /* ZEIT-SPALTE LINKS */
         .hour-col { 
             background-color: #f9d8a7; 
-            width: 44px; 
-            min-width: 44px;
-            max-width: 44px;
-            border-radius: 3px;
-            padding: 3px 1px;
+            width: 48px; 
+            min-width: 48px;
+            max-width: 48px;
+            border-radius: 5px;
+            padding: 4px 2px;
             text-align: center; 
             vertical-align: middle;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
-        .time-top, .time-bot { font-size: 9px; color: #222; display: block; line-height: 1.1; font-weight: 400; }
-        .hour-num { font-size: 13px; font-weight: 700; color: #000; display: block; margin: 2px 0; line-height: 1.1; }
+        .time-top, .time-bot { font-size: 10px; color: #222; display: block; line-height: 1.15; font-weight: 400; }
+        .hour-num { font-size: 14px; font-weight: 700; color: #000; display: block; margin: 3px 0; line-height: 1.15; }
 
         /* TAGES-KOPFZEILE OBEN */
         .day-header { 
             background-color: #f9d8a7; 
-            width: 66px;
-            min-width: 66px;
-            max-width: 66px;
-            border-radius: 3px;
-            padding: 5px 2px; 
+            width: 84px;
+            min-width: 84px;
+            max-width: 84px;
+            border-radius: 5px;
+            padding: 6px 3px; 
             text-align: center;
             vertical-align: middle;
             position: relative;
             cursor: pointer;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
-        .day-name { font-size: 12px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
-        .day-date { font-size: 11px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
-        .day-export-time { font-size: 8.5px; color: #333; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.3px; white-space: nowrap; font-weight: 400; }
+        .day-name { font-size: 14px; font-weight: 700; color: #000; display: block; line-height: 1.2; }
+        .day-date { font-size: 13px; font-weight: 700; color: #000; display: block; line-height: 1.2; }
+        .day-export-time { font-size: 10px; color: #333; display: block; margin-top: 3px; line-height: 1.1; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
 
         /* STUNDEN-ZELLEN & FELDER */
         .schedule-table td.slot-cell { 
             padding: 0; 
-            width: 66px;
-            min-width: 66px;
-            max-width: 66px;
-            height: 66px; 
+            width: 84px;
+            min-width: 84px;
+            max-width: 84px;
+            height: 84px; 
             vertical-align: middle; 
             text-align: center;
         }
         .lesson-box { 
-            background-color: #ffffff; 
-            border-radius: 3px; 
-            padding: 3px 2px; 
-            width: 66px; 
-            height: 66px; 
+            background-color: #fefcf3; 
+            border-radius: 5px; 
+            padding: 5px 3px; 
+            width: 84px; 
+            height: 84px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
+            gap: 3px;
             position: relative;
             cursor: pointer; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.14);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
             overflow: visible;
         }
         .lesson-box.empty-slot {
@@ -218,21 +219,21 @@
         .red-text-bold { color: #b00000 !important; font-weight: 700 !important; }
         .black-text-bold { color: #000000 !important; font-weight: 700 !important; }
 
-        .lesson-line-1 { font-size: 13px; color: #111; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
-        .lesson-line-2 { font-size: 13px; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
-        .lesson-line-3 { font-size: 12px; color: #222; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; } 
+        .lesson-line-1 { font-size: 15px; color: #111111; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
+        .lesson-line-2 { font-size: 15px; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; }
+        .lesson-line-3 { font-size: 14px; color: #222222; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.25; } 
         
         .info-icon { 
             position: absolute; 
-            top: -5px; 
-            right: -5px; 
+            top: -6px; 
+            right: -6px; 
             background: #2b6cb0; 
             color: white; 
             border: 1.5px solid #fff;
             border-radius: 50%; 
-            width: 15px; 
-            height: 15px; 
-            font-size: 9.5px; 
+            width: 17px; 
+            height: 17px; 
+            font-size: 10.5px; 
             font-family: Georgia, serif;
             font-style: italic;
             display: flex; 
@@ -240,7 +241,7 @@
             justify-content: center; 
             font-weight: bold; 
             z-index: 5;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.25);
         }
 
         /* UNTERRICHT AUSWÄHLEN SCREEN */
