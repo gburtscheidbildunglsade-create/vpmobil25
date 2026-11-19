@@ -666,7 +666,7 @@
         }
     }
 
-    function aktualisiereDownloadStatusAnzeige() {
+    function aktualisiereDownloadStatusAnzeige(neuHeruntergeladen) {
         var el = document.getElementById('downloadStatusAnzeige');
         if (!el) return;
 
@@ -679,15 +679,21 @@
         var downloadedPlans = JSON.parse(localStorage.getItem('vpmobil24_downloaded_plans') || '{}');
 
         if (!downloadedPlans[planKey]) {
+            var jetzt = getAktuellenZeitstempel();
+            downloadedPlans[planKey] = jetzt;
+            localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
             el.style.color = "#ff3b30";
             el.style.fontWeight = "bold";
-            el.innerText = "Plan heruntergeladen";
-            downloadedPlans[planKey] = true;
-            localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
+            el.innerText = "Plan heruntergeladen: " + jetzt;
         } else {
+            if (neuHeruntergeladen) {
+                var aktualisiert = getAktuellenZeitstempel();
+                downloadedPlans[planKey] = aktualisiert;
+                localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
+            }
             el.style.color = "#000000";
             el.style.fontWeight = "normal";
-            el.innerText = "Letzter Download: " + getAktuellenZeitstempel();
+            el.innerText = "Letzter Download: " + downloadedPlans[planKey];
         }
     }
 
@@ -697,7 +703,7 @@
         if (screenId === 'hauptmenueScreen') {
             erstelleFavoritenRaster();
             aktualisiereAdminStatusAnzeige();
-            aktualisiereDownloadStatusAnzeige();
+            aktualisiereDownloadStatusAnzeige(false);
         }
     }
 
@@ -835,13 +841,13 @@
         if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
         schnelleWocheOffset = 0; 
-        aktualisiereDownloadStatusAnzeige();
+        aktualisiereDownloadStatusAnzeige(true);
         zeigePlan();
     }
 
     function wocheWechseln(richtung) {
         schnelleWocheOffset += richtung;
-        aktualisiereDownloadStatusAnzeige();
+        aktualisiereDownloadStatusAnzeige(false);
         zeigePlan();
     }
 
@@ -904,8 +910,6 @@
         var wochenDaten = getWochenTageDaten(off);
         var m = wochenDaten[0].dateObj;
         var isoWochenId = m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
-        
-        // Jede Woche bleibt streng isoliert – kein automatisches Fallback mehr auf andere Wochen!
         return aktuellesObjekt + '_' + isoWochenId;
     }
 
@@ -918,6 +922,17 @@
 
     function getDayMetaKey(tagIndex) {
         return 'global_w_' + getGlobalWeekId() + '_d' + tagIndex;
+    }
+
+    function markiereTagAlsGeaendert(planKey, tagIndex) {
+        var parts = planKey.split('_');
+        if (parts.length >= 2) {
+            var wochenIdPart = parts.slice(1).join('_');
+            var metaKey = 'global_w_' + wochenIdPart + '_d' + tagIndex;
+            if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "", dirty: false };
+            dayMeta[metaKey].dirty = true;
+            localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
+        }
     }
 
     function istBlockSichtbarFuerNutzer(blockDaten) {
@@ -1209,8 +1224,10 @@
     function speichereTagInfo() {
         if (!istAdmin || aktuellerTagIndex === null) return;
         var metaKey = getDayMetaKey(aktuellerTagIndex);
-        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+        if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "", dirty: false };
         dayMeta[metaKey].info = document.getElementById('editTagInfo').value.trim();
+        dayMeta[metaKey].exportTime = getAktuellenZeitstempel();
+        dayMeta[metaKey].dirty = false;
 
         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
         speichereDatenInCloud();
@@ -1259,6 +1276,7 @@
     function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
         var planKey = getKlassenPlanKey();
+        var tagIndex = parseInt(aktuellerCellKey.split('_')[1], 10);
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
@@ -1278,6 +1296,7 @@
         }
 
         draftPlaene[planKey][aktuellerCellKey] = newData;
+        markiereTagAlsGeaendert(planKey, tagIndex);
         hatUnveroeffentlichteAenderungen = true;
         localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
         
@@ -1290,12 +1309,14 @@
     function loescheEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
         var planKey = getKlassenPlanKey();
+        var tagIndex = parseInt(aktuellerCellKey.split('_')[1], 10);
         
         if (!draftPlaene[planKey]) {
             draftPlaene[planKey] = JSON.parse(JSON.stringify(publishedPlaene[planKey] || {}));
         }
 
         delete draftPlaene[planKey][aktuellerCellKey];
+        markiereTagAlsGeaendert(planKey, tagIndex);
         hatUnveroeffentlichteAenderungen = true;
         localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
 
@@ -1317,24 +1338,27 @@
                 var wochenIdPart = parts.slice(1).join('_');
 
                 for (var tag = 0; tag < 5; tag++) {
-                    var tagHatStunden = false;
-                    for (var stunde = 1; stunde <= 8; stunde++) {
-                        var cellKey = stunde + '_' + tag;
-                        var cellData = publishedPlaene[k] && publishedPlaene[k][cellKey];
-                        var dCell = normalisiereBlockDaten(cellData);
-                        if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
-                            tagHatStunden = true;
-                            break;
-                        }
-                    }
-
                     var metaKey = 'global_w_' + wochenIdPart + '_d' + tag;
-                    if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "" };
+                    if (!dayMeta[metaKey]) dayMeta[metaKey] = { exportTime: "", info: "", dirty: false };
 
-                    if (tagHatStunden) {
-                        dayMeta[metaKey].exportTime = zeitstempel;
-                    } else {
-                        dayMeta[metaKey].exportTime = "";
+                    if (dayMeta[metaKey].dirty) {
+                        var tagHatStunden = false;
+                        for (var stunde = 1; stunde <= 8; stunde++) {
+                            var cellKey = stunde + '_' + tag;
+                            var cellData = publishedPlaene[k] && publishedPlaene[k][cellKey];
+                            var dCell = normalisiereBlockDaten(cellData);
+                            if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
+                                tagHatStunden = true;
+                                break;
+                            }
+                        }
+
+                        if (tagHatStunden) {
+                            dayMeta[metaKey].exportTime = zeitstempel;
+                        } else {
+                            dayMeta[metaKey].exportTime = "";
+                        }
+                        dayMeta[metaKey].dirty = false;
                     }
                 }
             }
@@ -1373,15 +1397,18 @@
                     
                     if (data.record.dayMeta) {
                         for (let k in data.record.dayMeta) {
-                            if (!dayMeta[k]) dayMeta[k] = data.record.dayMeta[k];
+                            if (!dayMeta[k] || !dayMeta[k].dirty) {
+                                dayMeta[k] = data.record.dayMeta[k];
+                            }
                         }
+                        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
                     }
                     if (data.record.klassenUnterricht) klassenUnterricht = data.record.klassenUnterricht;
                     
                     if (istAdmin) {
                         aktualisiereAdminStatusAnzeige();
                     } else {
-                        aktualisiereDownloadStatusAnzeige();
+                        aktualisiereDownloadStatusAnzeige(false);
                     }
 
                     if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
@@ -1420,7 +1447,6 @@
             return true;
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
-            alert("⚠️ Cloud-Fehler beim Speichern/Veröffentlichen:\n" + e.message);
             return false;
         }
     }
