@@ -147,16 +147,19 @@
             font-family: Arial, Helvetica, sans-serif;
         }
         
-        /* ZEIT-SPALTE LINKS */
+        /* ZEIT-SPALTE LINKS - IMMER GLEICHE HÖHE */
         .hour-col { 
             background-color: #f9d8a7; 
             width: 38px; 
             min-width: 38px;
             max-width: 38px;
+            height: 58px;
+            min-height: 58px;
+            max-height: 58px;
             border-radius: 3px;
             padding: 2px 1px;
             text-align: center; 
-            vertical-align: middle;
+            vertical-align: top;
             box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
         .time-top, .time-bot { font-size: 8.5px; color: #222; display: block; line-height: 1.1; font-weight: 400; }
@@ -186,9 +189,14 @@
             width: 58px;
             min-width: 58px;
             max-width: 58px;
-            height: 58px; 
-            vertical-align: middle; 
+            vertical-align: top; 
             text-align: center;
+        }
+        .slot-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 58px;
         }
         .lesson-box { 
             background-color: #fefcf3; 
@@ -535,7 +543,7 @@
         <table class="schedule-table">
             <thead>
                 <tr>
-                    <th class="hour-col" style="background: transparent; box-shadow: none;"></th>
+                    <th class="hour-col" style="background: transparent; box-shadow: none; height: auto; min-height: 0; max-height: none;"></th>
                     <th class="day-header" id="th_0" onclick="klickeTagHeader(0)"></th>
                     <th class="day-header" id="th_1" onclick="klickeTagHeader(1)"></th>
                     <th class="day-header" id="th_2" onclick="klickeTagHeader(2)"></th>
@@ -1148,26 +1156,24 @@
     }
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
-        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.klasse1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.klasse2 && !d.fach3 && !d.lehrer3 && !d.raum3 && !d.klasse3)) {
-            var draftClass = istEntwurf ? " draft-slot" : "";
+        var draftClass = istEntwurf ? " draft-slot" : "";
+        if (!d) {
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        var html = '';
-        var draftClass = istEntwurf ? " draft-slot" : "";
+        var boxes = [];
 
         for (var i = 1; i <= 3; i++) {
-            var f = d['fach' + i] || '';
-            var l = d['lehrer' + i] || '';
-            var r = d['raum' + i] || '';
-            var k = d['klasse' + i] || '';
+            var f = (d['fach' + i] || '').trim();
+            var l = (d['lehrer' + i] || '').trim();
+            var r = (d['raum' + i] || '').trim();
+            var k = (d['klasse' + i] || '').trim();
 
-            if (aktuellerModus === 'klassen' && !l && datenLehrer.indexOf(aktuellesObjekt) !== -1) {
-                l = aktuellesObjekt;
+            var hatEchtenInhalt = !!(f || l || r || k);
+            if (!hatEchtenInhalt) {
+                continue;
             }
-            if (aktuellerModus === 'klassen' && !r && datenRaeume.indexOf(aktuellesObjekt) !== -1) {
-                r = aktuellesObjekt;
-            }
+
             if (aktuellerModus === 'lehrer' && !k && datenKlassen.indexOf(aktuellesObjekt) !== -1) {
                 k = aktuellesObjekt;
             }
@@ -1175,52 +1181,55 @@
                 k = aktuellesObjekt;
             }
 
-            if (f || l || r || k) {
-                if (!istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
-                    continue;
-                }
+            if (!istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                continue;
+            }
 
-                var line1Text = f;
-                var line2Text = "";
-                var line3Text = "";
-                var line1Class = d['redF' + i] ? "red-text-thin" : "";
-                var line2Class = "black-text-bold";
-                var line3Class = "";
+            var line1Text = f;
+            var line2Text = "";
+            var line3Text = "";
+            var line1Class = d['redF' + i] ? "red-text-thin" : "";
+            var line2Class = "black-text-bold";
+            var line3Class = "";
 
-                if (aktuellerModus === 'lehrer') {
-                    line2Text = k;
-                    line3Text = r;
-                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
-                    line3Class = d['redR' + i] ? "red-text-thin" : "";
-                } else if (aktuellerModus === 'raeume') {
-                    line2Text = l;
-                    line3Text = k;
-                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
-                    line3Class = d['redR' + i] ? "red-text-thin" : "";
-                } else {
-                    line2Text = l;
-                    line3Text = r;
-                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
-                    line3Class = d['redR' + i] ? "red-text-thin" : "";
-                }
+            if (aktuellerModus === 'lehrer') {
+                line2Text = k;
+                line3Text = r;
+                line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                line3Class = d['redR' + i] ? "red-text-thin" : "";
+            } else if (aktuellerModus === 'raeume') {
+                line2Text = l;
+                line3Text = k;
+                line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                line3Class = d['redR' + i] ? "red-text-thin" : "";
+            } else {
+                line2Text = l;
+                line3Text = r;
+                line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                line3Class = d['redR' + i] ? "red-text-thin" : "";
+            }
 
-                var hasInfo = (i === 1 && d.info) ? '<div class="info-icon">i</div>' : "";
+            var hasInfo = (boxes.length === 0 && d.info) ? '<div class="info-icon">i</div>' : "";
 
-                html += '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
+            boxes.push(
+                '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
                     hasInfo +
                     '<div class="lesson-line-1 ' + line1Class + '">' + (line1Text || '&nbsp;') + '</div>' +
                     '<div class="lesson-line-2 ' + line2Class + '">' + (line2Text || '&nbsp;') + '</div>' +
                     '<div class="lesson-line-3 ' + line3Class + '">' + (line3Text || '&nbsp;') + '</div>' +
-                    '</div>';
-            }
+                '</div>'
+            );
         }
 
-        if (!html) {
-            var draftClass = istEntwurf ? " draft-slot" : "";
+        if (boxes.length === 0) {
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
 
-        return '<div style="display:flex; flex-direction:column; gap:2px; justify-content:center; width:100%; height:100%;">' + html + '</div>';
+        if (boxes.length === 1) {
+            return boxes[0];
+        }
+
+        return '<div class="slot-stack">' + boxes.join('') + '</div>';
     }
 
     function oeffneUnterrichtAuswahl() {
