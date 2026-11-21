@@ -888,6 +888,7 @@
         }
         if (istSchueler && modus !== 'klassen') return;
         aktuellesObjekt = name;
+        aktuellerModus = modus || 'klassen';
         schnelleWocheOffset = 0; 
         aktualisiereDownloadStatusAnzeige(true);
         zeigePlan();
@@ -946,28 +947,29 @@
             fach1: d.fach || "",
             lehrer1: d.lehrer || "",
             raum1: d.raum || "",
+            klasse1: d.klasse || "",
             redF1: !!d.redF,
             redL1: !!d.redL,
             redR1: !!d.redR,
-            fach2: "", lehrer2: "", raum2: "", redF2: false, redL2: false, redR2: false,
-            fach3: "", lehrer3: "", raum3: "", redF3: false, redL3: false, redR3: false,
+            fach2: "", lehrer2: "", raum2: "", klasse2: "", redF2: false, redL2: false, redR2: false,
+            fach3: "", lehrer3: "", raum3: "", klasse3: "", redF3: false, redL3: false, redR3: false,
             info: d.info || ""
         };
     }
 
-    function getKlassenPlanKey(offset) {
-        var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
-        var wochenDaten = getWochenTageDaten(off);
-        var m = wochenDaten[0].dateObj;
-        var isoWochenId = m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
-        return aktuellesObjekt + '_' + isoWochenId;
-    }
-
-    function getGlobalWeekId(offset) {
+    function getIsoWochenId(offset) {
         var off = (typeof offset === 'number') ? offset : schnelleWocheOffset;
         var wochenDaten = getWochenTageDaten(off);
         var m = wochenDaten[0].dateObj;
         return m.getFullYear() + '-' + String(m.getMonth() + 1).padStart(2, '0') + '-' + String(m.getDate()).padStart(2, '0');
+    }
+
+    function getKlassenPlanKey(offset) {
+        return aktuellesObjekt + '_' + getIsoWochenId(offset);
+    }
+
+    function getGlobalWeekId(offset) {
+        return getIsoWochenId(offset);
     }
 
     function getDayMetaKey(tagIndex) {
@@ -985,8 +987,79 @@
         }
     }
 
+    function synchronisiereEntwurfZuZielObjekten(isoWochenId, cellKey, tagIndex, newData) {
+        var quellKlasse = (aktuellerModus === 'klassen') ? aktuellesObjekt : '';
+        var quellLehrer = (aktuellerModus === 'lehrer') ? aktuellesObjekt : '';
+        var quellRaum = (aktuellerModus === 'raeume') ? aktuellesObjekt : '';
+
+        for (var i = 1; i <= 3; i++) {
+            var f = (newData['fach' + i] || '').trim();
+            var l = (newData['lehrer' + i] || '').trim();
+            var r = (newData['raum' + i] || '').trim();
+            var k = (newData['klasse' + i] || '').trim();
+
+            var zielKlasse = k || quellKlasse;
+            var zielLehrer = l || quellLehrer;
+            var zielRaum = r || quellRaum;
+
+            if (zielKlasse && zielKlasse !== aktuellesObjekt && datenKlassen.indexOf(zielKlasse) !== -1) {
+                var kPlanKey = zielKlasse + '_' + isoWochenId;
+                if (!draftPlaene[kPlanKey]) {
+                    draftPlaene[kPlanKey] = JSON.parse(JSON.stringify(publishedPlaene[kPlanKey] || {}));
+                }
+                var existingK = normalisiereBlockDaten(draftPlaene[kPlanKey][cellKey]) || {};
+                existingK['fach' + i] = f;
+                existingK['lehrer' + i] = zielLehrer;
+                existingK['raum' + i] = zielRaum;
+                existingK['klasse' + i] = zielKlasse;
+                existingK['redF' + i] = !!newData['redF' + i];
+                existingK['redL' + i] = !!newData['redL' + i];
+                existingK['redR' + i] = !!newData['redR' + i];
+                if (newData.info) existingK.info = newData.info;
+                draftPlaene[kPlanKey][cellKey] = existingK;
+                markiereTagAlsGeaendert(kPlanKey, tagIndex);
+            }
+
+            if (zielLehrer && zielLehrer !== aktuellesObjekt && datenLehrer.indexOf(zielLehrer) !== -1) {
+                var lPlanKey = zielLehrer + '_' + isoWochenId;
+                if (!draftPlaene[lPlanKey]) {
+                    draftPlaene[lPlanKey] = JSON.parse(JSON.stringify(publishedPlaene[lPlanKey] || {}));
+                }
+                var existingL = normalisiereBlockDaten(draftPlaene[lPlanKey][cellKey]) || {};
+                existingL['fach' + i] = f;
+                existingL['lehrer' + i] = zielLehrer;
+                existingL['raum' + i] = zielRaum;
+                existingL['klasse' + i] = zielKlasse;
+                existingL['redF' + i] = !!newData['redF' + i];
+                existingL['redL' + i] = !!newData['redL' + i];
+                existingL['redR' + i] = !!newData['redR' + i];
+                if (newData.info) existingL.info = newData.info;
+                draftPlaene[lPlanKey][cellKey] = existingL;
+                markiereTagAlsGeaendert(lPlanKey, tagIndex);
+            }
+
+            if (zielRaum && zielRaum !== aktuellesObjekt && datenRaeume.indexOf(zielRaum) !== -1) {
+                var rPlanKey = zielRaum + '_' + isoWochenId;
+                if (!draftPlaene[rPlanKey]) {
+                    draftPlaene[rPlanKey] = JSON.parse(JSON.stringify(publishedPlaene[rPlanKey] || {}));
+                }
+                var existingR = normalisiereBlockDaten(draftPlaene[rPlanKey][cellKey]) || {};
+                existingR['fach' + i] = f;
+                existingR['lehrer' + i] = zielLehrer;
+                existingR['raum' + i] = zielRaum;
+                existingR['klasse' + i] = zielKlasse;
+                existingR['redF' + i] = !!newData['redF' + i];
+                existingR['redL' + i] = !!newData['redL' + i];
+                existingR['redR' + i] = !!newData['redR' + i];
+                if (newData.info) existingR.info = newData.info;
+                draftPlaene[rPlanKey][cellKey] = existingR;
+                markiereTagAlsGeaendert(rPlanKey, tagIndex);
+            }
+        }
+    }
+
     function istBlockSichtbarFuerNutzer(blockDaten) {
-        if (istAdmin) return true;
+        if (istAdmin || aktuellerModus !== 'klassen') return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
         if (liste.length === 0) return true;
 
@@ -1071,7 +1144,7 @@
     }
 
     function renderBlockHtml(d, cellKey, istEntwurf) {
-        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.fach3 && !d.lehrer3 && !d.raum3)) {
+        if (!d || (!d.fach1 && !d.lehrer1 && !d.raum1 && !d.klasse1 && !d.fach2 && !d.lehrer2 && !d.raum2 && !d.klasse2 && !d.fach3 && !d.lehrer3 && !d.raum3 && !d.klasse3)) {
             var draftClass = istEntwurf ? " draft-slot" : "";
             return '<div class="lesson-box empty-slot' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')"></div>';
         }
@@ -1080,27 +1153,60 @@
         var draftClass = istEntwurf ? " draft-slot" : "";
 
         for (var i = 1; i <= 3; i++) {
-            var f = d['fach' + i];
-            var l = d['lehrer' + i];
-            var r = d['raum' + i];
-            
-            if (f || l || r) {
-                var tempBlock = { fach: f, lehrer: l, raum: r, redF: d['redF' + i], redL: d['redL' + i], redR: d['redR' + i] };
-                
+            var f = d['fach' + i] || '';
+            var l = d['lehrer' + i] || '';
+            var r = d['raum' + i] || '';
+            var k = d['klasse' + i] || '';
+
+            if (aktuellerModus === 'klassen' && !l && datenLehrer.indexOf(aktuellesObjekt) !== -1) {
+                l = aktuellesObjekt;
+            }
+            if (aktuellerModus === 'klassen' && !r && datenRaeume.indexOf(aktuellesObjekt) !== -1) {
+                r = aktuellesObjekt;
+            }
+            if (aktuellerModus === 'lehrer' && !k && datenKlassen.indexOf(aktuellesObjekt) !== -1) {
+                k = aktuellesObjekt;
+            }
+            if (aktuellerModus === 'raeume' && !k && datenKlassen.indexOf(aktuellesObjekt) !== -1) {
+                k = aktuellesObjekt;
+            }
+
+            if (f || l || r || k) {
                 if (!istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
                     continue;
                 }
 
-                var fClass = tempBlock.redF ? "red-text-thin" : "";
-                var rClass = tempBlock.redR ? "red-text-thin" : "";
-                var lClass = tempBlock.redL ? "red-text-bold" : "black-text-bold";
+                var line1Text = f;
+                var line2Text = "";
+                var line3Text = "";
+                var line1Class = d['redF' + i] ? "red-text-thin" : "";
+                var line2Class = "black-text-bold";
+                var line3Class = "";
+
+                if (aktuellerModus === 'lehrer') {
+                    line2Text = k;
+                    line3Text = r;
+                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                    line3Class = d['redR' + i] ? "red-text-thin" : "";
+                } else if (aktuellerModus === 'raeume') {
+                    line2Text = l;
+                    line3Text = k;
+                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                    line3Class = d['redR' + i] ? "red-text-thin" : "";
+                } else {
+                    line2Text = l;
+                    line3Text = r;
+                    line2Class = d['redL' + i] ? "red-text-bold" : "black-text-bold";
+                    line3Class = d['redR' + i] ? "red-text-thin" : "";
+                }
+
                 var hasInfo = (i === 1 && d.info) ? '<div class="info-icon">i</div>' : "";
 
                 html += '<div class="lesson-box' + draftClass + '" onclick="klickeZelle(\'' + cellKey + '\')">' +
                     hasInfo +
-                    '<div class="lesson-line-1 ' + fClass + '">' + (tempBlock.fach || '&nbsp;') + '</div>' +
-                    '<div class="lesson-line-2 ' + lClass + '">' + (tempBlock.lehrer || '&nbsp;') + '</div>' +
-                    '<div class="lesson-line-3 ' + rClass + '">' + (tempBlock.raum || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-1 ' + line1Class + '">' + (line1Text || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-2 ' + line2Class + '">' + (line2Text || '&nbsp;') + '</div>' +
+                    '<div class="lesson-line-3 ' + line3Class + '">' + (line3Text || '&nbsp;') + '</div>' +
                     '</div>';
             }
         }
@@ -1317,8 +1423,17 @@
             document.getElementById('adminBearbeitenArea').style.display = 'block';
             for (var i = 1; i <= 3; i++) {
                 document.getElementById('editFach' + i).value = d['fach' + i] || '';
-                document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
-                document.getElementById('editRaum' + i).value = d['raum' + i] || '';
+                var lVal = d['lehrer' + i] || '';
+                var rVal = d['raum' + i] || '';
+                if (aktuellerModus === 'lehrer') {
+                    if (!lVal) lVal = aktuellesObjekt;
+                    if (!rVal && d['klasse' + i]) rVal = d['klasse' + i];
+                } else if (aktuellerModus === 'raeume') {
+                    if (!rVal) rVal = aktuellesObjekt;
+                    if (!lVal && d['klasse' + i]) lVal = d['klasse' + i];
+                }
+                document.getElementById('editLehrer' + i).value = lVal;
+                document.getElementById('editRaum' + i).value = rVal;
                 document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
                 document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
                 document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
@@ -1333,6 +1448,7 @@
     function speichereEntwurfBlock() {
         if (!istAdmin || !aktuellerCellKey) return;
         var planKey = getKlassenPlanKey();
+        var isoWochenId = getIsoWochenId();
         var tagIndex = parseInt(aktuellerCellKey.split('_')[1], 10);
         
         if (!draftPlaene[planKey]) {
@@ -1344,9 +1460,29 @@
         };
 
         for (var i = 1; i <= 3; i++) {
-            newData['fach' + i] = document.getElementById('editFach' + i).value.trim();
-            newData['lehrer' + i] = document.getElementById('editLehrer' + i).value.trim();
-            newData['raum' + i] = document.getElementById('editRaum' + i).value.trim();
+            var fVal = document.getElementById('editFach' + i).value.trim();
+            var lVal = document.getElementById('editLehrer' + i).value.trim();
+            var rVal = document.getElementById('editRaum' + i).value.trim();
+            var kVal = '';
+
+            if (aktuellerModus === 'klassen') {
+                kVal = aktuellesObjekt;
+            } else if (aktuellerModus === 'lehrer') {
+                lVal = lVal || aktuellesObjekt;
+                if (datenKlassen.indexOf(rVal) !== -1) {
+                    kVal = rVal;
+                }
+            } else if (aktuellerModus === 'raeume') {
+                rVal = rVal || aktuellesObjekt;
+                if (datenKlassen.indexOf(lVal) !== -1) {
+                    kVal = lVal;
+                }
+            }
+
+            newData['fach' + i] = fVal;
+            newData['lehrer' + i] = lVal;
+            newData['raum' + i] = rVal;
+            newData['klasse' + i] = kVal;
             newData['redF' + i] = document.getElementById('checkRedFach' + i).checked;
             newData['redL' + i] = document.getElementById('checkRedLehrer' + i).checked;
             newData['redR' + i] = document.getElementById('checkRedRaum' + i).checked;
@@ -1354,6 +1490,7 @@
 
         draftPlaene[planKey][aktuellerCellKey] = newData;
         markiereTagAlsGeaendert(planKey, tagIndex);
+        synchronisiereEntwurfZuZielObjekten(isoWochenId, aktuellerCellKey, tagIndex, newData);
         hatUnveroeffentlichteAenderungen = true;
         localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
         
@@ -1404,7 +1541,7 @@
                             var cellKey = stunde + '_' + tag;
                             var cellData = publishedPlaene[k] && publishedPlaene[k][cellKey];
                             var dCell = normalisiereBlockDaten(cellData);
-                            if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3)) {
+                            if (dCell && (dCell.fach1 || dCell.lehrer1 || dCell.raum1 || dCell.klasse1 || dCell.fach2 || dCell.lehrer2 || dCell.raum2 || dCell.klasse2 || dCell.fach3 || dCell.lehrer3 || dCell.raum3 || dCell.klasse3)) {
                                 tagHatStunden = true;
                                 break;
                             }
