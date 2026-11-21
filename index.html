@@ -44,13 +44,14 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            border: 1.5px solid #3a5a8c;
+            border: 1.5px solid #4c6fa8;
+            background-color: rgba(255, 255, 255, 0.12);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            color: #2c4770;
+            color: #3a5a8c;
             cursor: pointer;
+            padding: 0;
         }
         .status-dot { 
             width: 18px; 
@@ -135,7 +136,7 @@
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
         .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
 
-        /* STUNDENPLAN RASTER - SCREENSHOT-GRÖSSE & SCHRIFT */
+        /* STUNDENPLAN RASTER */
         #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 40px; }
         .plan-wrapper { padding: 8px 6px; overflow-x: auto; }
         .schedule-table { 
@@ -246,47 +247,52 @@
 
         /* UNTERRICHT AUSWÄHLEN SCREEN */
         #unterrichtScreen {
-            background-color: #f2f2f7;
+            background-color: #ffffff;
             min-height: 100vh;
             display: none;
             flex-direction: column;
             justify-content: space-between;
+            font-family: Arial, Helvetica, sans-serif;
         }
         #unterrichtScreen.active {
             display: flex;
         }
-        .u-header {
+        .u-top-bar {
             background-color: #ffffff;
-            padding: 12px 16px;
+            padding: 12px 18px 8px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #d1d1d6;
         }
         .u-btn-text {
             color: #007aff;
-            font-size: 15px;
-            font-weight: bold;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
             text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+        .u-title-wrap {
+            background-color: #ffffff;
+            padding: 6px 12px 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid #e5e5ea;
         }
         .u-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #000;
-            text-align: center;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #000000;
         }
         .u-body {
-            padding: 14px;
+            padding: 6px 14px 16px 14px;
             flex: 1;
-            max-width: 760px;
             width: 100%;
-            margin: 0 auto;
+            background-color: #ffffff;
         }
         .u-admin-add-row {
             display: flex;
             gap: 8px;
-            margin-bottom: 14px;
+            margin: 8px 0 12px 0;
             align-items: stretch;
         }
         .u-input {
@@ -294,8 +300,8 @@
             background: #ffffff;
             border: 1px solid #c7c7cc;
             border-radius: 6px;
-            padding: 9px 12px;
-            font-size: 15px;
+            padding: 8px 10px;
+            font-size: 14px;
             outline: none;
         }
         .u-add-btn {
@@ -317,58 +323,82 @@
         .u-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            column-gap: 14px;
+            row-gap: 0;
         }
-        @media (max-width: 480px) {
+        @media (max-width: 520px) {
             .u-grid { grid-template-columns: 1fr; }
         }
         .u-card {
             background-color: #ffffff;
-            border-radius: 6px;
-            padding: 11px 14px;
+            padding: 7px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
             cursor: pointer;
-            border: 1px solid #e5e5ea;
+            min-height: 34px;
+        }
+        .u-card.zebra-alt {
+            background-color: #f2f2f4;
+        }
+        .u-card-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .u-check-badge {
+            width: 17px;
+            height: 17px;
+            min-width: 17px;
+            border-radius: 50%;
+            background-color: #007aff;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .u-check-badge.unchecked {
+            background-color: transparent;
+            border: 1.5px solid #007aff;
+            color: transparent;
         }
         .u-card-label {
-            font-size: 15px;
-            color: #000;
+            font-size: 13.5px;
+            color: #000000;
             font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .u-card-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .u-check {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            width: 22px;
-            text-align: center;
+            gap: 6px;
+            margin-left: 8px;
         }
         .u-admin-icon {
-            font-size: 14px;
-            padding: 3px 6px;
+            font-size: 12px;
+            padding: 2px 5px;
             border-radius: 4px;
-            background: #f2f2f7;
+            background: rgba(0, 0, 0, 0.06);
             color: #333;
         }
         .u-footer {
-            background-color: #ffffff;
-            padding: 12px 18px;
+            background-color: #f4f4f6;
+            padding: 10px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #d1d1d6;
+            border-top: 1px solid #e0e0e5;
         }
         .u-footer-link {
             color: #007aff;
-            font-size: 15px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 400;
             cursor: pointer;
         }
 
@@ -475,7 +505,7 @@
             <span class="ios-link" onclick="zeigeAuswahl(aktuellerModus)" style="font-size:18px;">&#128269;</span>
             <span class="ios-link" onclick="wocheWechseln(-1)" style="font-size:22px; font-weight:bold;">&lsaquo;</span>
         </div>
-        <div class="ios-week-title" id="planWocheTitel">9. Nov. - 13. Nov. 2026</div>
+        <div class="ios-week-title" id="planWocheTitel">23. Nov. - 27. Nov. 2026 (A)</div>
         <div>
             <span class="ios-link" onclick="wocheWechseln(1)" style="font-size:22px; font-weight:bold;">&rsaquo;</span>
         </div>
@@ -486,7 +516,12 @@
             <span style="font-size: 16px; opacity: 0.7;">&#9783;</span>
             <span style="font-size: 16px; opacity: 0.7;">&#9776;</span>
             <span id="planObjektTitel">06/1</span>
-            <span class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">&#128100;</span>
+            <button type="button" class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"></circle>
+                    <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"></path>
+                </svg>
+            </button>
             <span class="status-dot" onclick="oeffneUnterrichtAuswahl()" title="Unterricht auswählen"></span>
         </div>
         <span onclick="ladeDatenAusCloud()" style="cursor:pointer; font-size:18px; color:#0055cc;" title="Aktualisieren">&#8635;</span>
@@ -511,23 +546,27 @@
 
 <!-- UNTERRICHT AUSWÄHLEN SCREEN -->
 <div id="unterrichtScreen" class="screen">
-    <div class="u-header">
-        <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(false)">ABBRUCH</span>
-        <span class="u-title" id="unterrichtScreenTitel">Unterricht auswählen (Klasse 01/1)</span>
-        <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(true)">SPEICHERN</span>
-    </div>
-
-    <div class="u-body">
-        <div id="uAdminAddBar" class="u-admin-add-row" style="display: none;">
-            <input type="text" id="uInputFach" class="u-input" placeholder="Fach (z.B. Deu)">
-            <input type="text" id="uInputLehrer" class="u-input" placeholder="Lehrer (z.B. Brt)">
-            <button type="button" class="u-add-btn" onclick="adminFuegeUnterrichtHinzu()">
-                <span>+</span>
-                <span>Neu</span>
-            </button>
+    <div>
+        <div class="u-top-bar">
+            <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(false)">ABBRUCH</span>
+            <span class="u-btn-text" onclick="schliesseUnterrichtAuswahl(true)">SPEICHERN</span>
+        </div>
+        <div class="u-title-wrap">
+            <span class="u-title" id="unterrichtScreenTitel">Unterricht auswählen (Klasse 06/1)</span>
         </div>
 
-        <div id="uKartenRaster" class="u-grid"></div>
+        <div class="u-body">
+            <div id="uAdminAddBar" class="u-admin-add-row" style="display: none;">
+                <input type="text" id="uInputFach" class="u-input" placeholder="Fach (z.B. Bio)">
+                <input type="text" id="uInputKuerzel" class="u-input" placeholder="Kürzel (z.B. Kle)">
+                <button type="button" class="u-add-btn" onclick="adminFuegeUnterrichtHinzu()">
+                    <span>+</span>
+                    <span>Neu</span>
+                </button>
+            </div>
+
+            <div id="uKartenRaster" class="u-grid"></div>
+        </div>
     </div>
 
     <div class="u-footer">
@@ -600,8 +639,8 @@
         <div id="adminUnterrichtEditArea" style="display:none;">
             <label class="form-label">Fach:</label>
             <input type="text" id="editUFach" class="modal-input">
-            <label class="form-label" style="margin-top:8px;">Lehrer:</label>
-            <input type="text" id="editULehrer" class="modal-input">
+            <label class="form-label" style="margin-top:8px;">Kürzel:</label>
+            <input type="text" id="editUKuerzel" class="modal-input">
             <button class="modal-btn" style="background:#34c759;" onclick="speichereUnterrichtEdit()">Speichern</button>
         </div>
 
@@ -653,6 +692,10 @@
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+
+    function getItemKuerzel(item) {
+        return item.kuerzel || item.lehrer || "";
+    }
 
     function aktualisiereAdminStatusAnzeige() {
         var box = document.getElementById('adminUploadContainer');
@@ -863,6 +906,7 @@
         var diffToMon = (day === 0 ? -6 : 1) - day;
         
         var montag = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diffToMon + (offset * 7));
+        var wochenTyp = "A";
 
         var monateKurz = ["Jan.", "Feb.", "Mär.", "Apr.", "Mai", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
         var tage = [];
@@ -877,6 +921,7 @@
                 datum: tagKurzDatum, 
                 titelDatum: titelDatum,
                 jahr: temp.getFullYear(),
+                wochenTyp: wochenTyp,
                 dateObj: temp
             });
         }
@@ -964,7 +1009,7 @@
         document.getElementById('planObjektTitel').innerText = aktuellesObjekt;
 
         var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr;
+        document.getElementById('planWocheTitel').innerText = wochenDaten[0].titelDatum + " - " + wochenDaten[4].titelDatum + " " + wochenDaten[4].jahr + " (" + wochenDaten[0].wochenTyp + ")";
 
         var planKey = getKlassenPlanKey();
         var aktiverPlanDaten = istAdmin ? (draftPlaene[planKey] || publishedPlaene[planKey] || {}) : (publishedPlaene[planKey] || {});
@@ -1070,17 +1115,19 @@
 
     function oeffneUnterrichtAuswahl() {
         if (!aktuellesObjekt) return;
-        document.getElementById('unterrichtScreenTitel').innerText = "Unterricht auswählen (Klasse " + aktuellesObjekt + ")";
+        var bezeichnung = datenKlassen.indexOf(aktuellesObjekt) !== -1 ? ("Klasse " + aktuellesObjekt) : aktuellesObjekt;
+        document.getElementById('unterrichtScreenTitel').innerText = "Unterricht auswählen (" + bezeichnung + ")";
         
         document.getElementById('uAdminAddBar').style.display = istAdmin ? 'flex' : 'none';
         document.getElementById('uInputFach').value = '';
-        document.getElementById('uInputLehrer').value = '';
+        document.getElementById('uInputKuerzel').value = '';
 
         var liste = klassenUnterricht[aktuellesObjekt] || [];
         var deaktivierte = userUnterrichtFilter[aktuellesObjekt] || [];
 
         tempUnterrichtSelection = liste.map(function(item) {
-            var key = item.fach + "|" + item.lehrer;
+            var kuerzel = getItemKuerzel(item);
+            var key = item.fach + "|" + kuerzel;
             return deaktivierte.indexOf(key) === -1;
         });
 
@@ -1100,6 +1147,9 @@
 
         liste.forEach(function(item, idx) {
             var checked = tempUnterrichtSelection[idx];
+            var kuerzel = getItemKuerzel(item);
+            var isAltRow = (Math.floor(idx / 2) % 2 === 1);
+            var zebraClass = isAltRow ? ' zebra-alt' : '';
             var adminTools = '';
             if (istAdmin) {
                 adminTools = 
@@ -1108,11 +1158,13 @@
             }
 
             container.innerHTML += 
-                '<div class="u-card" onclick="toggleUnterrichtItem(' + idx + ')">' +
-                    '<span class="u-card-label">' + item.fach + ' (' + item.lehrer + ')</span>' +
+                '<div class="u-card' + zebraClass + '" onclick="toggleUnterrichtItem(' + idx + ')">' +
+                    '<div class="u-card-left">' +
+                        '<span class="u-check-badge ' + (checked ? '' : 'unchecked') + '">' + (checked ? '✓' : '') + '</span>' +
+                        '<span class="u-card-label">' + item.fach + ' (' + kuerzel + ')</span>' +
+                    '</div>' +
                     '<div class="u-card-actions">' +
                         adminTools +
-                        '<span class="u-check">' + (checked ? '✓' : '') + '</span>' +
                     '</div>' +
                 '</div>';
         });
@@ -1132,17 +1184,17 @@
     function adminFuegeUnterrichtHinzu() {
         if (!istAdmin) return;
         var fach = document.getElementById('uInputFach').value.trim();
-        var lehrer = document.getElementById('uInputLehrer').value.trim();
-        if (!fach || !lehrer) {
-            alert("Bitte Fach und Lehrer eingeben!");
+        var kuerzel = document.getElementById('uInputKuerzel').value.trim();
+        if (!fach || !kuerzel) {
+            alert("Bitte Fach und Kürzel eingeben!");
             return;
         }
         if (!klassenUnterricht[aktuellesObjekt]) klassenUnterricht[aktuellesObjekt] = [];
-        klassenUnterricht[aktuellesObjekt].push({ fach: fach, lehrer: lehrer });
+        klassenUnterricht[aktuellesObjekt].push({ fach: fach, kuerzel: kuerzel });
         tempUnterrichtSelection.push(true);
 
         document.getElementById('uInputFach').value = '';
-        document.getElementById('uInputLehrer').value = '';
+        document.getElementById('uInputKuerzel').value = '';
         renderUnterrichtKarten();
         speichereDatenInCloud();
     }
@@ -1166,16 +1218,16 @@
         document.getElementById('adminUnterrichtEditArea').style.display = 'block';
 
         document.getElementById('editUFach').value = item.fach;
-        document.getElementById('editULehrer').value = item.lehrer;
+        document.getElementById('editUKuerzel').value = getItemKuerzel(item);
         document.getElementById('infoModal').style.display = 'flex';
     }
 
     function speichereUnterrichtEdit() {
         if (!istAdmin || aktuellerUEditIndex === null) return;
         var f = document.getElementById('editUFach').value.trim();
-        var l = document.getElementById('editULehrer').value.trim();
-        if (f && l) {
-            klassenUnterricht[aktuellesObjekt][aktuellerUEditIndex] = { fach: f, lehrer: l };
+        var k = document.getElementById('editUKuerzel').value.trim();
+        if (f && k) {
+            klassenUnterricht[aktuellesObjekt][aktuellerUEditIndex] = { fach: f, kuerzel: k };
             renderUnterrichtKarten();
             speichereDatenInCloud();
         }
@@ -1188,7 +1240,7 @@
             var deaktivierte = [];
             liste.forEach(function(item, idx) {
                 if (!tempUnterrichtSelection[idx]) {
-                    deaktivierte.push(item.fach + "|" + item.lehrer);
+                    deaktivierte.push(item.fach + "|" + getItemKuerzel(item));
                 }
             });
             userUnterrichtFilter[aktuellesObjekt] = deaktivierte;
