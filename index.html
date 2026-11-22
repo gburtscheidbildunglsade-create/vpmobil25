@@ -177,7 +177,7 @@
         .time-top, .time-bot { font-size: 9.5px; color: #111111; display: block; line-height: 1.15; font-weight: 400; }
         .hour-num { font-size: 13px; font-weight: 700; color: #000000; display: block; margin: 2px 0; line-height: 1.15; }
 
-        /* TAGES-KOPFZEILE OBEN */
+        /* TAGES-KOPFZEILE OBEN - GLEICHE FORM WIE DIE BLÖCKE */
         .day-header { 
             background-color: #f9d8a7; 
             width: 62px;
@@ -195,7 +195,7 @@
         .day-date { font-size: 10.5px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
         .day-export-time { font-size: 7.5px; color: #222; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
 
-        /* STUNDEN-ZELLEN & FELDER */
+        /* STUNDEN-ZELLEN & FELDER - UNVERÄNDERT WIE IM SCRIPT */
         .schedule-table td.slot-cell { 
             padding: 0; 
             width: 62px;
@@ -772,7 +772,7 @@
         "401", "402", "403", "404", "Aula", "Aula1", "Aula2", "Aula3", "Mensa", "Flur", "SH", "TU 1", "TU 2"
     ];
 
-    var favoriten = [];
+    var favoriten = JSON.parse(localStorage.getItem('vpmobil24_favoriten') || '[]');
     var aktuellerModus = 'klassen';
     var aktuellesObjekt = '';
     var schnelleWocheOffset = 0; 
@@ -791,6 +791,10 @@
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+
+    function speichereFavoritenLokal() {
+        localStorage.setItem('vpmobil24_favoriten', JSON.stringify(favoriten));
+    }
 
     function getItemKuerzel(item) {
         return item.kuerzel || item.lehrer || "";
@@ -930,6 +934,7 @@
 
     function loescheFavoriten(index) {
         favoriten.splice(index, 1);
+        speichereFavoritenLokal();
         erstelleFavoritenRaster();
     }
 
@@ -989,6 +994,7 @@
         var idx = favoriten.findIndex(function(f) { return f.name === name && f.modus === modus; });
         if (idx > -1) favoriten.splice(idx, 1);
         else favoriten.push({ name: name, modus: modus });
+        speichereFavoritenLokal();
         filterListe();
     }
 
