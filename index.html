@@ -154,7 +154,7 @@
         .schedule-table { 
             width: auto; 
             border-collapse: separate; 
-            border-spacing: 4px; 
+            border-spacing: 5px 4px; 
             table-layout: fixed; 
             font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
         }
@@ -177,30 +177,42 @@
         .time-top, .time-bot { font-size: 9.5px; color: #111111; display: block; line-height: 1.15; font-weight: 400; }
         .hour-num { font-size: 13px; font-weight: 700; color: #000000; display: block; margin: 2px 0; line-height: 1.15; }
 
-        /* TAGES-KOPFZEILE OBEN */
+        /* TAGES-KOPFZEILE OBEN - EXAKT WIE IM BEISPIELBILD */
         .day-header { 
-            background-color: #f9d8a7; 
-            width: 62px;
-            min-width: 62px;
-            max-width: 62px;
-            border-radius: 5px;
-            padding: 4px 2px; 
+            background-color: #ffdba8; 
+            width: 74px;
+            min-width: 74px;
+            max-width: 74px;
+            height: 56px;
+            min-height: 56px;
+            max-height: 56px;
+            border-radius: 7px;
+            padding: 5px 3px 4px 3px; 
             text-align: center;
             vertical-align: middle;
             position: relative;
             cursor: pointer;
-            box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.06);
         }
-        .day-name { font-size: 11px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
-        .day-date { font-size: 10.5px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
-        .day-export-time { font-size: 7.5px; color: #222; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
+        .day-header-spacer {
+            width: 42px;
+            min-width: 42px;
+            max-width: 42px;
+            height: 56px;
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+        }
+        .day-name { font-size: 14px; font-weight: 700; color: #000000; display: block; line-height: 1.18; letter-spacing: -0.1px; }
+        .day-date { font-size: 14px; font-weight: 700; color: #000000; display: block; line-height: 1.18; letter-spacing: -0.1px; }
+        .day-export-time { font-size: 9.5px; color: #111111; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.25px; white-space: nowrap; font-weight: 400; }
 
         /* STUNDEN-ZELLEN & FELDER */
         .schedule-table td.slot-cell { 
             padding: 0; 
-            width: 62px;
-            min-width: 62px;
-            max-width: 62px;
+            width: 74px;
+            min-width: 74px;
+            max-width: 74px;
             vertical-align: top; 
             text-align: center;
         }
@@ -208,13 +220,13 @@
             display: flex;
             flex-direction: column;
             gap: 3px;
-            width: 62px;
+            width: 74px;
         }
         .lesson-box { 
             background-color: #ffffff; 
             border-radius: 5px; 
             padding: 3px 2px; 
-            width: 62px; 
+            width: 74px; 
             height: 60px; 
             display: flex; 
             flex-direction: column; 
@@ -246,15 +258,15 @@
         
         .info-icon { 
             position: absolute; 
-            top: -5px; 
-            right: -5px; 
-            background: #2266cc; 
+            top: -7px; 
+            right: -6px; 
+            background: #2167cf; 
             color: #ffffff; 
             border: 1.5px solid #ffffff;
             border-radius: 50%; 
-            width: 15px; 
-            height: 15px; 
-            font-size: 9.5px; 
+            width: 17px; 
+            height: 17px; 
+            font-size: 10.5px; 
             font-family: Georgia, "Times New Roman", serif;
             font-style: italic;
             display: flex; 
@@ -625,7 +637,7 @@
         <table class="schedule-table">
             <thead>
                 <tr>
-                    <th class="hour-col" style="background: transparent; box-shadow: none; height: auto; min-height: 0; max-height: none;"></th>
+                    <th class="day-header-spacer"></th>
                     <th class="day-header" id="th_0" onclick="klickeTagHeader(0)"></th>
                     <th class="day-header" id="th_1" onclick="klickeTagHeader(1)"></th>
                     <th class="day-header" id="th_2" onclick="klickeTagHeader(2)"></th>
@@ -772,7 +784,7 @@
         "401", "402", "403", "404", "Aula", "Aula1", "Aula2", "Aula3", "Mensa", "Flur", "SH", "TU 1", "TU 2"
     ];
 
-    var favoriten = [];
+    var favoriten = JSON.parse(localStorage.getItem('vpmobil24_favoriten') || '[]');
     var aktuellerModus = 'klassen';
     var aktuellesObjekt = '';
     var schnelleWocheOffset = 0; 
@@ -791,6 +803,10 @@
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+
+    function speichereFavoritenLokal() {
+        localStorage.setItem('vpmobil24_favoriten', JSON.stringify(favoriten));
+    }
 
     function getItemKuerzel(item) {
         return item.kuerzel || item.lehrer || "";
@@ -930,6 +946,7 @@
 
     function loescheFavoriten(index) {
         favoriten.splice(index, 1);
+        speichereFavoritenLokal();
         erstelleFavoritenRaster();
     }
 
@@ -989,6 +1006,7 @@
         var idx = favoriten.findIndex(function(f) { return f.name === name && f.modus === modus; });
         if (idx > -1) favoriten.splice(idx, 1);
         else favoriten.push({ name: name, modus: modus });
+        speichereFavoritenLokal();
         filterListe();
     }
 
@@ -1131,13 +1149,13 @@
             var metaKey = getDayMetaKey(t);
             var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
             var infoBadge = meta.info ? '<div class="info-icon">i</div>' : '';
-            var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
+            var exportHtml = meta.exportTime ? '<span class="day-export-time">' + meta.exportTime + '</span>' : '';
 
             document.getElementById('th_' + t).innerHTML = 
                 infoBadge +
                 '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
                 '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
-                '<span class="day-export-time">' + exportText + '</span>';
+                exportHtml;
         }
 
         zeigeScreen('planScreen');
