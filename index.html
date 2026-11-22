@@ -7,7 +7,7 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: Arial, Helvetica, sans-serif; 
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; 
             background-color: #9bb5d1; 
             margin: 0; 
             padding: 0; 
@@ -17,69 +17,81 @@
         /* OBERE WEISSE NAVIGATION */
         .ios-top-nav {
             background-color: #ffffff;
-            padding: 10px 14px;
+            padding: 9px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #b0c4de;
+            border-bottom: 1px solid #b8cae0;
             font-size: 16px;
         }
-        .ios-link { color: #007aff; text-decoration: none; cursor: pointer; font-weight: 400; display: flex; align-items: center; gap: 6px; }
-        .ios-week-title { font-weight: bold; font-size: 15px; color: #000; text-align: center; }
+        .ios-link { color: #0066e6; text-decoration: none; cursor: pointer; font-weight: 400; display: inline-flex; align-items: center; gap: 6px; }
+        .ios-week-title { font-weight: 700; font-size: 15px; color: #000; text-align: center; }
 
         /* BLAUE SUB-LEISTE */
         .blue-sub-bar {
-            background-color: #6c9ce8;
+            background-color: #6b9be8;
             padding: 7px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #000;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 15px;
-            border-bottom: 1px solid #5584cf;
+            border-bottom: 1px solid #5382cf;
         }
-        .sub-bar-left { display: flex; align-items: center; gap: 14px; }
+        .sub-bar-left { display: flex; align-items: center; gap: 13px; }
+        .sub-icon-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
         .user-filter-icon {
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            border: 1.5px solid #4c6fa8;
-            background-color: rgba(255, 255, 255, 0.12);
+            border: 1.5px solid #566882;
+            background-color: rgba(255, 255, 255, 0.08);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #3a5a8c;
+            color: #566882;
             cursor: pointer;
             padding: 0;
         }
         .status-dot { 
-            width: 18px; 
-            height: 18px; 
-            background-color: #2ecc71; 
+            width: 20px; 
+            height: 20px; 
+            background-color: #36d947; 
             border-radius: 50%; 
-            display: inline-block; 
-            box-shadow: 0 0 4px rgba(0,0,0,0.3); 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            border: 1.5px solid #27ae60;
+            border: 1.5px solid #2ab539;
+            padding: 0;
         }
 
         .screen { display: none; }
         .screen.active { display: block; }
 
         /* HAUPTMENÜ / STARTSEITE */
-        .top-bar { background-color: #6c9ce8; color: #000; text-align: center; padding: 12px; font-weight: bold; font-size: 17px; position: relative; border-bottom: 1px solid #5584cf; }
+        .top-bar { background-color: #6b9be8; color: #000; text-align: center; padding: 12px; font-weight: 700; font-size: 17px; position: relative; border-bottom: 1px solid #5382cf; }
         .menu-burger { position: absolute; right: 15px; top: 11px; cursor: pointer; font-size: 20px; color: #000; }
         
         #hauptmenueScreen { padding: 15px; min-height: 100vh; background-color: #f2f2f7; }
-        .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: bold; }
+        .school-banner { background-color: #5584cf; color: white; text-align: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-weight: 700; }
         
         /* DOWNLOAD STATUS ANZEIGE AUF DER STARTSEITE */
         #downloadStatusAnzeige {
             text-align: center;
             font-size: 13px;
             margin-bottom: 16px;
-            font-weight: bold;
+            font-weight: 700;
             min-height: 18px;
         }
 
@@ -100,16 +112,16 @@
             padding: 12px 16px;
             border-radius: 8px;
             font-size: 15px;
-            font-weight: bold;
+            font-weight: 700;
             width: 100%;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
         }
         .upload-btn:active { transform: scale(0.98); }
-        .draft-badge { font-size: 12px; color: #d35400; font-weight: bold; margin-top: 8px; display: block; }
+        .draft-badge { font-size: 12px; color: #d35400; font-weight: 700; margin-top: 8px; display: block; }
 
         .grid-container { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .tile { background-color: #6c9ce8; color: white; border-radius: 10px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); font-weight: bold; }
+        .tile { background-color: #6b9be8; color: white; border-radius: 10px; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); font-weight: 700; }
         .tile-remove { position: absolute; top: 6px; right: 9px; font-size: 14px; cursor: pointer; opacity: 0.85; }
         .tile-icon { font-size: 24px; margin-bottom: 4px; }
         .tile-add { background-color: #34c759; color: white; }
@@ -117,10 +129,10 @@
         /* AUSWAHL SCREEN */
         #auswahlScreen { background: white; min-height: 100vh; }
         .search-bar-container { padding: 8px 12px; background: #f2f2f7; border-bottom: 1px solid #ddd; }
-        .search-input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; background: #fff; }
+        .search-input { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; outline: none; background: #fff; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
         .tabs-header { display: flex; background: #f2f2f7; border-bottom: 1px solid #ccc; }
         .tab-head { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-size: 14px; color: #555; }
-        .tab-head.active { background: white; font-weight: bold; color: #007aff; border-bottom: 3px solid #007aff; }
+        .tab-head.active { background: white; font-weight: 700; color: #0066e6; border-bottom: 3px solid #0066e6; }
         .tab-head.disabled { color: #aaa; cursor: not-allowed; background: #e5e5ea; }
         .list-item { padding: 13px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; font-size: 16px; align-items: center; }
         .star-btn { font-size: 20px; color: #ccc; cursor: pointer; background: none; border: none; }
@@ -130,85 +142,85 @@
         .settings-container { padding: 15px; background: #f2f2f7; min-height: 100vh; }
         .settings-group { background: white; border-radius: 10px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .settings-item { padding: 14px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-size: 15px; cursor: pointer; }
-        .settings-header-title { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
+        .settings-header-title { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: 700; text-transform: uppercase; padding-left: 5px; }
         .form-group { padding: 12px 15px; border-bottom: 1px solid #eee; }
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
-        .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; }
-        .action-btn { background: #007aff; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
+        .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+        .action-btn { background: #0066e6; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
 
         /* STUNDENPLAN RASTER */
-        #planScreen { background-color: #9bb5d1; min-height: 100vh; padding-bottom: 40px; }
+        #planScreen { background-color: #9cb6d4; min-height: 100vh; padding-bottom: 40px; }
         .plan-wrapper { padding: 8px 6px; overflow-x: auto; }
         .schedule-table { 
             width: auto; 
             border-collapse: separate; 
-            border-spacing: 3px; 
+            border-spacing: 4px; 
             table-layout: fixed; 
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
         }
         
         /* ZEIT-SPALTE LINKS - IMMER GLEICHE HÖHE */
         .hour-col { 
             background-color: #f9d8a7; 
-            width: 38px; 
-            min-width: 38px;
-            max-width: 38px;
-            height: 58px;
-            min-height: 58px;
-            max-height: 58px;
-            border-radius: 3px;
-            padding: 2px 1px;
+            width: 42px; 
+            min-width: 42px;
+            max-width: 42px;
+            height: 60px;
+            min-height: 60px;
+            max-height: 60px;
+            border-radius: 5px;
+            padding: 3px 2px;
             text-align: center; 
-            vertical-align: top;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+            vertical-align: middle;
+            box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
         }
-        .time-top, .time-bot { font-size: 8.5px; color: #222; display: block; line-height: 1.1; font-weight: 400; }
-        .hour-num { font-size: 12px; font-weight: 700; color: #000; display: block; margin: 2px 0; line-height: 1.1; }
+        .time-top, .time-bot { font-size: 9.5px; color: #111111; display: block; line-height: 1.15; font-weight: 400; }
+        .hour-num { font-size: 13px; font-weight: 700; color: #000000; display: block; margin: 2px 0; line-height: 1.15; }
 
         /* TAGES-KOPFZEILE OBEN */
         .day-header { 
             background-color: #f9d8a7; 
-            width: 58px;
-            min-width: 58px;
-            max-width: 58px;
-            border-radius: 3px;
+            width: 62px;
+            min-width: 62px;
+            max-width: 62px;
+            border-radius: 5px;
             padding: 4px 2px; 
             text-align: center;
             vertical-align: middle;
             position: relative;
             cursor: pointer;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
         }
         .day-name { font-size: 11px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
         .day-date { font-size: 10.5px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
-        .day-export-time { font-size: 7.5px; color: #333; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.3px; white-space: nowrap; font-weight: 400; }
+        .day-export-time { font-size: 7.5px; color: #222; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
 
         /* STUNDEN-ZELLEN & FELDER */
         .schedule-table td.slot-cell { 
             padding: 0; 
-            width: 58px;
-            min-width: 58px;
-            max-width: 58px;
+            width: 62px;
+            min-width: 62px;
+            max-width: 62px;
             vertical-align: top; 
             text-align: center;
         }
         .slot-stack {
             display: flex;
             flex-direction: column;
-            gap: 2px;
-            width: 58px;
+            gap: 3px;
+            width: 62px;
         }
         .lesson-box { 
-            background-color: #fefcf3; 
-            border-radius: 3px; 
+            background-color: #ffffff; 
+            border-radius: 5px; 
             padding: 3px 2px; 
-            width: 58px; 
-            height: 58px; 
+            width: 62px; 
+            height: 60px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            gap: 2px;
+            gap: 1.5px;
             position: relative;
             cursor: pointer; 
             box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
@@ -223,34 +235,34 @@
             background-color: #fffaf0;
         }
         
-        /* SCHRIFTFARBEN, SCHRIFTART & SCHRIFTGRÖSSE */
-        .red-text-thin { color: #b00000 !important; font-weight: 400 !important; }
-        .red-text-bold { color: #b00000 !important; font-weight: 700 !important; }
+        /* SCHRIFTFARBEN, SCHRIFTART & SCHRIFTGRÖSSE EXAKT WIE IM BILD */
+        .red-text-thin { color: #b80000 !important; font-weight: 400 !important; }
+        .red-text-bold { color: #b80000 !important; font-weight: 700 !important; }
         .black-text-bold { color: #000000 !important; font-weight: 700 !important; }
 
-        .lesson-line-1 { font-size: 12px; color: #111111; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
-        .lesson-line-2 { font-size: 12px; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
-        .lesson-line-3 { font-size: 10.5px; color: #222222; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; } 
+        .lesson-line-1 { font-size: 12px; color: #000000; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
+        .lesson-line-2 { font-size: 12.5px; color: #000000; font-weight: 700; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; }
+        .lesson-line-3 { font-size: 11.5px; color: #000000; font-weight: 400; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.18; } 
         
         .info-icon { 
             position: absolute; 
             top: -5px; 
             right: -5px; 
-            background: #2b6cb0; 
-            color: white; 
-            border: 1.5px solid #fff;
+            background: #2266cc; 
+            color: #ffffff; 
+            border: 1.5px solid #ffffff;
             border-radius: 50%; 
             width: 15px; 
             height: 15px; 
-            font-size: 9px; 
-            font-family: Georgia, serif;
+            font-size: 9.5px; 
+            font-family: Georgia, "Times New Roman", serif;
             font-style: italic;
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-weight: bold; 
+            font-weight: 700; 
             z-index: 5;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.22);
         }
 
         /* UNTERRICHT AUSWÄHLEN SCREEN - IMMER LINKS UND RECHTS AUF JEDEM GERÄT */
@@ -260,7 +272,7 @@
             display: none;
             flex-direction: column;
             justify-content: space-between;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
             width: 100%;
             overflow-x: hidden;
         }
@@ -275,7 +287,7 @@
             align-items: center;
         }
         .u-btn-text {
-            color: #007aff;
+            color: #0066e6;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -314,6 +326,7 @@
             padding: 8px 8px;
             font-size: 13.5px;
             outline: none;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
         }
         .u-add-btn {
             background-color: #2ecc71;
@@ -322,7 +335,7 @@
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -363,10 +376,10 @@
             height: 16px;
             min-width: 16px;
             border-radius: 50%;
-            background-color: #007aff;
+            background-color: #0066e6;
             color: #ffffff;
             font-size: 10.5px;
-            font-weight: bold;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -374,7 +387,7 @@
         }
         .u-check-badge.unchecked {
             background-color: transparent;
-            border: 1.5px solid #007aff;
+            border: 1.5px solid #0066e6;
             color: transparent;
         }
         .u-card-label {
@@ -408,7 +421,7 @@
             border-top: 1px solid #e0e0e5;
         }
         .u-footer-link {
-            color: #007aff;
+            color: #0066e6;
             font-size: 14px;
             font-weight: 400;
             cursor: pointer;
@@ -417,11 +430,11 @@
         /* POPUP / MODAL */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
         .modal-content { background:white; padding:18px; border-radius:12px; width:100%; max-width:350px; text-align:left; box-shadow: 0 8px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
-        .modal-title { font-weight: bold; font-size: 16px; margin: 0 0 8px 0; color: #000; }
+        .modal-title { font-weight: 700; font-size: 16px; margin: 0 0 8px 0; color: #000; }
         .modal-info-text { font-size: 14px; color: #333; background: #f2f2f7; padding: 10px; border-radius: 6px; margin-bottom: 10px; white-space: pre-wrap; }
-        .modal-btn { background:#007aff; color:white; border:none; padding:10px 14px; margin-top:8px; border-radius:8px; cursor:pointer; font-weight:bold; width: 100%; text-align: center; font-size: 15px; }
-        .modal-input { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px; font-size: 15px; margin-top: 3px; }
-        .sub-section-title { font-size: 12px; font-weight: bold; color: #666; margin-top: 10px; margin-bottom: 2px; text-transform: uppercase; }
+        .modal-btn { background:#0066e6; color:white; border:none; padding:10px 14px; margin-top:8px; border-radius:8px; cursor:pointer; font-weight:700; width: 100%; text-align: center; font-size: 15px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+        .modal-input { width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 8px; font-size: 15px; margin-top: 3px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+        .sub-section-title { font-size: 12px; font-weight: 700; color: #666; margin-top: 10px; margin-bottom: 2px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -477,7 +490,7 @@
 <div id="auswahlScreen" class="screen">
     <div class="ios-top-nav">
         <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">&lsaquo; Start</span>
-        <span style="font-weight:bold;">Auswahl</span>
+        <span style="font-weight:700;">Auswahl</span>
         <span style="width: 45px;"></span>
     </div>
     <div class="search-bar-container">
@@ -495,14 +508,14 @@
 <div id="einstellungenScreen" class="screen">
     <div class="ios-top-nav">
         <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">&lsaquo; Start</span>
-        <span style="font-weight:bold;">Einstellungen</span>
+        <span style="font-weight:700;">Einstellungen</span>
         <span style="width: 45px;"></span>
     </div>
     <div class="settings-container">
         <div class="settings-header-title">Konto</div>
         <div class="settings-group">
             <div class="settings-item" onclick="abmelden()">
-                <span style="color:#ff3b30; font-weight:bold;">Abmelden</span>
+                <span style="color:#ff3b30; font-weight:700;">Abmelden</span>
                 <span>&rsaquo;</span>
             </div>
         </div>
@@ -514,29 +527,61 @@
     <div class="ios-top-nav">
         <div style="display:flex; align-items:center; gap:14px;">
             <span class="ios-link" onclick="zeigeScreen('hauptmenueScreen')">Start</span>
-            <span class="ios-link" onclick="zeigeAuswahl(aktuellerModus)" style="font-size:18px;">&#128269;</span>
-            <span class="ios-link" onclick="wocheWechseln(-1)" style="font-size:22px; font-weight:bold;">&lsaquo;</span>
+            <span class="ios-link" onclick="zeigeAuswahl(aktuellerModus)" title="Suchen">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2679e8" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10.5" cy="10.5" r="6.5"></circle>
+                    <line x1="15.5" y1="15.5" x2="21" y2="21"></line>
+                </svg>
+            </span>
+            <span class="ios-link" onclick="wocheWechseln(-1)" style="font-size:22px; font-weight:400; color:#1f75e8;">&lsaquo;</span>
         </div>
         <div class="ios-week-title" id="planWocheTitel">23. Nov. - 27. Nov. 2026 (A)</div>
         <div>
-            <span class="ios-link" onclick="wocheWechseln(1)" style="font-size:22px; font-weight:bold;">&rsaquo;</span>
+            <span class="ios-link" onclick="wocheWechseln(1)" style="font-size:22px; font-weight:400; color:#1f75e8;">&rsaquo;</span>
         </div>
     </div>
 
     <div class="blue-sub-bar">
         <div class="sub-bar-left">
-            <span style="font-size: 16px; opacity: 0.7;">&#9783;</span>
-            <span style="font-size: 16px; opacity: 0.7;">&#9776;</span>
-            <span id="planObjektTitel">06/1</span>
-            <button type="button" class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="8" r="4"></circle>
-                    <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6"></path>
+            <!-- RASTER / KACHEL ICON -->
+            <button type="button" class="sub-icon-btn" onclick="zeigeAuswahl('klassen')" title="Klassen">
+                <svg width="17" height="15" viewBox="0 0 17 15" fill="#4f5661">
+                    <rect x="0" y="0" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="6.4" y="0" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="12.8" y="0" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="0" y="6" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="6.4" y="6" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="12.8" y="6" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="0" y="12" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="6.4" y="12" width="4.2" height="2.8" rx="0.4"></rect>
+                    <rect x="12.8" y="12" width="4.2" height="2.8" rx="0.4"></rect>
                 </svg>
             </button>
-            <span class="status-dot" onclick="oeffneUnterrichtAuswahl()" title="Unterricht auswählen"></span>
+            <!-- LISTEN / BALKEN ICON -->
+            <button type="button" class="sub-icon-btn" onclick="zeigeAuswahl('lehrer')" title="Lehrer">
+                <svg width="18" height="15" viewBox="0 0 18 15" fill="#525863">
+                    <rect x="0" y="0" width="18" height="3.2" rx="0.6"></rect>
+                    <rect x="0" y="5.9" width="18" height="3.2" rx="0.6"></rect>
+                    <rect x="0" y="11.8" width="18" height="3.2" rx="0.6"></rect>
+                </svg>
+            </button>
+            <span id="planObjektTitel">06/1</span>
+            <!-- PERSON IM GRAUEN KREIS -->
+            <button type="button" class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5c687a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8.5" r="3.8"></circle>
+                    <path d="M5.5 19.5c0-3.2 2.9-5.5 6.5-5.5s6.5 2.3 6.5 5.5"></path>
+                </svg>
+            </button>
+            <!-- GRÜNER KREIS MIT PLUS -->
+            <button type="button" class="status-dot" onclick="oeffneUnterrichtAuswahl()" title="Unterricht auswählen">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#78e884" stroke-width="2.2" stroke-linecap="round">
+                    <line x1="7" y1="2" x2="7" y2="12"></line>
+                    <line x1="2" y1="7" x2="12" y2="7"></line>
+                </svg>
+            </button>
         </div>
-        <span onclick="ladeDatenAusCloud()" style="cursor:pointer; font-size:18px; color:#0055cc;" title="Aktualisieren">&#8635;</span>
+        <span onclick="ladeDatenAusCloud()" style="cursor:pointer; font-size:18px; color:#1867d9;" title="Aktualisieren">&#8635;</span>
     </div>
 
     <div class="plan-wrapper">
@@ -743,7 +788,7 @@
             downloadedPlans[planKey] = jetzt;
             localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
             el.style.color = "#ff3b30";
-            el.style.fontWeight = "bold";
+            el.style.fontWeight = "700";
             el.innerText = "Plan heruntergeladen: " + jetzt;
         } else {
             if (neuHeruntergeladen) {
@@ -752,7 +797,7 @@
                 localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
             }
             el.style.color = "#000000";
-            el.style.fontWeight = "normal";
+            el.style.fontWeight = "400";
             el.innerText = "Letzter Download: " + downloadedPlans[planKey];
         }
     }
