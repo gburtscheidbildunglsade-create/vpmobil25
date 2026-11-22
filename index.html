@@ -428,8 +428,45 @@
         }
 
         /* POPUP / MODAL */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.35); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
         .modal-content { background:white; padding:18px; border-radius:12px; width:100%; max-width:350px; text-align:left; box-shadow: 0 8px 25px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-content.apple-alert {
+            background-color: rgba(242, 243, 247, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 13px;
+            padding: 0;
+            width: 310px;
+            max-width: 88vw;
+            text-align: center;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+        .apple-alert-body {
+            padding: 24px 18px 22px 18px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #000000;
+            line-height: 1.35;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .apple-alert-ok {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-top: 0.75px solid rgba(60, 60, 67, 0.28);
+            color: #007aff;
+            font-size: 17px;
+            font-weight: 600;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+        .apple-alert-ok:active {
+            background-color: rgba(0, 0, 0, 0.06);
+        }
         .modal-title { font-weight: 700; font-size: 16px; margin: 0 0 8px 0; color: #000; }
         .modal-info-text { font-size: 14px; color: #333; background: #f2f2f7; padding: 10px; border-radius: 6px; margin-bottom: 10px; white-space: pre-wrap; }
         .modal-btn { background:#0066e6; color:white; border:none; padding:10px 14px; margin-top:8px; border-radius:8px; cursor:pointer; font-weight:700; width: 100%; text-align: center; font-size: 15px; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
@@ -634,7 +671,7 @@
 
 <!-- MODAL FÜR STUNDEN- & TAGES-INFOS -->
 <div id="infoModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" id="modalBoxContainer">
         <div class="modal-title" id="modalTitle">Information</div>
         <div id="modalInfoBox" class="modal-info-text" style="display:none;"></div>
         
@@ -701,7 +738,12 @@
             <button class="modal-btn" style="background:#34c759;" onclick="speichereUnterrichtEdit()">Speichern</button>
         </div>
 
-        <button class="modal-btn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
+        <button class="modal-btn" id="modalCloseBtn" style="background:#8e8e93; margin-top:10px;" onclick="closeModal()">Schließen</button>
+    </div>
+
+    <div class="modal-content apple-alert" id="appleAlertContainer" style="display:none;">
+        <div class="apple-alert-body" id="appleAlertMessage"></div>
+        <button type="button" class="apple-alert-ok" onclick="closeModal()">OK</button>
     </div>
 </div>
 
@@ -752,6 +794,19 @@
 
     function getItemKuerzel(item) {
         return item.kuerzel || item.lehrer || "";
+    }
+
+    function zeigeAppleInfoPopup(text) {
+        document.getElementById('modalBoxContainer').style.display = 'none';
+        document.getElementById('appleAlertContainer').style.display = 'block';
+        document.getElementById('appleAlertMessage').innerText = text || '';
+        document.getElementById('infoModal').style.display = 'flex';
+    }
+
+    function zeigeStandardModal() {
+        document.getElementById('appleAlertContainer').style.display = 'none';
+        document.getElementById('modalBoxContainer').style.display = 'block';
+        document.getElementById('infoModal').style.display = 'flex';
     }
 
     function aktualisiereAdminStatusAnzeige() {
@@ -1273,6 +1328,7 @@
         if (!istAdmin) return;
         aktuellerUEditIndex = idx;
         var item = klassenUnterricht[aktuellesObjekt][idx];
+        zeigeStandardModal();
         document.getElementById('modalTitle').innerText = "Eintrag bearbeiten";
         document.getElementById('modalInfoBox').style.display = 'none';
         document.getElementById('adminBearbeitenArea').style.display = 'none';
@@ -1281,7 +1337,6 @@
 
         document.getElementById('editUFach').value = item.fach;
         document.getElementById('editUKuerzel').value = getItemKuerzel(item);
-        document.getElementById('infoModal').style.display = 'flex';
     }
 
     function speichereUnterrichtEdit() {
@@ -1317,26 +1372,22 @@
         var metaKey = getDayMetaKey(tagIndex);
         var meta = dayMeta[metaKey] || { exportTime: "", info: "" };
 
-        var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
-        document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
-
-        document.getElementById('adminBearbeitenArea').style.display = 'none';
-        document.getElementById('adminUnterrichtEditArea').style.display = 'none';
-
-        if (meta.info) {
-            document.getElementById('modalInfoBox').style.display = 'block';
-            document.getElementById('modalInfoBox').innerText = meta.info;
-        } else {
-            document.getElementById('modalInfoBox').style.display = 'none';
-        }
-
         if (istAdmin) {
+            var wochenDaten = getWochenTageDaten(schnelleWocheOffset);
+            zeigeStandardModal();
+            document.getElementById('modalTitle').innerText = wochenDaten[tagIndex].kurz + " " + wochenDaten[tagIndex].datum;
+            document.getElementById('adminBearbeitenArea').style.display = 'none';
+            document.getElementById('adminUnterrichtEditArea').style.display = 'none';
+            if (meta.info) {
+                document.getElementById('modalInfoBox').style.display = 'block';
+                document.getElementById('modalInfoBox').innerText = meta.info;
+            } else {
+                document.getElementById('modalInfoBox').style.display = 'none';
+            }
             document.getElementById('adminTagArea').style.display = 'block';
             document.getElementById('editTagInfo').value = meta.info || '';
-            document.getElementById('infoModal').style.display = 'flex';
         } else if (meta.info) {
-            document.getElementById('adminTagArea').style.display = 'none';
-            document.getElementById('infoModal').style.display = 'flex';
+            zeigeAppleInfoPopup(meta.info);
         }
     }
 
@@ -1362,8 +1413,14 @@
         var rawD = aktiverPlan[cellKey] || null;
         var d = normalisiereBlockDaten(rawD) || { fach1: "", lehrer1: "", raum1: "", info: "" };
 
-        if (!istAdmin && !d.info) return;
+        if (!istAdmin) {
+            if (d.info) {
+                zeigeAppleInfoPopup(d.info);
+            }
+            return;
+        }
 
+        zeigeStandardModal();
         document.getElementById('modalTitle').innerText = "Stunde bearbeiten (" + aktuellesObjekt + ")";
         document.getElementById('adminTagArea').style.display = 'none';
         document.getElementById('adminUnterrichtEditArea').style.display = 'none';
@@ -1375,21 +1432,16 @@
             document.getElementById('modalInfoBox').style.display = 'none';
         }
         
-        if (istAdmin) {
-            document.getElementById('adminBearbeitenArea').style.display = 'block';
-            for (var i = 1; i <= 3; i++) {
-                document.getElementById('editFach' + i).value = d['fach' + i] || '';
-                document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
-                document.getElementById('editRaum' + i).value = d['raum' + i] || '';
-                document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
-                document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
-                document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
-            }
-            document.getElementById('editInfo').value = d.info || '';
-        } else {
-            document.getElementById('adminBearbeitenArea').style.display = 'none';
+        document.getElementById('adminBearbeitenArea').style.display = 'block';
+        for (var i = 1; i <= 3; i++) {
+            document.getElementById('editFach' + i).value = d['fach' + i] || '';
+            document.getElementById('editLehrer' + i).value = d['lehrer' + i] || '';
+            document.getElementById('editRaum' + i).value = d['raum' + i] || '';
+            document.getElementById('checkRedFach' + i).checked = !!d['redF' + i];
+            document.getElementById('checkRedLehrer' + i).checked = !!d['redL' + i];
+            document.getElementById('checkRedRaum' + i).checked = !!d['redR' + i];
         }
-        document.getElementById('infoModal').style.display = 'flex';
+        document.getElementById('editInfo').value = d.info || '';
     }
 
     function speichereEntwurfBlock() {
@@ -1499,7 +1551,11 @@
         alert("Pläne erfolgreich veröffentlicht & in die Cloud geladen! (" + zeitstempel + ")");
     }
 
-    function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+    function closeModal() {
+        document.getElementById('infoModal').style.display = 'none';
+        document.getElementById('appleAlertContainer').style.display = 'none';
+        document.getElementById('modalBoxContainer').style.display = 'block';
+    }
 
     var JSONBIN_BIN_ID = "6afb5266ffd5d16053c67bce";
     var JSONBIN_MASTER_KEY = "$2a$10$Bqwhzn8Fb9ga6ekS1kpXJ.1bbmPlPYhNaEqx20GS62ubHRFCgmSm.";
