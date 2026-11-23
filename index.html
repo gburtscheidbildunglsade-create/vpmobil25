@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VpMobil24</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="VPlan25">
+    <meta name="theme-color" content="#6b9be8">
+    <title>VPlan25</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -159,7 +162,7 @@
             font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
         }
         
-        /* ZEIT-SPALTE LINKS - IMMER GLEICHE HÖHE */
+        /* ZEIT-SPALTE LINKS */
         .hour-col { 
             background-color: #f9d8a7; 
             width: 42px; 
@@ -177,7 +180,7 @@
         .time-top, .time-bot { font-size: 9.5px; color: #111111; display: block; line-height: 1.15; font-weight: 400; }
         .hour-num { font-size: 13px; font-weight: 700; color: #000000; display: block; margin: 2px 0; line-height: 1.15; }
 
-        /* TAGES-KOPFZEILE OBEN - GLEICHE FORM WIE DIE BLÖCKE */
+        /* TAGES-KOPFZEILE OBEN */
         .day-header { 
             background-color: #f9d8a7; 
             width: 62px;
@@ -195,7 +198,7 @@
         .day-date { font-size: 10.5px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
         .day-export-time { font-size: 7.5px; color: #222; display: block; margin-top: 2px; line-height: 1.05; letter-spacing: -0.2px; white-space: nowrap; font-weight: 400; }
 
-        /* STUNDEN-ZELLEN & FELDER - UNVERÄNDERT WIE IM SCRIPT */
+        /* STUNDEN-ZELLEN & FELDER */
         .schedule-table td.slot-cell { 
             padding: 0; 
             width: 62px;
@@ -235,7 +238,6 @@
             background-color: #fffaf0;
         }
         
-        /* SCHRIFTFARBEN, SCHRIFTART & SCHRIFTGRÖSSE EXAKT WIE IM BILD */
         .red-text-thin { color: #b80000 !important; font-weight: 400 !important; }
         .red-text-bold { color: #b80000 !important; font-weight: 700 !important; }
         .black-text-bold { color: #000000 !important; font-weight: 700 !important; }
@@ -265,7 +267,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.22);
         }
 
-        /* UNTERRICHT AUSWÄHLEN SCREEN - IMMER LINKS UND RECHTS AUF JEDEM GERÄT */
+        /* UNTERRICHT AUSWÄHLEN SCREEN */
         #unterrichtScreen {
             background-color: #ffffff;
             min-height: 100vh;
@@ -478,7 +480,7 @@
 
 <!-- LOGIN SCREEN -->
 <div id="zugangsdatenScreen" class="screen active">
-    <div class="top-bar">VpMobil24 Login</div>
+    <div class="top-bar">VPlan25 Login</div>
     <div class="settings-container">
         <div class="settings-header-title">Zugangsdaten</div>
         <div class="settings-group">
@@ -506,7 +508,7 @@
 <!-- HAUPTMENÜ -->
 <div id="hauptmenueScreen" class="screen">
     <div class="top-bar">
-        VpMobil24
+        VPlan25
         <span class="menu-burger" onclick="zeigeScreen('einstellungenScreen')">&#9776;</span>
     </div>
     
@@ -515,7 +517,7 @@
         <div id="downloadStatusAnzeige"></div>
 
         <div id="adminUploadContainer" class="admin-upload-box" style="display: none;">
-            <button type="button" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne veröffentlichen & hochladen</button>
+            <button type="button" id="uploadBtn" class="upload-btn" onclick="veroeffentlicheAllePlaene()">⬆️ Pläne veröffentlichen & hochladen</button>
             <span id="entwurfStatusText" class="draft-badge">Alle Pläne sind aktuell veröffentlicht.</span>
         </div>
 
@@ -580,7 +582,6 @@
 
     <div class="blue-sub-bar">
         <div class="sub-bar-left">
-            <!-- RASTER / KACHEL ICON -->
             <button type="button" class="sub-icon-btn" onclick="zeigeAuswahl('klassen')" title="Klassen">
                 <svg width="17" height="15" viewBox="0 0 17 15" fill="#4f5661">
                     <rect x="0" y="0" width="4.2" height="2.8" rx="0.4"></rect>
@@ -594,7 +595,6 @@
                     <rect x="12.8" y="12" width="4.2" height="2.8" rx="0.4"></rect>
                 </svg>
             </button>
-            <!-- LISTEN / BALKEN ICON -->
             <button type="button" class="sub-icon-btn" onclick="zeigeAuswahl('lehrer')" title="Lehrer">
                 <svg width="18" height="15" viewBox="0 0 18 15" fill="#525863">
                     <rect x="0" y="0" width="18" height="3.2" rx="0.6"></rect>
@@ -603,14 +603,12 @@
                 </svg>
             </button>
             <span id="planObjektTitel">06/1</span>
-            <!-- PERSON IM GRAUEN KREIS -->
             <button type="button" class="user-filter-icon" onclick="oeffneUnterrichtAuswahl()" title="Unterricht filtern">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5c687a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="8.5" r="3.8"></circle>
                     <path d="M5.5 19.5c0-3.2 2.9-5.5 6.5-5.5s6.5 2.3 6.5 5.5"></path>
                 </svg>
             </button>
-            <!-- GRÜNER KREIS MIT PLUS -->
             <button type="button" class="status-dot" onclick="oeffneUnterrichtAuswahl()" title="Unterricht auswählen">
                 <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#78e884" stroke-width="2.2" stroke-linecap="round">
                     <line x1="7" y1="2" x2="7" y2="12"></line>
@@ -618,7 +616,7 @@
                 </svg>
             </button>
         </div>
-        <span onclick="ladeDatenAusCloud()" style="cursor:pointer; font-size:18px; color:#1867d9;" title="Aktualisieren">&#8635;</span>
+        <span onclick="ladeDatenAusCloud(true)" style="cursor:pointer; font-size:18px; color:#1867d9;" title="Aktualisieren">&#8635;</span>
     </div>
 
     <div class="plan-wrapper">
@@ -783,14 +781,16 @@
     var aktuellerTagIndex = null;
     var aktuellerUEditIndex = null;
 
-    var publishedPlaene = {};
+    var publishedPlaene = JSON.parse(localStorage.getItem('vpmobil24_published') || '{}');
     var draftPlaene = JSON.parse(localStorage.getItem('vpmobil24_drafts') || '{}');
     var dayMeta = JSON.parse(localStorage.getItem('vpmobil24_daymeta') || '{}'); 
-    var klassenUnterricht = {}; 
+    var klassenUnterricht = JSON.parse(localStorage.getItem('vpmobil24_unterricht') || '{}'); 
+    var lastPublishedAt = localStorage.getItem('vpmobil24_last_published_at') || '';
     
     var userUnterrichtFilter = JSON.parse(localStorage.getItem('vpmobil24_ufilter') || '{}');
     var tempUnterrichtSelection = [];
     var hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+    var istGeradeAmSpeichern = false;
 
     function speichereFavoritenLokal() {
         localStorage.setItem('vpmobil24_favoriten', JSON.stringify(favoriten));
@@ -841,23 +841,26 @@
 
         var planKey = aktuellesObjekt ? getKlassenPlanKey() : ('global_' + getGlobalWeekId());
         var downloadedPlans = JSON.parse(localStorage.getItem('vpmobil24_downloaded_plans') || '{}');
+        var eintrag = downloadedPlans[planKey];
 
-        if (!downloadedPlans[planKey]) {
+        if (!eintrag || (lastPublishedAt && eintrag.version !== lastPublishedAt)) {
             var jetzt = getAktuellenZeitstempel();
-            downloadedPlans[planKey] = jetzt;
+            downloadedPlans[planKey] = { time: jetzt, version: lastPublishedAt || jetzt };
             localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
             el.style.color = "#ff3b30";
             el.style.fontWeight = "700";
             el.innerText = "Plan heruntergeladen: " + jetzt;
         } else {
+            var zeitAnzeige = typeof eintrag === 'string' ? eintrag : eintrag.time;
             if (neuHeruntergeladen) {
                 var aktualisiert = getAktuellenZeitstempel();
-                downloadedPlans[planKey] = aktualisiert;
+                downloadedPlans[planKey] = { time: aktualisiert, version: lastPublishedAt || (eintrag.version || aktualisiert) };
                 localStorage.setItem('vpmobil24_downloaded_plans', JSON.stringify(downloadedPlans));
+                zeitAnzeige = aktualisiert;
             }
             el.style.color = "#000000";
             el.style.fontWeight = "400";
-            el.innerText = "Letzter Download: " + downloadedPlans[planKey];
+            el.innerText = "Letzter Download: " + zeitAnzeige;
         }
     }
 
@@ -1316,6 +1319,7 @@
         klassenUnterricht[aktuellesObjekt].push({ fach: fach, kuerzel: kuerzel });
         tempUnterrichtSelection.push(true);
 
+        localStorage.setItem('vpmobil24_unterricht', JSON.stringify(klassenUnterricht));
         document.getElementById('uInputFach').value = '';
         document.getElementById('uInputKuerzel').value = '';
         renderUnterrichtKarten();
@@ -1326,6 +1330,7 @@
         if (!istAdmin) return;
         klassenUnterricht[aktuellesObjekt].splice(idx, 1);
         tempUnterrichtSelection.splice(idx, 1);
+        localStorage.setItem('vpmobil24_unterricht', JSON.stringify(klassenUnterricht));
         renderUnterrichtKarten();
         speichereDatenInCloud();
     }
@@ -1351,6 +1356,7 @@
         var k = document.getElementById('editUKuerzel').value.trim();
         if (f && k) {
             klassenUnterricht[aktuellesObjekt][aktuellerUEditIndex] = { fach: f, kuerzel: k };
+            localStorage.setItem('vpmobil24_unterricht', JSON.stringify(klassenUnterricht));
             renderUnterrichtKarten();
             speichereDatenInCloud();
         }
@@ -1505,7 +1511,16 @@
 
     async function veroeffentlicheAllePlaene() {
         if (!istAdmin) return;
+        var btn = document.getElementById('uploadBtn');
+        var alterBtnText = btn ? btn.innerText : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "⏳ Wird hochgeladen...";
+        }
+
         var zeitstempel = getAktuellenZeitstempel();
+        lastPublishedAt = new Date().toISOString();
+        localStorage.setItem('vpmobil24_last_published_at', lastPublishedAt);
 
         for (var k in draftPlaene) {
             publishedPlaene[k] = JSON.parse(JSON.stringify(draftPlaene[k]));
@@ -1541,15 +1556,31 @@
             }
         }
 
+        localStorage.setItem('vpmobil24_published', JSON.stringify(publishedPlaene));
+        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
+
+        var draftsBackup = JSON.parse(JSON.stringify(draftPlaene));
         draftPlaene = {};
         localStorage.removeItem('vpmobil24_drafts');
-        localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
+
+        var success = await speichereDatenInCloud();
+
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = alterBtnText;
+        }
+
+        if (success === false) {
+            draftPlaene = draftsBackup;
+            localStorage.setItem('vpmobil24_drafts', JSON.stringify(draftPlaene));
+            hatUnveroeffentlichteAenderungen = Object.keys(draftPlaene).length > 0;
+            aktualisiereAdminStatusAnzeige();
+            alert("⚠️ Fehler beim Hochladen in die Cloud! Bitte Internetverbindung prüfen und erneut auf Veröffentlichen drücken.");
+            return;
+        }
 
         hatUnveroeffentlichteAenderungen = false;
         aktualisiereAdminStatusAnzeige();
-
-        var success = await speichereDatenInCloud();
-        if (success === false) return;
 
         if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
             zeigePlan();
@@ -1566,15 +1597,28 @@
     var JSONBIN_BIN_ID = "6afb5266ffd5d16053c67bce";
     var JSONBIN_MASTER_KEY = "$2a$10$Bqwhzn8Fb9ga6ekS1kpXJ.1bbmPlPYhNaEqx20GS62ubHRFCgmSm.";
 
-    async function ladeDatenAusCloud() {
+    async function ladeDatenAusCloud(manuell) {
+        if (istGeradeAmSpeichern) return;
         try {
             let response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                cache: "no-store",
                 headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
             });
-            if (response.ok) {
+            if (response.ok && !istGeradeAmSpeichern) {
                 let data = await response.json();
                 if (data.record) {
-                    if (data.record.publishedPlaene) publishedPlaene = data.record.publishedPlaene;
+                    var alterPlanString = JSON.stringify(publishedPlaene);
+                    var alterMetaString = JSON.stringify(dayMeta);
+
+                    if (data.record.publishedPlaene) {
+                        publishedPlaene = data.record.publishedPlaene;
+                        localStorage.setItem('vpmobil24_published', JSON.stringify(publishedPlaene));
+                    }
+
+                    if (data.record.lastPublishedAt) {
+                        lastPublishedAt = data.record.lastPublishedAt;
+                        localStorage.setItem('vpmobil24_last_published_at', lastPublishedAt);
+                    }
                     
                     if (data.record.dayMeta) {
                         for (let k in data.record.dayMeta) {
@@ -1584,15 +1628,20 @@
                         }
                         localStorage.setItem('vpmobil24_daymeta', JSON.stringify(dayMeta));
                     }
-                    if (data.record.klassenUnterricht) klassenUnterricht = data.record.klassenUnterricht;
+
+                    if (data.record.klassenUnterricht) {
+                        klassenUnterricht = data.record.klassenUnterricht;
+                        localStorage.setItem('vpmobil24_unterricht', JSON.stringify(klassenUnterricht));
+                    }
                     
                     if (istAdmin) {
                         aktualisiereAdminStatusAnzeige();
                     } else {
-                        aktualisiereDownloadStatusAnzeige(false);
+                        aktualisiereDownloadStatusAnzeige(!!manuell);
                     }
 
-                    if (document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
+                    var hatSichGeaendert = (alterPlanString !== JSON.stringify(publishedPlaene)) || (alterMetaString !== JSON.stringify(dayMeta));
+                    if (hatSichGeaendert && document.getElementById('planScreen').classList.contains('active') && aktuellesObjekt) {
                         zeigePlan();
                     }
                 }
@@ -1603,13 +1652,15 @@
     }
 
     async function speichereDatenInCloud() {
+        istGeradeAmSpeichern = true;
         try {
             let responseUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
             let payload = {
                 publishedPlaene: publishedPlaene,
                 draftPlaene: draftPlaene,
                 dayMeta: dayMeta,
-                klassenUnterricht: klassenUnterricht
+                klassenUnterricht: klassenUnterricht,
+                lastPublishedAt: lastPublishedAt
             };
 
             let response = await fetch(responseUrl, {
@@ -1629,17 +1680,19 @@
         } catch (e) {
             console.error("Cloud-Speicherfehler:", e);
             return false;
+        } finally {
+            istGeradeAmSpeichern = false;
         }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        ladeDatenAusCloud();
+        ladeDatenAusCloud(false);
         
-        setInterval(ladeDatenAusCloud, 60000);
+        setInterval(() => ladeDatenAusCloud(false), 60000);
         
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {
-                ladeDatenAusCloud();
+                ladeDatenAusCloud(false);
             }
         });
     });
