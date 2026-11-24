@@ -150,6 +150,7 @@
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
         .action-btn { background: #0066e6; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+        .action-btn:active { opacity: 0.85; transform: scale(0.99); }
 
         /* STUNDENPLAN RASTER */
         #planScreen { background-color: #9cb6d4; min-height: 100vh; padding-bottom: 40px; }
@@ -481,12 +482,12 @@
 <!-- LOGIN SCREEN -->
 <div id="zugangsdatenScreen" class="screen active">
     <div class="top-bar">VPlan25 Login</div>
-    <div class="settings-container">
+    <div class="settings-container" id="loginFormContainer">
         <div class="settings-header-title">Zugangsdaten</div>
         <div class="settings-group">
             <div class="form-group">
                 <span class="form-label">Schulnummer</span>
-                <input type="text" id="inputSchulnummer" class="form-input" placeholder="Schulnummer eingeben">
+                <input type="text" id="inputSchulnummer" class="form-input" placeholder="Schulnummer eingeben" autocomplete="username">
             </div>
             <div class="form-group">
                 <span class="form-label">Benutzer-Rolle</span>
@@ -498,10 +499,10 @@
             </div>
             <div class="form-group">
                 <span class="form-label">Passwort</span>
-                <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben">
+                <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben" autocomplete="current-password">
             </div>
         </div>
-        <button type="button" onclick="speichereZugang()" class="action-btn">ANMELDEN</button>
+        <button type="button" id="anmeldenBtn" class="action-btn" onclick="speichereZugang()">ANMELDEN</button>
     </div>
 </div>
 
@@ -754,7 +755,7 @@
     ];
 
     var datenLehrer = [
-        "?", "Aam", "Aai" "Bau", "Brn", "Brs", "Brt", "Czo", "Dif", "Doe", "Fil", "Föl", "Fra", "Gen", "Ger", 
+        "?", "Aam", "Aai", "Bau", "Brn", "Brs", "Brt", "Czo", "Dif", "Doe", "Fil", "Föl", "Fra", "Gen", "Ger", 
         "Ghd", "Gig", "Gla", "Gos", "Gro", "Gut", "Hlb", "Hön", "Hzg", "Jae", "Kan", "Kas", 
         "Kem", "Kiw", "Kle", "Kls", "Kut", "Lbe", "Ldm", "Leh", "Lkb", "Lie", "Lin", "Lip", "Lis", 
         "Lüb", "Mai", "Mcl", "Mes", "Mik", "Mco", "Mun", "Nai", "Neu", "Nik", "Ott", "Pab", 
@@ -875,9 +876,13 @@
     }
 
     function speichereZugang() {
-        var schulnr = document.getElementById('inputSchulnummer').value.trim();
-        var rolle = document.getElementById('inputBenutzer').value.toLowerCase();
-        var pass = document.getElementById('inputPasswort').value.trim();
+        var schulnrEl = document.getElementById('inputSchulnummer');
+        var rolleEl = document.getElementById('inputBenutzer');
+        var passEl = document.getElementById('inputPasswort');
+
+        var schulnr = schulnrEl ? schulnrEl.value.trim() : '';
+        var rolle = rolleEl ? rolleEl.value.trim().toLowerCase() : '';
+        var pass = passEl ? passEl.value.trim() : '';
 
         if (schulnr === "20145862" && pass === "XcU55qtP" && rolle === "admin") {
             istEingeloggt = true;
@@ -1686,6 +1691,16 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        var loginContainer = document.getElementById('loginFormContainer');
+        if (loginContainer) {
+            loginContainer.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' && event.target.tagName !== 'SELECT') {
+                    event.preventDefault();
+                    speichereZugang();
+                }
+            });
+        }
+
         ladeDatenAusCloud(false);
         
         setInterval(() => ladeDatenAusCloud(false), 60000);
