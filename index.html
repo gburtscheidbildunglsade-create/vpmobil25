@@ -149,7 +149,7 @@
         .form-group { padding: 12px 15px; border-bottom: 1px solid #eee; }
         .form-label { font-size: 12px; color: #666; margin-bottom: 4px; display: block; }
         .form-input { width: 100%; padding: 6px 0; border: none; font-size: 16px; outline: none; background: transparent; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
-        .action-btn { background: #0066e6; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+        .action-btn { background: #0066e6; color: white; border: none; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer; width: 100%; font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; position: relative; z-index: 999; touch-action: manipulation; }
         .action-btn:active { opacity: 0.85; transform: scale(0.99); }
 
         /* STUNDENPLAN RASTER */
@@ -502,7 +502,7 @@
                 <input type="password" id="inputPasswort" class="form-input" placeholder="Passwort eingeben" autocomplete="current-password">
             </div>
         </div>
-        <button type="button" id="anmeldenBtn" class="action-btn" onclick="speichereZugang()">ANMELDEN</button>
+        <button type="button" id="anmeldenBtn" class="action-btn" onclick="if (typeof speichereZugang === 'function') { speichereZugang(); }">ANMELDEN</button>
     </div>
 </div>
 
@@ -1112,6 +1112,19 @@
         }
     }
 
+    function hatSichtbarenInhalt(blockDaten) {
+        if (!blockDaten) return false;
+        for (var i = 1; i <= 3; i++) {
+            var f = (blockDaten['fach' + i] || '').trim();
+            var l = (blockDaten['lehrer' + i] || '').trim();
+            var r = (blockDaten['raum' + i] || '').trim();
+            if ((f || l || r) && istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function istBlockSichtbarFuerNutzer(blockDaten) {
         if (istAdmin || aktuellerModus !== 'klassen') return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
@@ -1170,7 +1183,23 @@
             { stunde: 8, start: "14:35", ende: "15:20" }
         ];
 
-        zeiten.forEach(function(s) {
+        var maxStunde = 8;
+        if (!istAdmin) {
+            maxStunde = 0;
+            zeiten.forEach(function(s) {
+                for (var tag = 0; tag < 5; tag++) {
+                    var cKey = s.stunde + '_' + tag;
+                    var bDaten = normalisiereBlockDaten(aktiverPlanDaten[cKey] || null);
+                    if (hatSichtbarenInhalt(bDaten) && s.stunde > maxStunde) {
+                        maxStunde = s.stunde;
+                    }
+                }
+            });
+        }
+
+        var sichtbareZeiten = istAdmin ? zeiten : zeiten.filter(function(s) { return s.stunde <= maxStunde; });
+
+        sichtbareZeiten.forEach(function(s) {
             var row = '<tr><td class="hour-col">' +
                 '<span class="time-top">' + s.start + '</span>' +
                 '<span class="hour-num">' + s.stunde + '</span>' +
