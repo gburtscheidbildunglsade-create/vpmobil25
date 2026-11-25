@@ -181,21 +181,33 @@
         .time-top, .time-bot { font-size: 9.5px; color: #111111; display: block; line-height: 1.15; font-weight: 400; }
         .hour-num { font-size: 13px; font-weight: 700; color: #000000; display: block; margin: 2px 0; line-height: 1.15; }
 
-        /* TAGES-KOPFZEILE OBEN (GLEICHE GRÖSSE WIE STUNDENBLÖCKE) */
+        /* TAGES-KOPFZEILE OBEN (EXAKT WIE STUNDENBLÖCKE) */
         .day-header { 
-            background-color: #f9d8a7; 
             width: 62px;
             min-width: 62px;
             max-width: 62px;
             height: 60px;
             min-height: 60px;
             max-height: 60px;
-            border-radius: 5px;
-            padding: 3px 2px; 
-            text-align: center;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
             vertical-align: middle;
             position: relative;
             cursor: pointer;
+        }
+        .day-box {
+            background-color: #f9d8a7;
+            width: 62px;
+            height: 60px;
+            border-radius: 5px;
+            padding: 3px 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
             box-shadow: 0 1px 1.5px rgba(0,0,0,0.08);
         }
         .day-name { font-size: 11px; font-weight: 700; color: #000; display: block; line-height: 1.15; }
@@ -1115,19 +1127,6 @@
         }
     }
 
-    function hatSichtbarenInhalt(blockDaten) {
-        if (!blockDaten) return false;
-        for (var i = 1; i <= 3; i++) {
-            var f = (blockDaten['fach' + i] || '').trim();
-            var l = (blockDaten['lehrer' + i] || '').trim();
-            var r = (blockDaten['raum' + i] || '').trim();
-            if ((f || l || r) && istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function istBlockSichtbarFuerNutzer(blockDaten) {
         if (istAdmin || aktuellerModus !== 'klassen') return true;
         var liste = klassenUnterricht[aktuellesObjekt] || [];
@@ -1137,11 +1136,26 @@
         if (deaktivierte.length === 0) return true;
 
         for (var i = 1; i <= 3; i++) {
-            var f = blockDaten['fach' + i];
-            var l = blockDaten['lehrer' + i];
+            var f = (blockDaten['fach' + i] || '').trim();
+            var l = (blockDaten['lehrer' + i] || '').trim();
             if (f || l) {
                 var key = f + "|" + l;
                 if (deaktivierte.indexOf(key) === -1) return true;
+            }
+        }
+        return false;
+    }
+
+    function hatSichtbarenInhalt(blockDaten) {
+        if (!blockDaten) return false;
+        for (var i = 1; i <= 3; i++) {
+            var f = (blockDaten['fach' + i] || '').trim();
+            var l = (blockDaten['lehrer' + i] || '').trim();
+            var r = (blockDaten['raum' + i] || '').trim();
+            if (f || l || r) {
+                if (istBlockSichtbarFuerNutzer({ fach1: f, lehrer1: l })) {
+                    return true;
+                }
             }
         }
         return false;
@@ -1164,10 +1178,12 @@
             var exportText = meta.exportTime ? meta.exportTime : "&nbsp;";
 
             document.getElementById('th_' + t).innerHTML = 
-                infoBadge +
-                '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
-                '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
-                '<span class="day-export-time">' + exportText + '</span>';
+                '<div class="day-box">' +
+                    infoBadge +
+                    '<span class="day-name">' + wochenDaten[t].kurz + '</span>' +
+                    '<span class="day-date">' + wochenDaten[t].datum + '</span>' +
+                    '<span class="day-export-time">' + exportText + '</span>' +
+                '</div>';
         }
 
         zeigeScreen('planScreen');
